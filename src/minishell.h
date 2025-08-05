@@ -6,7 +6,7 @@
 /*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/08/01 19:35:55 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/08/03 15:41:23 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,5 +34,10 @@
 // 🧁 Your own headers (if needed later)
 //# include "structs.h"    // Optional: if you want to keep data structs separate
 # include "libft.h"      // If you use your own libft
+
+char	**split_input(char *str);
+void	execute(char **args, char **envp);
+void	free_array(char **array);
+void	run_command(char **args, char **envp);
 
 #endif

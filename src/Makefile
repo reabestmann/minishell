@@ -13,7 +13,9 @@ UTILS_DIR = utils
 LIBFT = $(LIBFT_DIR)/libft.a
 
 # src files
-SRC_FILES = $(PARSER_DIR)/lexer.c \
+SRC_FILES = main.c \
+	$(PARSER_DIR)/lexer.c \
+	$(PARSER_DIR)/split.c \
 	$(PARSER_DIR)/parser.c	\
 	$(PARSER_DIR)/expansion.c \
 	$(EXECUTER_DIR)/exec.c \
