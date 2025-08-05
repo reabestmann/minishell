@@ -6,7 +6,7 @@
 /*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/08/03 15:41:23 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/08/05 15:39:10 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,21 @@
 //# include "structs.h"    // Optional: if you want to keep data structs separate
 # include "libft.h"      // If you use your own libft
 
+/* parser/
+ * split.c */
+void    update_quotes(char c, int *in_quote, int *in_dquote);
 char	**split_input(char *str);
+/* pipe_split.c */
+int	skip_space(char *str, int i);
+char    **split_pipe(char *str);
+/* parse.c */
+void    handle_input(char *input, char **envp);
+/* executor/ 
+ * exec.c */
 void	execute(char **args, char **envp);
-void	free_array(char **array);
 void	run_command(char **args, char **envp);
+/* utils/
+ * free.c */
+void    free_array(char **array);
 
 #endif

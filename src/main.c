@@ -6,20 +6,19 @@
 /*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:53:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/08/03 15:40:21 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/08/05 15:37:46 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 /* to compile, use:
-cc -Wall -Wextra -Werror main.c parser/split.c executor/exec.c utils/free.c -o minishell -lreadline -Llibft -lft
+cc -Wall -Wextra -Werror main.c parser/split.c parser/pipe_split.c parser/parse.c executor/exec.c utils/free.c -o minishell -lreadline -Llibft -lft
 */
 
 int	main(int params, char **argv, char **envp)
 {
 	char	*input;
-	char	**args;
 
 	(void)params;
 	(void)argv;
@@ -36,12 +35,7 @@ int	main(int params, char **argv, char **envp)
 			free(input);
 			break ;
 		}
-		args = split_input(input);
-                if (args)
-                {       
-			run_command(args, envp);
-			free_array(args);
-                }
+		handle_input(input, envp);
 		free(input);
 	}
 	return (0);
