@@ -75,9 +75,18 @@ void	run_command(char **args, char **envp)
 	}
 	if (pid == 0)
 	{
+		child_signal_setup();
 		execute(args, envp);
 		exit(1);
 	}
 	else
-		waitpid(pid, &status, 0);
+	{
+		parent_signal_setup();
+		if (waitpid(pid, &status, 0) == -1)
+		{
+			write(2, "waitpid error\n", 14);
+			return;
+		}
+		init_signals();
+	}
 }
