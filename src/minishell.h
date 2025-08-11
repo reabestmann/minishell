@@ -35,6 +35,8 @@
 //# include "structs.h"    // Optional: if you want to keep data structs separate
 # include "libft.h"      // If you use your own libft
 
+/*main*/
+void    init_signals();
 /* parser/
  * split.c */
 void    update_quotes(char c, int *in_quote, int *in_dquote);
@@ -48,6 +50,8 @@ void    handle_input(char *input, char **envp);
  * exec.c */
 void	execute(char **args, char **envp);
 void	run_command(char **args, char **envp);
+void    parent_signal_setup(void);
+void    child_signal_setup(void);
 /* utils/
  * free.c */
 void    free_array(char **array);
