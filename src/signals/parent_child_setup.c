@@ -1,4 +1,6 @@
 
+#include "../minishell.h"
+
 /*here I set up sigaction struct so default actions occur instead of what we had in main and then execute SIGINT and SIGQUIT signals in child*/
 void child_signal_setup(void)
 {
