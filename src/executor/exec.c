@@ -62,7 +62,11 @@ void	execute(char **args, char **envp)
 	}
 }
 
-void	run_command(char **args, char **envp)
+/*Modify run_command or create a new function for piped commands.
+This current code only handles a single command — no pipes.
+Later, you’ll want a new function that loops over a linked list of commands, creates pipes, and forks multiple times — similar to what we discussed earlier.*/
+/*will want to take t_cammand *cmd instead of args later or have two functions... */
+void	run_command(t_command *cmds, char **envp)
 {
 	pid_t	pid;
 	int	status;
@@ -76,7 +80,11 @@ void	run_command(char **args, char **envp)
 	if (pid == 0)
 	{
 		child_signal_setup();
-		execute(args, envp);
+		/*Check if input/output files need to be redirected (your t_command struct has those fields).
+Call helper functions that do open(), dup2(), close().
+After that, call execute().*/
+		/*call apply_redirections(cmd); which is where the above will take place*/
+		execute(cmds->args), envp);
 		exit(1);
 	}
 	else

@@ -36,7 +36,6 @@
 # include "libft.h"      // If you use your own libft
 
 /*main*/
-void    init_signals();
 /* parser/
  * split.c */
 void    update_quotes(char c, int *in_quote, int *in_dquote);
@@ -49,11 +48,20 @@ void    handle_input(char *input, char **envp);
 /* executor/ 
  * exec.c */
 void	execute(char **args, char **envp);
-void	run_command(char **args, char **envp);
-void    parent_signal_setup(void);
+void	run_command(t_command *cmds, char **envp);
 void    child_signal_setup(void);
 /* utils/
  * free.c */
 void    free_array(char **array);
+/*signal*/
+/*parent_child_setup.c*/
+void    parent_signal_setup(void);
+/*signal_handler.c*/
+void    disable_ctrl_echo(void);
+void    enable_ctrl_echo(void);
+void    init_signals(void);
+
+
+
 
 #endif
