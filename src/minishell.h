@@ -48,7 +48,7 @@ void    handle_input(char *input, char **envp);
 /* executor/ 
  * exec.c */
 void	execute(char **args, char **envp);
-void	run_command(char **args, char **envp);
+void	run_command(t_command *cmds, char **envp);
 void    child_signal_setup(void);
 /* utils/
  * free.c */
