@@ -45,6 +45,7 @@ int	skip_space(char *str, int i);
 char    **split_pipe(char *str);
 /* parse.c */
 void    handle_input(char *input, char **envp);
+t_token *lexer(const char *input);
 /* executor/ 
  * exec.c */
 void	execute(char **args, char **envp);
@@ -53,6 +54,10 @@ void    child_signal_setup(void);
 /* utils/
  * free.c */
 void    free_array(char **array);
+void    free_commands(t_command *cmds);
+void    free_tokens(t_token *tokens);
+void	*handle_malloc(size_t bytes);
+void	error(const char *msg);
 /*signal*/
 /*parent_child_setup.c*/
 void    parent_signal_setup(void);

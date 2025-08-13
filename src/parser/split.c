@@ -21,7 +21,7 @@ void	update_quotes(char c, int *in_quote, int *in_dquote)
 {
 	if (c == '\'' && !(*in_dquote))
 		*in_quote = !(*in_quote);
-	else if (c == '\"' && !(in_quote))
+	else if (c == '\"' && !(*in_quote))
 		*in_dquote = !(*in_dquote);
 }
 
