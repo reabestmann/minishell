@@ -34,6 +34,7 @@
 // 🧁 Your own headers (if needed later)
 //# include "structs.h"    // Optional: if you want to keep data structs separate
 # include "libft.h"      // If you use your own libft
+# include "structs.h"
 
 /*main*/
 /* parser/
@@ -66,7 +67,7 @@ void    disable_ctrl_echo(void);
 void    enable_ctrl_echo(void);
 void    init_signals(void);
 
-
-
+//delete later
+t_command parse_input(char *input);
 
 #endif
