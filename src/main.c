@@ -43,7 +43,23 @@ int	main(int params, char **argv, char **envp)
 			free(input);
 			break ;
 		}
-		handle_input(input, envp);
+		//handle_input(input, envp); //add back later
+		t_command cmd = parse_input(input); //temp
+    	run_command(&cmd, envp); // your existing executor //temp
+		// Free t_command//temp
+		t_command *current = &cmd;//temp
+		while (current)//temp
+		{//temp
+			for (int i = 0; current->args[i]; i++)//temp
+				free(current->args[i]);//temp
+			free(current->args);//temp
+			free(current->input_file);//temp
+			free(current->output_file);//temp
+			t_command *tmp = current->next;//temp
+			if (current != &cmd)//temp
+				free(current);//temp
+			current = tmp;//temp
+		}//temp
 		free(input);
 	}
 	/*todo: final clean up*/

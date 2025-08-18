@@ -32,13 +32,13 @@ static char	*find_path(char *cmd, char **envp)
 		free(part_path);
 		if (access(path, F_OK) == 0 && access(path, X_OK) == 0)
 		{
-			free_array(paths);
+			//free_array(paths);
 			return (path);
 		}
 		free(path);
 		i++;
 	}
-	free_array(paths);
+	//free_array(paths);
 	return (NULL);
 }
 
@@ -84,7 +84,7 @@ void	run_command(t_command *cmds, char **envp)
 Call helper functions that do open(), dup2(), close().
 After that, call execute().*/
 		/*call apply_redirections(cmd); which is where the above will take place*/
-		execute(cmds->args), envp);
+		execute(cmds->args, envp);
 		exit(1);
 	}
 	else
