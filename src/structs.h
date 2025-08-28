@@ -41,4 +41,12 @@ typedef struct s_command
 	struct s_command *next;  // Next command in pipeline
 } t_command;
 
+typedef enum 
+{
+	NO_PIPE,
+	PIPE_IN,
+	PIPE_OUT,
+	PIPE_BOTH
+} t_pipe_mode;
+
 #endif
