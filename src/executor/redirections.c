@@ -42,15 +42,15 @@ void	rewire_input(t_command cmd)
 	int new_fd;
 
 	new_fd = -2;
-	new_fd = open(cmd.input_file, O_RDONLY);
+	new_fd = open(cmd.infile, O_RDONLY);
 	if (new_fd == -1)
 	{
-		perror("rewire:open input_file");
+		perror("rewire:open infile");
 		exit(1);
 	}
 	if (dup2(new_fd, STDIN_FILENO) == -1)
 	{
-		perror("rewire: dup2 input_file");
+		perror("rewire: dup2 infile");
 		exit(1);
 	}
 	close(new_fd);
@@ -89,18 +89,18 @@ void	rewire_output(t_command cmd)
 	int new_fd;
 
 	new_fd = -2;
-	if (cmd.append_output == 1)
-		new_fd = open(cmd.output_file, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	if (cmd.append == 1)
+		new_fd = open(cmd.outfile, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	else 
-		new_fd = open(cmd.output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		new_fd = open(cmd.outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (new_fd == -1)
 	{
-		perror("rewire:open output_file");
+		perror("rewire:open outfile");
 		exit(1);
 	}
 	if (dup2(new_fd, STDOUT_FILENO) == -1)
 	{
-		perror("rewire: dup2 output_file");
+		perror("rewire: dup2 outfile");
 		exit(1);
 	}
 	close(new_fd);
@@ -187,9 +187,9 @@ Called from the external pipeline execution function in the child process after 
 Ensures that the child process has all FDs set up correctly before calling execve() to run the command.*/
 void	rewire(t_command cmd, int pipe_fd[2], t_pipe_mode mode) //in = 1 means its input side of pipe 0 means its output side and -1 if not pipe
 {
-	if (cmd.input_file != NULL)
+	if (cmd.infile != NULL)
 		rewire_input(cmd);
-	if (cmd.output_file != NULL)
+	if (cmd.outfile != NULL)
 		rewire_output(cmd);
 	if (mode != NO_PIPE)
 		rewire_pipes(pipe_fd, mode);

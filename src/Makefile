@@ -26,7 +26,6 @@ $(EXECUTER_DIR)/pipes.c \
 $(SIGNALS_DIR)/signal_handler.c \
 $(SIGNALS_DIR)/parent_child_setup.c \
 $(UTILS_DIR)/env.c \
-$(UTILS_DIR)/parser_stub_comptest.c \
 $(UTILS_DIR)/free.c
 
 # Object files
