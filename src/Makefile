@@ -14,12 +14,11 @@ UTILS_DIR = utils
 LIBFT = $(LIBFT_DIR)/libft.a
 
 # src files 
-# $(PARSER_DIR)/lexer.c
-# $(PARSER_DIR)/archived_split.c
-# $(PARSER_DIR)/expansion.c
-# $(PARSER_DIR)/parse.c
-# $(PARSER_DIR)/parse_utils.c
 SRC_FILES = main.c \
+$(PARSER_DIR)/lexer.c \
+$(PARSER_DIR)/expansion.c \
+$(PARSER_DIR)/parse.c \
+$(PARSER_DIR)/parse_utils.c \
 $(EXECUTER_DIR)/exec.c \
 $(EXECUTER_DIR)/builtins.c \
 $(EXECUTER_DIR)/redirections.c \
@@ -28,7 +27,7 @@ $(SIGNALS_DIR)/signal_handler.c \
 $(SIGNALS_DIR)/parent_child_setup.c \
 $(UTILS_DIR)/env.c \
 $(UTILS_DIR)/parser_stub_comptest.c \
-# $(UTILS_DIR)/free.c
+$(UTILS_DIR)/free.c
 
 # Object files
 OBJ_FILES = $(SRC_FILES:.c=.o)

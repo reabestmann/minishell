@@ -6,7 +6,7 @@
 /*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 15:26:43 by rbestman          #+#    #+#             */
-/*   Updated: 2025/08/13 07:15:18 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/02 17:32:23 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,8 @@ typedef struct s_token
 static t_token	*create_token(const char *str, t_token_type type, int in_squote, int in_dquote)
 {
 	t_token	*token;
-	int	i;
 
 	token = handle_malloc(sizeof(t_token));
-
 	token->val = trim_quotes(str, in_squote, in_dquote);
 	if (!token->val)
 	{

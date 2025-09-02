@@ -6,7 +6,7 @@
 /*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 15:23:19 by rbestman          #+#    #+#             */
-/*   Updated: 2025/08/12 16:34:47 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/02 17:39:54 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ static void	add_arg(t_command *cmd, const char *arg)
 	i = -1;
 	while (++i < count)
 		new_args[i] = cmd->args[i];
-	new_args[i] = ft_strdup(arg);
+	new_args[i] = ft_strdup((char *)arg);
 	new_args[i + 1] = NULL;
 	if (cmd->args)
 		free(cmd->args);
@@ -147,7 +147,7 @@ void	handle_input(char *input, char **envp)
 	cmds = parser(tokens);
 	if (cmds)
 	{
-		run_commands(cmds, envp);
+		run_command(cmds, envp);
 		free_commands(cmds);
 	}
 	free_tokens(tokens);

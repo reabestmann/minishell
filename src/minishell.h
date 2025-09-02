@@ -6,7 +6,7 @@
 /*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/02 16:24:01 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/02 17:40:35 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,21 +32,20 @@
 # include <readline/history.h>   // add_history, rl_* functions
 
 // 🧁 Your own headers (if needed later)
-//# include "structs.h"    // Optional: if you want to keep data structs separate
 # include "libft.h"      // If you use your own libft
 # include "structs.h"
 
 /*main*/
 /* parser/
- * split.c */
-void    update_quotes(char c, int *in_quote, int *in_dquote);
-char	**split_input(char *str);
-/* pipe_split.c */
-int	skip_space(char *str, int i);
-char    **split_pipe(char *str);
+ * lexer.c */
+t_token	*lexer(const char *input);
 /* parse.c */
 void    handle_input(char *input, char **envp);
 t_token *lexer(const char *input);
+/* parse_utils.c */
+char	*trim_quotes(const char *str, int in_squote, int in_dquote);
+int	skip_spaces(const char *str, int i);
+void	update_quotes(char c, int *in_quote, int *in_dquote);
 /* executor/ 
  * exec.c */
 void	execute(char **args, char **envp);
