@@ -13,7 +13,6 @@
 #ifndef STRUCTS_H
 # define STRUCTS_H
 
-#include "minishell.h"
 
 typedef enum e_token_type
 {
@@ -39,7 +38,15 @@ typedef struct s_command
 	char *input_file;      // Redirection input file
 	char *output_file;     // Redirection output file
 	int append_output;     // Whether to append (>>) or overwrite (>)
-	struct command *next;  // Next command in pipeline
+	struct s_command *next;  // Next command in pipeline
 } t_command;
+
+typedef enum 
+{
+	NO_PIPE,
+	PIPE_IN,
+	PIPE_OUT,
+	PIPE_BOTH
+} t_pipe_mode;
 
 #endif
