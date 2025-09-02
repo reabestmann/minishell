@@ -6,7 +6,7 @@
 /*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/08/05 15:39:10 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/02 16:24:01 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,11 @@ t_token *lexer(const char *input);
 void	execute(char **args, char **envp);
 void	run_command(t_command *cmds, char **envp);
 void    child_signal_setup(void);
+/* redirections.c */
+void    rewire(t_command cmd, int pipe_fd[2], t_pipe_mode mode);
+void    rewire_input(t_command cmd);
+void    rewire_output(t_command cmd);
+void    rewire_pipes(int pipe_fd[2], t_pipe_mode mode);
 /* utils/
  * free.c */
 void    free_array(char **array);

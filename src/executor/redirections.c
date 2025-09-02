@@ -37,7 +37,7 @@ Where it is called from / to:
 Called inside rewire().
 
 Ultimately executed in the child process after fork(), before execve(), so that the command reads input from the specified file.*/
-rewire_input(t_command cmd)
+void	rewire_input(t_command cmd)
 {
 	int new_fd;
 
@@ -84,7 +84,7 @@ Where it is called from / to:
 Called inside rewire().
 
 Executed in the child process after fork, before execve(), so that the command writes its output to the specified file.*/
-rewire_output(t_command cmd)
+void	rewire_output(t_command cmd)
 {
 	int new_fd;
 
@@ -138,7 +138,7 @@ Where it is called from / to:
 Called inside rewire(), only if mode != NO_PIPE.
 
 Executed in the child process after fork, before execve().*/
-rewire_pipes(int pipe_fd[2], t_pipe_mode mode)
+void	rewire_pipes(int pipe_fd[2], t_pipe_mode mode)
 {
 	if (mode == PIPE_IN || mode == PIPE_BOTH)
 	{
@@ -185,7 +185,7 @@ Where it is called from / to:
 Called from the external pipeline execution function in the child process after fork.
 
 Ensures that the child process has all FDs set up correctly before calling execve() to run the command.*/
-rewire(t_command cmd, int pipe_fd[2], t_pipe_mode mode) //in = 1 means its input side of pipe 0 means its output side and -1 if not pipe
+void	rewire(t_command cmd, int pipe_fd[2], t_pipe_mode mode) //in = 1 means its input side of pipe 0 means its output side and -1 if not pipe
 {
 	if (cmd.input_file != NULL)
 		rewire_input(cmd);

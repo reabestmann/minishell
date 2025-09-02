@@ -13,8 +13,7 @@
 #include "../minishell.h"
 
 /* TO DO
-command_t *parser(t_token *tokens);                // turn tokens -> linked command_t pipeline
-int executor(command_t *cmds, char **envp);        // run the pipeline (pipes/redirs/builtins)
+ update int run_commands(command_t *cmds, char **envp);        // run the pipeline (pipes/redirs/builtins)
 
 typedef struct s_command
 {
@@ -26,7 +25,12 @@ typedef struct s_command
 } t_command;
 */
 
-t_command	*create_cmd(void)
+/* create_cmd
+	Allocate and initializes a new commands structure.
+		Sets args/infile/outfile to NULL, append flag to 0,
+		and returns a pointer to the new empty t_command.
+*/
+static t_command	*create_cmd(void)
 {
 	t_command	*cmd;
 
@@ -40,6 +44,12 @@ t_command	*create_cmd(void)
 	return (cmd);
 }
 
+/* append_cmd:
+	Adds a command node to the end of a command list.
+	If the list is empty, the new command becomes the head.
+	Otherwise, it walks to the last node and attaches the 
+	new one
+*/
 static void	append_cmd(t_command **head, t_command *new_cmd)
 {
 	t_command *tmp;
@@ -55,19 +65,38 @@ static void	append_cmd(t_command **head, t_command *new_cmd)
 	}
 }
 
-void	add_arg(t_command *cmd, const char *arg)
+/* add_arg
+	We count existing args, allocate a new array one bigger, copy over the old pointers,
+	add the new arg with ft_strdup, free the old array container (not the srings inside) */
+static void	add_arg(t_command *cmd, const char *arg)
 {
 	char	**new_args;
 	int	count;
 	int	i;
 
-	while (cmd->args && cmd->args[count])
-		count++;
+	count = 0;
+	if (cmd->args)
+	{
+		while (cmd->args[count])
+			count++;
+	}
 	new_args = handle_malloc(sizeof(char *) * (count + 2));
-	i = 0;
+	i = -1;
+	while (++i < count)
+		new_args[i] = cmd->args[i];
+	new_args[i] = ft_strdup(arg);
+	new_args[i + 1] = NULL;
+	if (cmd->args)
+		free(cmd->args);
+	cmd->args = new_args;
 }
 
-t_command	*parser(t_token *tokens)
+/* parser
+	takes a list of tokens from the lexer & groups them into commands.
+	splits commands when it finds a TOKEN_PIPE, returns a linked list of commands
+	ready for execution.
+*/
+static t_command	*parser(t_token *tokens)
 {
 	t_command	*cmds;
 	t_command	*current;
@@ -78,24 +107,23 @@ t_command	*parser(t_token *tokens)
 	if (!current)
 		return (NULL);
 	cpy = tokens;
-	while (t)
+	while (cpy)
 	{
-		if (t->type == TOKEN_WORD)
-			add_arg(current, t->val);
-		else if (t->type == TOKEN_PIPE)
+		if (cpy->type == TOKEN_WORD)
+			add_arg(current, cpy->val);
+		else if (cpy->type == TOKEN_PIPE)
 		{
 			append_cmd(&cmds, current);
 			current = create_cmd();
 			if (!current)
 				return (NULL);
-			handle_pipe //TO DO
 		}
-		else
-			handle_redirection //TO DO
-		t = t->next;
+		/*else
+			handle_redirection //TO DO */
+		cpy = cpy->next;
 	}
 	append_cmd(&cmds, current);
-	return (cmds)
+	return (cmds);
 }
 
 /* handle_input:
@@ -119,7 +147,7 @@ void	handle_input(char *input, char **envp)
 	cmds = parser(tokens);
 	if (cmds)
 	{
-		run_commads(cmds, envp);
+		run_commands(cmds, envp);
 		free_commands(cmds);
 	}
 	free_tokens(tokens);

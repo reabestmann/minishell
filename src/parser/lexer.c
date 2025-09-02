@@ -12,8 +12,7 @@
 
 #include "../minishell.h"
 
-/* TO DO: move 1 function to another file
-
+/* 
 typedef struct s_token
 {
 	char          *value;     // "echo"
@@ -23,20 +22,11 @@ typedef struct s_token
 }   t_token;
 */
 
-static char	*trim_quotes(char *str, int in_squote, int in_dquote)
-{
-	size_t	len;
-	char	*res;
-
-	if ((in_squote || in_dquote) && ft_strlen(str)>= 2)
-	{
-		len = ft_strlen(str) - 2;
-		res = ft_substr(str, 1, len);
-		return (res);
-	}
-	return (ft_strdup(str));
-}
-
+/* create_token
+	Allocates and initializes a new token.
+	Stores the token string (with quotes trimmed), type, and quote state.
+	Returns pointer to the new t_token.
+*/
 static t_token	*create_token(const char *str, t_token_type type, int in_squote, int in_dquote)
 {
 	t_token	*token;
@@ -58,6 +48,10 @@ static t_token	*create_token(const char *str, t_token_type type, int in_squote, 
 	return (token);
 }
 
+/* append_token
+	Adds a token to the end of a token linked list.
+	If the list is empty, the new token becomes the head.
+*/
 static void append_token(t_token **head, t_token *new_token)
 {
 	t_token	*tmp;
@@ -73,12 +67,19 @@ static void append_token(t_token **head, t_token *new_token)
 	}
 }
 
+/* handle_stype
+	Handles special operator tokens (>, >>, <, <<, |).
+	Determines the correct token type and length.
+	Creates and appends the new token to the token list.
+	Returns number of characters consumed (1 or 2)
+*/
 static int	handle_stype(t_token **tokens, const char *str)
 {
 	int	len;
 	char	*tmp;
 	t_token_type	type;
 
+	len = 1;
 	if (str[0] == '>' && str[1] == '>')
 	{
 		type = TOKEN_REDIR_APPEND;
@@ -94,14 +95,20 @@ static int	handle_stype(t_token **tokens, const char *str)
 	else if (str[0] == '<')
 		type = TOKEN_REDIR_IN;
 	else
-		type = T_PIPE;
+		type = TOKEN_PIPE;
 	
 	tmp = ft_substr(str, 0, len);
 	append_token(tokens, create_token(tmp, type, 0, 0));
-	free(tmp)
+	free(tmp);
 	return (len);
 }
 
+/* handle_wtype
+	Handles word tokens(command names, arguments, filenames).
+	Consumes until a delimiter (space, tab, <, >, |) is found.
+	Keeps quotes inside the token text so later logic can trim if needed.
+	Returns number of characters consumed.
+*/
 static int	handle_wtype(t_token **tokens, const char *str)
 {
 	int	len;
@@ -109,18 +116,28 @@ static int	handle_wtype(t_token **tokens, const char *str)
 	int	in_dquote;
 	char	*tmp;
 
-	len = -1;
+	len = 0;
 	in_squote = 0;
 	in_dquote = 0;
-
-	if (str[len++] && (in_squote || in_dquote || !ft_strchr(" >|<", str[i])))
-		update_quotes(str[len], &in_quote, &in_dquote)
+	while (str[len])
+	{
+		if (!in_squote && !in_dquote && ft_strchr(" \t<>|", str[len]))
+			break;
+		update_quotes(str[len], &in_squote, &in_dquote);
+		len++;
+	}
 	tmp = ft_substr(str, 0, len);
-	append_token(tokens, create_token(tmp, type, in_squote, in_dquote));
+	append_token(tokens, create_token(tmp, TOKEN_WORD, (str[0] == '\''), (str[0] == '\"')));
 	free(tmp);
 	return(len);
 }
-
+/*	lexer
+	Converts the raw input string into a linked list of tokens.
+	-Skips whitespace
+	- Splits operators (|, <, >, <<, >>)
+	- Splits words (respecting quotes)
+	Returns pointer to the head of the list.
+*/
 t_token	*lexer(const char *input)
 {
 	t_token	*tokens;
@@ -131,9 +148,9 @@ t_token	*lexer(const char *input)
 	while (input[i])
 	{
 		i = skip_spaces(input, i);
-		if (input[i])
+		if (!input[i])
 			break ;
-		if (ft_memchr("<>|", input[i], 3))
+		if (ft_strchr("<>|", input[i]))
 			i += handle_stype(&tokens, input + i);
 		else
 			i += handle_wtype(&tokens, input + i);

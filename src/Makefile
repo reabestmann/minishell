@@ -1,6 +1,7 @@
 # Compiler & flags
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -I$(LIBFT_DIR)
+CFLAGS = -Wall -Wextra -Werror -I$(LIBFT_DIR) -I/opt/homebrew/opt/readline/include 
+LDFLAGS = -L/opt/homebrew/opt/readline/lib -lreadline -lhistory
 
 # Directories
 LIBFT_DIR = libft
@@ -14,9 +15,10 @@ LIBFT = $(LIBFT_DIR)/libft.a
 
 # src files 
 # $(PARSER_DIR)/lexer.c
-# $(PARSER_DIR)/split.c
+# $(PARSER_DIR)/archived_split.c
 # $(PARSER_DIR)/expansion.c
-# $(PARSER_DIR)/parser.c
+# $(PARSER_DIR)/parse.c
+# $(PARSER_DIR)/parse_utils.c
 SRC_FILES = main.c \
 $(EXECUTER_DIR)/exec.c \
 $(EXECUTER_DIR)/builtins.c \
@@ -38,7 +40,7 @@ NAME = minishell
 all: $(LIBFT) $(NAME)
 
 $(NAME): $(OBJ_FILES)
-	$(CC) $(CFLAGS) $(OBJ_FILES) $(LIBFT) -lreadline -o $(NAME)
+	$(CC) $(CFLAGS) $(OBJ_FILES) $(LIBFT) $(LDFLAGS) -o $(NAME)
 
 # Call libft's Makefile
 $(LIBFT):
