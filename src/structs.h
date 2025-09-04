@@ -50,4 +50,11 @@ typedef enum
 	PIPE_BOTH
 } t_pipe_mode;
 
+typedef struct s_env
+{
+    char            *key;    // the variable name, e.g., "PWD"
+    char            *value;  // the variable value, e.g., "/home/alexandra"
+    struct s_env    *next;   // pointer to the next env variable
+}   t_env;
+
 #endif
