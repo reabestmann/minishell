@@ -6,7 +6,7 @@
 /*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:53:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/02 18:20:00 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/10 22:56:30 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ int	main(int params, char **argv, char **envp)
 		}
 		if (*input)
 			add_history(input);
-		if (!ft_strncmp(input, "exit", 5) && input[4] == 0)
+		if (str_equals(input, "exit"))
 		{
 			free(input);
 			break ;
