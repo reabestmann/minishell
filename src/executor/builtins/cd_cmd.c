@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:25 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/10 18:27:53 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/10 21:01:13 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ int cd_cmd(t_command *cmd, t_env **env)
 	oldpwd = getcwd(NULL, 0);
 	if (chdir(target_dir) == -1)
 	{
-		perror("cd");
+		perror("cd"); //delete?
 		free(oldpwd);
 		return(1);
 	}
