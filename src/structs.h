@@ -6,7 +6,7 @@
 /*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 14:17:57 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/02 17:35:16 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/10 20:14:48 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,11 +35,13 @@ typedef struct s_token
 
 typedef struct s_command
 {
-	char **args;           // Command and its arguments
-	char *infile;      // Redirection input file
-	char *outfile;     // Redirection output file
-	int append;     // Whether to append (>>) or overwrite (>)
-	struct s_command *next;  // Next command in pipeline
+	char	**args;			// Command and its arguments
+	char	*infile;		// Redirection input file
+	char	*outfile;		// Redirection output file
+	int	append;			// 1 to append (>>), 2 to overwrite (>)
+	int	modifies_shell;		// 1 if cmd modifies envp, 0 if not
+	int	in_child;		// 1 if cmd is already running in a child process
+	struct s_command	*next;  // Next command in pipeline
 } t_command;
 
 typedef enum 

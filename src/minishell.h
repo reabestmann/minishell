@@ -6,14 +6,14 @@
 /*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/02 17:40:35 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/10 22:21:42 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-// 🧠 Standard Library (Memory, Strings, Numbers)
+/* External library headers */
 # include <stdlib.h>     // malloc, free, exit, getenv
 # include <unistd.h>     // write, read, fork, execve, access, dup, dup2, pipe, chdir
 # include <stdio.h>      // printf, perror
@@ -31,31 +31,53 @@
 # include <readline/readline.h>  // readline
 # include <readline/history.h>   // add_history, rl_* functions
 
-// 🧁 Your own headers (if needed later)
-# include "libft.h"      // If you use your own libft
+/* Our own headers */
+# include "libft.h"
 # include "structs.h"
 
-/*main*/
 /* parser/
  * lexer.c */
 t_token	*lexer(const char *input);
 /* parse.c */
-void    handle_input(char *input, char **envp);
-t_token *lexer(const char *input);
+void    handle_input(char *input, t_env **env);
 /* parse_utils.c */
 char	*trim_quotes(const char *str, int in_squote, int in_dquote);
 int	skip_spaces(const char *str, int i);
 void	update_quotes(char c, int *in_quote, int *in_dquote);
+void	set_cmd_flags(t_command *cmd);
+void	handle_redirection(t_command *current, t_token **cpy);
 /* executor/ 
  * exec.c */
 void	execute(char **args, char **envp);
-void	run_command(t_command *cmds, char **envp);
-void    child_signal_setup(void);
+void	run_command(t_command *cmds, t_env **env);
+/* exec_utils.c */
+int     str_equals(const char *str, const char *target);
+int	run_builtin(t_command *cmd, t_env **env);
+void    apply_redirections(t_command *cmd);
 /* redirections.c */
 void    rewire(t_command cmd, int pipe_fd[2], t_pipe_mode mode);
 void    rewire_input(t_command cmd);
 void    rewire_output(t_command cmd);
 void    rewire_pipes(int pipe_fd[2], t_pipe_mode mode);
+/* ptr_to_struct.c */
+t_env	*envp_to_struct(char **envp);
+/* struct_to_ptr.c */
+char **struct_to_envp(t_env *head);
+/* builtins/
+ * cd_cmd.c */
+int	cd_cmd(t_command *cmd, t_env **env);
+/* echo_cmd.c */
+int	echo_cmd(t_command *cmd);
+/* pwd_cmd.c */
+int	pwd_cmd(t_env **env);
+/* env_cmd.c */
+int	env_cmd(t_env **env);
+/* exit_cmd.c */
+int	exit_cmd(t_command *cmd);
+/* export_cmd.c */
+int	export_cmd(t_command *cmd, t_env **env);
+/* unset_cmd.c */
+int	unset_cmd(t_command *cmd, t_env **env);
 /* utils/
  * free.c */
 void    free_array(char **array);
@@ -63,15 +85,14 @@ void    free_commands(t_command *cmds);
 void    free_tokens(t_token *tokens);
 void	*handle_malloc(size_t bytes);
 void	error(const char *msg);
-/*signal*/
-/*parent_child_setup.c*/
+void	free_env_struct(t_env *head);
+/* signals/
+ * parent_child_setup.c */
+void	child_signal_setup(void);
 void    parent_signal_setup(void);
-/*signal_handler.c*/
+/* signal_handler.c */
 void    disable_ctrl_echo(void);
 void    enable_ctrl_echo(void);
 void    init_signals(void);
-
-//delete later
-t_command parse_input(char *input);
 
 #endif

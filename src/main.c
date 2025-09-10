@@ -19,10 +19,12 @@ cc -Wall -Wextra -Werror main.c parser/split.c parser/pipe_split.c parser/parse.
 int	main(int params, char **argv, char **envp)
 {
 	char	*input;
+	t_env	*env;
 
 	(void)params;
 	(void)argv;
 
+	env = envp_to_struct(envp);
 	init_signals();
 	disable_ctrl_echo();
 
@@ -43,7 +45,7 @@ int	main(int params, char **argv, char **envp)
 			free(input);
 			break ;
 		}
-		handle_input(input, envp);
+		handle_input(input, &env);
 		free(input);
 	}
 	/*todo: final clean up*/

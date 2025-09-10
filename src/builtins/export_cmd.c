@@ -10,4 +10,12 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-int export_cmd()
+#include "../minishell.h"
+
+int export_cmd(t_command *cmd, t_env **env)
+{
+    if (!cmd || !env)
+        return (1);
+    printf("export is not available yet\n");
+    return (0);
+}

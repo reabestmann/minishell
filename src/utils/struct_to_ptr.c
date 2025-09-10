@@ -1,26 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   struct _to_pointer.c                               :+:      :+:    :+:   */
+/*   struct_to_ptr.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:01:13 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/10 15:01:14 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/10 20:30:30 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "../minishell.h"
 
-
-/*5. count_nodes(t_env *head)
+/* count_nodes(t_env *head)
    - Purpose: Counts the number of nodes in a t_env linked list.
    - Variables:
      * head: iterates through the list.
      * count: counter for nodes.
    - Called from: struct_to_envp().
-   - Calls: None.*/
-
-int count_nodes(t_env *head)
+   - Calls: None.
+*/
+static int	count_nodes(t_env *head)
 {
 	int count;
 
@@ -33,7 +33,7 @@ int count_nodes(t_env *head)
 	return(count);
 }
 
-/*6. add_strings(t_env *head, char **envp)
+/* add_strings(t_env *head, char **envp)
    - Purpose: Converts a t_env linked list into a char ** array of strings.
    - Variables:
      * head: start of linked list to convert.
@@ -42,8 +42,9 @@ int count_nodes(t_env *head)
      * buff: size of string buffer to allocate (key + value + '=' + '\0').
    - Called from: struct_to_envp().
    - Calls: malloc(), ft_strlen(), ft_strlcpy(), ft_strlcat(), free_env_struct() on failure.*/
-/*reminder that I will need to free struct later*/
-int add_strings(t_env *head, char **envp)
+/*reminder that I will need to free struct later
+*/
+static int add_strings(t_env *head, char **envp)
 {
 	int i;
 	int buff;
@@ -70,15 +71,15 @@ int add_strings(t_env *head, char **envp)
 	return(0);
 }
 
-/*7. struct_to_envp(t_env *head)
+/* struct_to_envp(t_env *head)
    - Purpose: Converts a t_env linked list into a null-terminated array of strings (char **).
    - Variables:
      * head: linked list to convert.
      * envp: resulting array of strings.
      * struct_size: number of nodes in linked list.
    - Called from: Anywhere you need envp-style array from a linked list.
-   - Calls: count_nodes(), add_strings(), free_envp_array() on failure.*/
-
+   - Calls: count_nodes(), add_strings(), free_envp_array() on failure.
+*/
 char **struct_to_envp(t_env *head)
 {
 	char **envp;
@@ -91,7 +92,7 @@ char **struct_to_envp(t_env *head)
 	envp[struct_size] = NULL;
 	if (add_strings(head, envp) == 1)
 	{
-		free_envp_array(envp);
+		free_array(envp);
 		return(NULL);
 	}
 	return(envp);

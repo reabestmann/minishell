@@ -10,4 +10,12 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-int env_cmd()
+#include "../minishell.h"
+
+int env_cmd(t_env **env)
+{
+    if (!env)
+        return (1);
+    printf("env is not available yet\n");
+    return (0);
+}

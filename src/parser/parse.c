@@ -12,20 +12,20 @@
 
 #include "../minishell.h"
 
-/* TO DO
- update int run_commands(command_t *cmds, char **envp);        // run the pipeline (pipes/redirs/builtins)
-
+/*
 typedef struct s_command
 {
 	char **args;           // Command and its arguments
 	char *infile;      // Redirection input file
 	char *outfile;     // Redirection output file
-	int append;     // Whether to append (1 = >>) or overwrite (0 = >)
-	struct command *next;  // Next command in pipeline
+	int append;     // Whether to append (1 = >>) or overwrite (2 = >) or not (0)
+	int	modifies_shell;  //wether cmd modifies envp (1 = yes, 0 = no)
+	int	in_child;		// wether the command currently runs in a child process
+	struct s_command *next;  // Next command in pipeline
 } t_command;
 */
 
-/* create_cmd
+/* create_cmd:
 	Allocate and initializes a new commands structure.
 		Sets args/infile/outfile to NULL, append flag to 0,
 		and returns a pointer to the new empty t_command.
@@ -39,6 +39,7 @@ static t_command	*create_cmd(void)
 	cmd->infile = NULL;
 	cmd->outfile = NULL;
 	cmd->append = 0;
+	cmd->in_child = 0;
 	cmd->next = NULL;
 
 	return (cmd);
@@ -65,7 +66,7 @@ static void	append_cmd(t_command **head, t_command *new_cmd)
 	}
 }
 
-/* add_arg
+/* add_arg:
 	We count existing args, allocate a new array one bigger, copy over the old pointers,
 	add the new arg with ft_strdup, free the old array container (not the srings inside) */
 static void	add_arg(t_command *cmd, const char *arg)
@@ -91,7 +92,7 @@ static void	add_arg(t_command *cmd, const char *arg)
 	cmd->args = new_args;
 }
 
-/* parser
+/* parser:
 	takes a list of tokens from the lexer & groups them into commands.
 	splits commands when it finds a TOKEN_PIPE, returns a linked list of commands
 	ready for execution.
@@ -113,15 +114,17 @@ static t_command	*parser(t_token *tokens)
 			add_arg(current, cpy->val);
 		else if (cpy->type == TOKEN_PIPE)
 		{
+			set_cmd_flags(current);
 			append_cmd(&cmds, current);
 			current = create_cmd();
 			if (!current)
 				return (NULL);
 		}
-		/*else
-			handle_redirection //TO DO */
+		else
+			handle_redirection(current, &cpy);
 		cpy = cpy->next;
 	}
+	set_cmd_flags(current);
 	append_cmd(&cmds, current);
 	return (cmds);
 }
@@ -136,7 +139,7 @@ static t_command	*parser(t_token *tokens)
    gets called by: main
    calls: lexer, parser, executor, free_commands, free_tokens
 */
-void	handle_input(char *input, char **envp)
+void	handle_input(char *input, t_env **env)
 {
 	t_token	*tokens;
 	t_command	*cmds;
@@ -147,7 +150,7 @@ void	handle_input(char *input, char **envp)
 	cmds = parser(tokens);
 	if (cmds)
 	{
-		run_command(cmds, envp);
+		run_command(cmds, env);
 		free_commands(cmds);
 	}
 	free_tokens(tokens);

@@ -9,6 +9,7 @@ PARSER_DIR = parser
 EXECUTER_DIR = executor
 SIGNALS_DIR = signals
 UTILS_DIR = utils
+BUILTIN_DIR = builtins
 
 # libft files
 LIBFT = $(LIBFT_DIR)/libft.a
@@ -20,13 +21,22 @@ $(PARSER_DIR)/expansion.c \
 $(PARSER_DIR)/parse.c \
 $(PARSER_DIR)/parse_utils.c \
 $(EXECUTER_DIR)/exec.c \
-$(EXECUTER_DIR)/builtins.c \
+$(EXECUTER_DIR)/exec_utils.c \
 $(EXECUTER_DIR)/redirections.c \
 $(EXECUTER_DIR)/pipes.c \
 $(SIGNALS_DIR)/signal_handler.c \
 $(SIGNALS_DIR)/parent_child_setup.c \
 $(UTILS_DIR)/env.c \
-$(UTILS_DIR)/free.c
+$(UTILS_DIR)/free.c \
+$(UTILS_DIR)/struct_to_ptr.c \
+$(UTILS_DIR)/ptr_to_struct.c \
+$(BUILTIN_DIR)/cd_cmd.c \
+$(BUILTIN_DIR)/echo_cmd.c \
+$(BUILTIN_DIR)/pwd_cmd.c \
+$(BUILTIN_DIR)/exit_cmd.c \
+$(BUILTIN_DIR)/export_cmd.c \
+$(BUILTIN_DIR)/unset_cmd.c \
+$(BUILTIN_DIR)/env_cmd.c
 
 # Object files
 OBJ_FILES = $(SRC_FILES:.c=.o)

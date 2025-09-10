@@ -10,16 +10,16 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../minishell.h"
+#include "../minishell.h"
 
 int pwd_cmd(t_env **env)
 {
 	t_env *temp;
-	char *cwd;
+	//char *cwd;
 
 	temp = *env;
 
-	while ((temp != NULL) && (ft_strncmp(temp->key, "PWD", 3) != 0) && (temp->key[3] == '\0'))
+	while (!str_equals(temp->key, "PWD"))
 		temp = temp->next;
 	if (temp && temp->value)
 		printf("%s\n", temp->value);

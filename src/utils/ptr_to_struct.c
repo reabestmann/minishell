@@ -1,16 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pointer_to_struct.c                                :+:      :+:    :+:   */
+/*   ptr_to_struct.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:01:42 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/10 16:42:50 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/10 20:27:28 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-/*3. add_nodes(t_env *current, char *equals, char *env_str)
+#include "../minishell.h"
+
+/* add_nodes(t_env *current, char *equals, char *env_str)
    - Purpose: Creates a new t_env node from a single environment string and links it to the current node.
    - Variables:
      * current: last node in the existing list; new node is attached here.
@@ -20,7 +22,7 @@
    - Called from: envp_to_struct().
    - Calls: malloc(), ft_substr(), ft_strdup().*/
 
-t_env *add_nodes(t_env *current, char *equals, char *env_str)
+static t_env *add_nodes(t_env *current, char *equals, char *env_str)
 {
 	t_env *new_node;
 
@@ -46,7 +48,7 @@ t_env *add_nodes(t_env *current, char *equals, char *env_str)
 	return(new_node);
 }
 
-/*4. envp_to_struct(char **envp)
+/* envp_to_struct(char **envp)
    - Purpose: Converts a char ** (environment array) into a linked list of t_env nodes.
    - Variables:
      * envp: array of strings to convert.

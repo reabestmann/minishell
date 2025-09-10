@@ -6,11 +6,13 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:25 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/10 21:01:13 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/10 20:37:03 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-void add_pwd_node(t_env **paths, char *pwd, char *old_or_new)
+#include "../minishell.h"
+
+static void add_pwd_node(t_env **paths, char *pwd, char *old_or_new)
 {
 	t_env *new_node;
 	t_env *temp;
@@ -32,7 +34,7 @@ void add_pwd_node(t_env **paths, char *pwd, char *old_or_new)
 	}
 }
 
-void update_oldpwd(t_env **env, char *oldpwd)
+static void update_oldpwd(t_env **env, char *oldpwd)
 {
 	t_env *paths;
 	paths = *env;
@@ -47,14 +49,14 @@ void update_oldpwd(t_env **env, char *oldpwd)
 	}
 }
 
-void update_newpwd(t_env **env, char *new_pwd)
+static void update_newpwd(t_env **env, char *new_pwd)
 {
 	t_env *paths;
 	paths = *env;
 	while (paths != NULL && ft_strncmp(paths->key, "PWD", 3) != 0)
 		paths = paths->next;
 	if (paths == NULL)
-		add_pwd_node(env, newpwd, "PWD");
+		add_pwd_node(env, new_pwd, "PWD");
 	else
 	{
 		free(paths->value);
@@ -82,7 +84,7 @@ int cd_cmd(t_command *cmd, t_env **env)
 	oldpwd = getcwd(NULL, 0);
 	if (chdir(target_dir) == -1)
 	{
-		perror("cd"); //delete?
+		perror("cd");
 		free(oldpwd);
 		return(1);
 	}
