@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:37 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/11 13:36:16 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/11 15:52:06 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 	/cd with only a relative or absolute path
 	/pwd with no optios
 	export with no options
-	unset with no options
+	/unset with no options
 	/env with no options
 	exit with no options
 */
