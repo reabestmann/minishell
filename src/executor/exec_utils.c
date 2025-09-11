@@ -6,7 +6,7 @@
 /*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 16:02:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/10 17:03:33 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/11 12:51:56 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,6 @@ int	str_equals(const char *str, const char *target)
 */
 int run_builtin(t_command *cmd, t_env **env)
 {
-    if (!cmd || !cmd->args || cmd->args[0])
-        return (127);
     if (str_equals(cmd->args[0], "echo")) 
 		return (echo_cmd(cmd));
     if (str_equals(cmd->args[0], "cd"))
