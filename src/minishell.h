@@ -6,7 +6,7 @@
 /*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/10 22:21:42 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/11 13:22:01 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ void    rewire_pipes(int pipe_fd[2], t_pipe_mode mode);
 /* ptr_to_struct.c */
 t_env	*envp_to_struct(char **envp);
 /* struct_to_ptr.c */
-char **struct_to_envp(t_env *head);
+char **struct_to_envp(t_env *head, int export_only);
 /* builtins/
  * cd_cmd.c */
 int	cd_cmd(t_command *cmd, t_env **env);
