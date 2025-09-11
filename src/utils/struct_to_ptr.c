@@ -6,91 +6,106 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:01:13 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/10 20:30:30 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/11 13:13:05 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-/* count_nodes(t_env *head)
+/* count_nodes(t_env *head, int export_only)
    - Purpose: Counts the number of nodes in a t_env linked list.
-   - Variables:
-     * head: iterates through the list.
-     * count: counter for nodes.
-   - Called from: struct_to_envp().
-   - Calls: None.
+              Can optionally count only exported variables.
+   - Parameters:
+       * head: pointer to the first node of the linked list.
+       * export_only: if non-zero, only counts nodes where exported == 1.
+   - Returns: Number of nodes matching the criteria.
+   - Notes: Used to determine the size of an envp-style array before allocation.
 */
-static int	count_nodes(t_env *head)
+static int	count_nodes(t_env *head, int export_only)
 {
 	int count;
+	t_env *temp;
 
 	count = 0;
-	while(head)
-	{
-		count++;
-		head = head->next;
+	temp = head;
+	while(temp)
+	{ 
+		if (!export_only || temp->exported)
+			count++;
+		temp = temp->next;
 	}
 	return(count);
 }
 
-/* add_strings(t_env *head, char **envp)
-   - Purpose: Converts a t_env linked list into a char ** array of strings.
-   - Variables:
-     * head: start of linked list to convert.
-     * temp: iterator through linked list.
-     * i: index in envp array.
-     * buff: size of string buffer to allocate (key + value + '=' + '\0').
-   - Called from: struct_to_envp().
-   - Calls: malloc(), ft_strlen(), ft_strlcpy(), ft_strlcat(), free_env_struct() on failure.*/
-/*reminder that I will need to free struct later
+/* add_strings(t_env *head, char **envp, int export_only)
+   - Purpose: Converts a t_env linked list into a null-terminated array of strings.
+              Each string is of the form "KEY=VALUE".
+              Can optionally include only exported variables.
+   - Parameters:
+       * head: pointer to the first node of the linked list.
+       * envp: preallocated array of char * to fill.
+       * export_only: if non-zero, only include nodes where exported == 1.
+   - Returns: 0 on success, 1 if a malloc failure occurs.
+   - Notes: Safely handles nodes with NULL value (shell-only variables without '=').
+            Frees any previously allocated strings on failure.
 */
-static int add_strings(t_env *head, char **envp)
+static int add_strings(t_env *head, char **envp, int export_only)
 {
 	int i;
 	int buff;
 	t_env *temp;
+	int val_len;
 
 	i = 0;
 	temp = head;
 	while(temp)
-	{
-		buff = (ft_strlen(temp->key) + ft_strlen(temp->value) + 2);
-		envp[i] = malloc(buff);
-		if(!envp[i])
+	{ 
+		if(!export_only || temp->exported)
 		{
-			while(--i >= 0)
-				free(envp[i]);
-			return (1);
+			if(temp->value)
+				val_len = ft_strlen(temp->value);
+			else
+				val_len = 0;
+			buff = (ft_strlen(temp->key) + val_len + 2);
+			envp[i] = malloc(buff);
+			if(!envp[i])
+			{
+				while(--i >= 0)
+					free(envp[i]);
+				return (1);
+			}
+			ft_strlcpy(envp[i], temp->key, buff);
+			ft_strlcat(envp[i], "=", buff);	
+			if(temp->value)
+				ft_strlcat(envp[i], temp->value, buff);
+			i++;
 		}
-		ft_strlcpy(envp[i], temp->key, buff);
-		ft_strlcat(envp[i], "=", buff);
-		ft_strlcat(envp[i], temp->value, buff);
-		i++;
 		temp = temp->next;
 	}
 	return(0);
 }
 
-/* struct_to_envp(t_env *head)
-   - Purpose: Converts a t_env linked list into a null-terminated array of strings (char **).
-   - Variables:
-     * head: linked list to convert.
-     * envp: resulting array of strings.
-     * struct_size: number of nodes in linked list.
-   - Called from: Anywhere you need envp-style array from a linked list.
-   - Calls: count_nodes(), add_strings(), free_envp_array() on failure.
+/* struct_to_envp(t_env *head, int export_only)
+   - Purpose: Converts a t_env linked list into a null-terminated array of strings
+              ready to pass to execve() or use in an env-like builtin.
+   - Parameters:
+       * head: pointer to the first node of the linked list.
+       * export_only: if non-zero, only include exported variables.
+   - Returns: Pointer to the newly allocated char ** array, or NULL on failure.
+   - Notes: Allocates exactly the right number of strings using count_nodes().
+            Frees the array on error. Caller is responsible for freeing the returned array.
 */
-char **struct_to_envp(t_env *head)
+char **struct_to_envp(t_env *head, int export_only)
 {
 	char **envp;
 	int struct_size;
 
-	struct_size = count_nodes(head);
+	struct_size = count_nodes(head, export_only);
 	envp = malloc(sizeof(char *) * (struct_size + 1));
 	if (!envp)
 		return(NULL);
 	envp[struct_size] = NULL;
-	if (add_strings(head, envp) == 1)
+	if (add_strings(head, envp, export_only) == 1)
 	{
 		free_array(envp);
 		return(NULL);

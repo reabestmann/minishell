@@ -6,16 +6,16 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:37 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/10 20:41:28 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/11 12:24:35 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
  /* BUILTIN_LIST
- 	echo with option -n 
-	cd with only a relative or absolute path
-	pwd with no optios
+ 	/echo with option -n 
+	/cd with only a relative or absolute path
+	/pwd with no optios
 	export with no options
 	unset with no options
 	env with no options
