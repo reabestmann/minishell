@@ -12,17 +12,17 @@
 
 #include "../minishell.h"
 
-/*
-typedef struct s_command
-{
-	char **args;           // Command and its arguments
-	char *infile;      // Redirection input file
-	char *outfile;     // Redirection output file
-	int append;     // Whether to append (1 = >>) or overwrite (2 = >) or not (0)
-	int	modifies_shell;  //wether cmd modifies envp (1 = yes, 0 = no)
-	int	in_child;		// wether the command currently runs in a child process
-	struct s_command *next;  // Next command in pipeline
-} t_command;
+/* COMMAND STRUCT
+	typedef struct s_command
+	{
+		char **args;           // Command and its arguments
+		char *infile;      // Redirection input file
+		char *outfile;     // Redirection output file
+		int append;     // Whether to append (1 = >>) or overwrite (2 = >) or not (0)
+		int	modifies_shell;  //wether cmd modifies envp (1 = yes, 0 = no)
+		int	in_child;		// wether the command currently runs in a child process
+		struct s_command *next;  // Next command in pipeline
+	} t_command;
 */
 
 /* create_cmd:
@@ -121,7 +121,7 @@ static t_command	*parser(t_token *tokens)
 				return (NULL);
 		}
 		else
-			handle_redirection(current, &cpy);
+			parse_redirection(current, &cpy);
 		cpy = cpy->next;
 	}
 	set_cmd_flags(current);

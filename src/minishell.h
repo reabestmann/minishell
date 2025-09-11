@@ -6,7 +6,7 @@
 /*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/11 13:22:01 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/11 15:52:39 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,14 +45,13 @@ char	*trim_quotes(const char *str, int in_squote, int in_dquote);
 int	skip_spaces(const char *str, int i);
 void	update_quotes(char c, int *in_quote, int *in_dquote);
 void	set_cmd_flags(t_command *cmd);
-void	handle_redirection(t_command *current, t_token **cpy);
 /* executor/ 
  * exec.c */
 void	execute(char **args, char **envp);
 void	run_command(t_command *cmds, t_env **env);
-/* exec_utils.c */
-int     str_equals(const char *str, const char *target);
 int	run_builtin(t_command *cmd, t_env **env);
+/* redir_utils.c */
+void	parse_redirection(t_command *cmd, t_token **cpy);
 void    apply_redirections(t_command *cmd);
 /* redirections.c */
 void    rewire(t_command cmd, int pipe_fd[2], t_pipe_mode mode);
@@ -83,9 +82,11 @@ int	unset_cmd(t_command *cmd, t_env **env);
 void    free_array(char **array);
 void    free_commands(t_command *cmds);
 void    free_tokens(t_token *tokens);
+void	free_env_struct(t_env *head);
+/* utils.c */
+int     str_equals(const char *str, const char *target);
 void	*handle_malloc(size_t bytes);
 void	error(const char *msg);
-void	free_env_struct(t_env *head);
 /* signals/
  * parent_child_setup.c */
 void	child_signal_setup(void);

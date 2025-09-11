@@ -19,11 +19,37 @@
 	2.  else → fork_process() is called
 		(fork + execve child, parent waits).
 		if builtin, run_builtin is called (calls function directly)
-	4. Helper functions: 
+	3. Helper functions: 
 		find_path(): searches PATH to locate an executable.
 		execute(): resolves path + calls execve().
-		str_equals() + is_builtin(): helpers to detect builtins. (in exec_utils.c) 
+		str_equals() + is_builtin(): helpers to detect builtins. (in utils.c) 
 */
+
+/* run_builtin: 
+	checks if 'cmd' matches any builtin name.
+	Calls str_equals for each of the 7 builtin commands.
+	Calls the function directly and returns its result.
+	-> 0 = success, >0 = Error.
+	returns -1 if command is not a builtin.
+*/
+int run_builtin(t_command *cmd, t_env **env)
+{
+    if (str_equals(cmd->args[0], "echo")) 
+		return (echo_cmd(cmd));
+    if (str_equals(cmd->args[0], "cd"))
+		return (cd_cmd(cmd, env));
+    if (str_equals(cmd->args[0], "pwd"))
+		return (pwd_cmd(env));
+    if (str_equals(cmd->args[0], "export"))
+		return (export_cmd(cmd, env));
+    if (str_equals(cmd->args[0], "unset"))
+		return (unset_cmd(cmd, env));
+    if (str_equals(cmd->args[0], "env"))
+		return (env_cmd(env));
+    if (str_equals(cmd->args[0], "exit"))
+		return (exit_cmd(cmd));
+    return (-1);
+}
 
 /* find_path: 
 	searches envp for PATH, splits it into directories.
@@ -106,7 +132,7 @@ static void	fork_process(t_command *cmds, t_env **env)
 		{
 			if (run_builtin(cmds, env) == -1)
 			{
-				envp = struct_to_envp(*env);
+				envp = struct_to_envp(*env, 1);
 				execute(cmds->args, envp);
 			}
 		}

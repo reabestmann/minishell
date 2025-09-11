@@ -57,38 +57,6 @@ void	update_quotes(char c, int *in_quote, int *in_dquote)
 		*in_dquote = !(*in_dquote);
 }
 
-/* handle_redirection:
-   Updates infile/outfile/append fields in the current command.
-   Looks at the redirection token (>, >>, <) and sets the right target file.
-   Advances the token pointer to skip the filename.
-*/
-void	handle_redirection(t_command *current, t_token **cpy)
-{
-	if ((*cpy)->type == TOKEN_REDIR_IN)
-    {
-        *cpy = (*cpy)->next;
-    	if (*cpy && (*cpy)->type == TOKEN_WORD)
-           	current->infile = ft_strdup((*cpy)->val);
-    }
-    else if ((*cpy)->type == TOKEN_REDIR_OUT)
-    {
-        *cpy = (*cpy)->next;
-        if (*cpy && (*cpy)->type == TOKEN_WORD)
-        {
-			current->outfile = ft_strdup((*cpy)->val);
-            current->append = 2; // >
-        }
-    }
-    else if ((*cpy)->type == TOKEN_REDIR_APPEND)
-	{
-        *cpy = (*cpy)->next;
-        if (*cpy && (*cpy)->type == TOKEN_WORD)
-        {
-            current->outfile = ft_strdup((*cpy)->val);
-            current->append = 1; // >>
-        }
-    }
-}
 /* set_cmd_flags:
 	sets the modifies_shell flag to 1 if the command is cd, export or unset.
 	Used later to decide wether it must run in the parent instead of a child proccess

@@ -13,12 +13,13 @@
 #include "../minishell.h"
 
 /* free_array(char **array)
-   - Purpose: Frees a dynamically allocated array of environment strings.
+   - Purpose: Frees memory of a given array of strings.
    - Variables:
-     * envp: array of strings.
+     * array: array of strings.
      * i: index to iterate through envp.
    - Called from: Anywhere you need to free a char ** representing the environment.
-   - Calls: free(). */
+   - Calls: free(). 
+*/
 void	free_array(char **array)
 {
 	int	i;
@@ -29,6 +30,11 @@ void	free_array(char **array)
 	free(array);
 }
 
+/* free_tokens:
+	frees all allocated memory used by tokens
+	going through members of the linked list,
+	freeing each component of each struct.
+*/
 void	free_tokens(t_token *tokens)
 {
 	t_token *tmp;
@@ -42,6 +48,11 @@ void	free_tokens(t_token *tokens)
 	}
 }
 
+/* free_commands:
+	frees all allocated memory used by commands by
+	iterating through components of each member
+	of the linked list.
+*/
 void	free_commands(t_command *cmds)
 {
 	t_command *tmp;
@@ -76,21 +87,4 @@ void free_env_struct(t_env *head)
 		free(head);
 		head = temp;	
 	}
-}
-
-/* TO DO : put in different file */ 
-void	*handle_malloc(size_t bytes)
-{
-	void	*ret;
-
-	ret = malloc(bytes);
-	if (NULL == ret)
-		error("Malloc");
-	return (ret);
-}
-
-void	error(const char *msg)
-{
-	perror(msg);
-	exit(1);
 }
