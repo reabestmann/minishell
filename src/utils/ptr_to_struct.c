@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:01:42 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/11 13:14:08 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/11 15:30:38 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ static t_env *add_nodes(t_env *current, char *equals, char *env_str)
 	new_node = malloc(sizeof(t_env));
 	if (!new_node)
 		return(NULL);
+	ft_memset(new_node, 0, sizeof(t_env));
+	new_node->exported = 1;
 	new_node->key = ft_substr(env_str, 0, equals - env_str);
 	if(!new_node->key)
 	{
@@ -45,7 +47,6 @@ static t_env *add_nodes(t_env *current, char *equals, char *env_str)
 		return(NULL);
 	}
 	new_node->next = NULL;
-	new_node->exported = 1;
 	if(current)
 		current->next = new_node;
 	return(new_node);
