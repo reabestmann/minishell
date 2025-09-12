@@ -25,6 +25,8 @@ int	main(int params, char **argv, char **envp)
 	(void)argv;
 
 	env = envp_to_struct(envp);
+	if (!env)
+    	error("environment: struct not built.");
 	init_signals();
 	disable_ctrl_echo();
 

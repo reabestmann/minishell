@@ -41,7 +41,8 @@ int run_builtin(t_command *cmd, t_env **env)
     if (str_equals(cmd->args[0], "pwd"))
 		return (pwd_cmd(env));
     if (str_equals(cmd->args[0], "export"))
-		return (export_cmd(cmd, env));
+		return (printf("export not ready yet \n"));
+		//return (export_cmd(cmd, env));
     if (str_equals(cmd->args[0], "unset"))
 		return (unset_cmd(cmd, env));
     if (str_equals(cmd->args[0], "env"))

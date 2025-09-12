@@ -32,9 +32,9 @@ $(BUILTIN_DIR)/cd_cmd.c \
 $(BUILTIN_DIR)/echo_cmd.c \
 $(BUILTIN_DIR)/pwd_cmd.c \
 $(BUILTIN_DIR)/exit_cmd.c \
-$(BUILTIN_DIR)/export_cmd.c \
 $(BUILTIN_DIR)/unset_cmd.c \
 $(BUILTIN_DIR)/env_cmd.c
+# $(BUILTIN_DIR)/export_cmd.c
 
 # Object files
 OBJ_FILES = $(SRC_FILES:.c=.o)

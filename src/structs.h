@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 14:17:57 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/12 15:19:10 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/12 15:39:43 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,10 +46,10 @@ typedef struct s_command
 
 typedef struct s_env
 {
-    char            *key;    // the variable name, e.g., "PWD"
-    char            *value;  // the variable value, e.g., "/home/alexandra"
-    struct s_env    *next;   // pointer to the next env variable
-	int exported;
+	char            *key;    // the variable name, e.g., "PWD"
+	char            *value;  // the variable value, e.g., "/home/alexandra
+	struct s_env    *next;   // pointer to the next env variable
+	int		exported;
 }   t_env;
 
 #endif
