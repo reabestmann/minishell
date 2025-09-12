@@ -12,96 +12,87 @@
 
 #include "../minishell.h"
 
+static char	*node_value(t_env *node, char *equals)
+{
+	char	*value;
+
+	value = ft_strdup(equals + 1);
+	if (!value)
+	{
+		free(node->key);
+		free(node);
+		return (NULL);
+	}
+	return (value);
+}
+
 /* now_free(t_env *new_node)
-   - Purpose: Frees a partially allocated t_env node if allocation of key or value fails.
+   - Purpose: Frees a partially allocated t_env node 
+	if allocation of key or value fails.
    - Parameters:
        * new_node: pointer to the node being checked.
    - Returns: 1 if memory was freed due to failure, 0 if everything is fine.
    - Notes: Used internally by add_nodes() to safely handle allocation failures.
 */
-static int now_free(t_env *new_node)
+static t_env	*add_nodes(t_env *current, char *equals, char *env_str)
 {
-	if(!new_node->key)
-	{
-		free(new_node);
-		return(1);
-	}
-	else if(!new_node->value)
-	{
-		free(new_node->key);
-		free(new_node);
-		return(1);
-	}
-	return(0);
-}
-/* add_nodes(t_env *current, char *equals, char *env_str)
-   - Purpose: Creates a new t_env node from a single environment string ("KEY=VALUE")
-              and links it to the end of the existing list.
-   - Parameters:
-       * current: pointer to the last node of the list; new node is attached here.
-                  If NULL, the new node will be the first node.
-       * equals: pointer to the '=' character in env_str.
-       * env_str: full environment string to split into key and value.
-   - Returns: Pointer to the newly created node, or NULL on allocation failure.
-   - Notes: Allocates memory for key and value separately. Sets exported = 1
-            since these come from the original environment. Caller must handle failures.
-*/
-static t_env *add_nodes(t_env *current, char *equals, char *env_str)
-{
-	t_env *new_node;
+	t_env	*new_node;
 
 	new_node = malloc(sizeof(t_env));
 	if (!new_node)
-		return(NULL);
-	ft_memset(new_node, 0, sizeof(t_env));
-	new_node->exported = 1;
+		return (NULL);
 	new_node->key = ft_substr(env_str, 0, equals - env_str);
-	if(now_free(new_node) == 1)
-		return(NULL);
-	new_node->value = ft_strdup(equals + 1);
-	if(now_free(new_node) == 1)
-		return(NULL);
+	if (!new_node->key)
+	{
+		free(new_node);
+		return (NULL);
+	}
+	new_node->value = node_value(new_node, equals);
+	if (!new_node->value)
+		return (NULL);
 	new_node->next = NULL;
-	if(current)
+	new_node->exported = 1;
+	if (current)
 		current->next = new_node;
-	return(new_node);
+	return (new_node);
 }
 
-
 /* envp_to_struct(char **envp)
-   - Purpose: Converts a char ** environment array (from main) into a linked list of t_env nodes.
+   - Purpose: Converts a char ** environment array (from main)
+   	 into a linked list of t_env nodes.
    - Parameters:
        * envp: NULL-terminated array of strings ("KEY=VALUE") to convert.
    - Returns: Pointer to the head of the linked list, or NULL on failure.
    - Notes: Iterates through envp, using add_nodes() to append each valid entry.
-            Frees any allocated nodes on failure. Only strings containing '=' are added.
+            Frees any allocated nodes on failure. 
+			Only strings containing '=' are added.
             This linked list will have exported = 1 for all nodes.
 */
-t_env *envp_to_struct(char **envp)
+t_env	*envp_to_struct(char **envp)
 {
-	char *equals;
-	int i;
-	t_env *head;
-	t_env *current;
+	char	*equals;
+	int		i;
+	t_env	*head;
+	t_env	*current;
 
 	head = NULL;
 	current = NULL;
-	i = 0;		
-	while(envp[i])
+	i = 0;
+	while (envp[i])
 	{
 		equals = ft_strchr(envp[i], '=');
-		if(equals)
+		if (equals)
 		{
 			current = add_nodes(current, equals, envp[i]);
 			if (!head)
 				head = current;
-			if(!current)
+			if (!current)
 			{
 				free_env_struct(head);
-				return(NULL);
+				return (NULL);
 			}
 		}
 		i++;
 	}
-	return(head);
+	return (head);
 }

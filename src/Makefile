@@ -20,8 +20,7 @@ $(PARSER_DIR)/lexer.c \
 $(PARSER_DIR)/parse.c \
 $(PARSER_DIR)/parse_utils.c \
 $(EXECUTER_DIR)/exec.c \
-$(EXECUTER_DIR)/redir_utils.c \
-$(EXECUTER_DIR)/redirections.c \
+$(EXECUTER_DIR)/redir.c \
 $(EXECUTER_DIR)/pipes.c \
 $(SIGNALS_DIR)/signal_handler.c \
 $(SIGNALS_DIR)/parent_child_setup.c \
@@ -33,9 +32,9 @@ $(BUILTIN_DIR)/cd_cmd.c \
 $(BUILTIN_DIR)/echo_cmd.c \
 $(BUILTIN_DIR)/pwd_cmd.c \
 $(BUILTIN_DIR)/exit_cmd.c \
-$(BUILTIN_DIR)/export_cmd.c \
 $(BUILTIN_DIR)/unset_cmd.c \
 $(BUILTIN_DIR)/env_cmd.c
+# $(BUILTIN_DIR)/export_cmd.c
 
 # Object files
 OBJ_FILES = $(SRC_FILES:.c=.o)
