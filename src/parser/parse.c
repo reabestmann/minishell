@@ -150,7 +150,7 @@ void	handle_input(char *input, t_env **env)
 	cmds = parser(tokens);
 	if (cmds)
 	{
-		run_command(cmds, env);
+		run_command(cmds, env); // replace/add run pipeline 
 		free_commands(cmds);
 	}
 	free_tokens(tokens);

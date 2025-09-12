@@ -43,7 +43,7 @@
 	 - if new_fd was open, it closes it.
 	Closes the orinigal fd and handles errors.
 */
-static void	fd_check(int fd, int std_fd, char *file)
+void	fd_check(int fd, int std_fd, char *file)
 {
 	if (fd < 0)
 		error(file);

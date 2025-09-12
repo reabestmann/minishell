@@ -6,7 +6,7 @@
 /*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/11 15:52:39 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/12 15:21:44 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,14 +50,13 @@ void	set_cmd_flags(t_command *cmd);
 void	execute(char **args, char **envp);
 void	run_command(t_command *cmds, t_env **env);
 int	run_builtin(t_command *cmd, t_env **env);
-/* redir_utils.c */
+/* pipes.c */
+void	run_child(t_command *cmd, t_env **env);
+void	run_pipeline(t_command *cmds, t_env **env);
+/* redirections.c */
 void	parse_redirection(t_command *cmd, t_token **cpy);
 void    apply_redirections(t_command *cmd);
-/* redirections.c */
-void    rewire(t_command cmd, int pipe_fd[2], t_pipe_mode mode);
-void    rewire_input(t_command cmd);
-void    rewire_output(t_command cmd);
-void    rewire_pipes(int pipe_fd[2], t_pipe_mode mode);
+void	fd_check(int fd, int std_fd, char *file);
 /* ptr_to_struct.c */
 t_env	*envp_to_struct(char **envp);
 /* struct_to_ptr.c */

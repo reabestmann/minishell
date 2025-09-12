@@ -84,6 +84,7 @@ static char	*find_path(char *cmd, char **envp)
 	free_array(paths);
 	return (NULL);
 }
+
 /* execute: 
 	calls find_path() to resolve the command's location.
 	If not found, prints "command not found" 
@@ -109,6 +110,7 @@ void	execute(char **args, char **envp)
 		exit(1);
 	}
 }
+
 /* fork_process: 
 	creates a child process with fork().
 	In the child: sets signals, (TODO redirections), then execve().
@@ -118,26 +120,12 @@ static void	fork_process(t_command *cmds, t_env **env)
 {
 	pid_t	pid;
 	int		status;
-	char	**envp;
 
 	pid = fork();
 	if (pid < 0)
 		error("minishell: fork");
 	if (pid == 0)
-	{
-		cmds->in_child = 1;
-		child_signal_setup();
-		apply_redirections(cmds); 
-		if (!cmds->modifies_shell)
-		{
-			if (run_builtin(cmds, env) == -1)
-			{
-				envp = struct_to_envp(*env, 1);
-				execute(cmds->args, envp);
-			}
-		}
-		exit(1);
-	}
+		run_child(cmds, env);
 	else
 	{
 		parent_signal_setup();
@@ -146,21 +134,28 @@ static void	fork_process(t_command *cmds, t_env **env)
 		init_signals();
 	}
 }
+
 /* run_command: 
 	main entry point to run a command node.
 	If args is empty, does nothing.  
 	If cmd modifies shell and is a standalone, 
 		run_builtin will run it in parent;
-	otherwise runs via fork/execve.
+		otherwise runs via fork/execve.
+	if cmd is not a standalone, run_pipeline runs it.
 */
 void	run_command(t_command *cmds, t_env **env)
 {
 	if (!cmds || !cmds->args || !cmds->args[0])
 		return ;
-	if (cmds->modifies_shell && !cmds->in_child && !cmds->infile && !cmds->outfile && !cmds->next)
+	if (!cmds->in_child && !cmds->infile && !cmds->outfile && !cmds->next)
 	{
-		run_builtin(cmds, env);
-		return ;
+		if (cmds->modifies_shell)
+		{
+			run_builtin(cmds, env);
+			return ;
+		}
+		fork_process(cmds, env);
 	}
-	fork_process(cmds, env);
+	else
+		run_pipeline(cmds, env);
 }

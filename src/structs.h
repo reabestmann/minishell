@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 14:17:57 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/11 12:34:54 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/12 15:19:10 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,14 +43,6 @@ typedef struct s_command
 	int	in_child;		// 1 if cmd is already running in a child process
 	struct s_command	*next;  // Next command in pipeline
 } t_command;
-
-typedef enum 
-{
-	NO_PIPE,
-	PIPE_IN,
-	PIPE_OUT,
-	PIPE_BOTH
-} t_pipe_mode;
 
 typedef struct s_env
 {
