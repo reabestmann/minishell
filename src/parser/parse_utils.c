@@ -12,6 +12,17 @@
 
 #include "../minishell.h"
 
+int has_dollar(char **args)
+{
+    int i = 0;
+    while (args[i])
+    {
+        if (ft_strchr(args[i], '$'))
+            return (1);
+        i++;
+    }
+    return (0);
+}
 /* trim_quotes:
  * If the token text is wrapped by matching quotes ('...' or "...")
  * remove exactly one pair; otherwise return a duplicate unchanged.

@@ -27,7 +27,8 @@ typedef struct s_token
 	Stores the token string (with quotes trimmed), type, and quote state.
 	Returns pointer to the new t_token.
 */
-static t_token	*create_token(const char *str, t_token_type type, int in_squote, int in_dquote)
+static t_token	*create_token(const char *str,
+	t_token_type type, int in_squote, int in_dquote)
 {
 	t_token	*token;
 
@@ -123,10 +124,12 @@ static int	handle_wtype(t_token **tokens, const char *str)
 		len++;
 	}
 	tmp = ft_substr(str, 0, len);
-	append_token(tokens, create_token(tmp, TOKEN_WORD, (str[0] == '\''), (str[0] == '\"')));
+	append_token(tokens, create_token(tmp, TOKEN_WORD,
+			(str[0] == '\''), (str[0] == '\"')));
 	free(tmp);
 	return (len);
 }
+
 /*	lexer
 	Converts the raw input string into a linked list of tokens.
 	-Skips whitespace
@@ -137,7 +140,7 @@ static int	handle_wtype(t_token **tokens, const char *str)
 t_token	*lexer(const char *input)
 {
 	t_token	*tokens;
-	int	i;
+	int		i;
 
 	tokens = NULL;
 	i = 0;

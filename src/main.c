@@ -12,14 +12,39 @@
 
 #include "minishell.h"
 
-/* to compile, use:
-cc -Wall -Wextra -Werror main.c parser/split.c parser/pipe_split.c parser/parse.c executor/exec.c utils/free.c -o minishell -lreadline -Llibft -lft
+/* handle_input:
+   Parses a full command line input.
+   Puts input into tokens and commands.
+   @input: The raw user input string.
+   @envp: the environment variables for execution.
+   *tokens - pointer to the first token of a linked list of tokens.
+   *cmds - pointer to the first command of a linked list of commands.
+   gets called by: main
+   calls: lexer, parser, executor, free_commands, free_tokens
 */
+int	handle_input(char *input, t_env **env, int status)
+{
+	t_token		*tokens;
+	t_command	*cmds;
+
+	tokens = lexer(input);
+	if (!tokens)
+		return (0);
+	cmds = parser(tokens);
+	if (cmds)
+	{
+		status = run_command(cmds, env, status);
+		free_commands(cmds);
+	}
+	free_tokens(tokens);
+	return (status);
+}
 
 int	main(int params, char **argv, char **envp)
 {
 	char	*input;
 	t_env	*env;
+	int		status;
 
 	(void)params;
 	(void)argv;
@@ -29,6 +54,7 @@ int	main(int params, char **argv, char **envp)
     	error("environment: struct not built.");
 	init_signals();
 	disable_ctrl_echo();
+	status = 0;
 
 	while (1)
 	{
@@ -47,10 +73,10 @@ int	main(int params, char **argv, char **envp)
 			free(input);
 			break ;
 		}
-		handle_input(input, &env);
+		handle_input(input, &env, status);
 		free(input);
 	}
 	/*todo: final clean up*/
 	enable_ctrl_echo();
-	return (0);
+	return (status);
 }

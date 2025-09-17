@@ -12,6 +12,20 @@
 
 #include "../minishell.h"
 
+/* get_exit_status:
+   Converts waitpid status into a shell-style exit code.
+   - status: the integer from waitpid
+   - returns: exit code (0-255), like bash
+*/
+int	get_exit_status(int status)
+{
+	if (WIFEXITED(status))
+		return (WEXITSTATUS(status));
+	if (WIFSIGNALED(status))
+		return (128 + WTERMSIG(status));
+	return (1); // fallback error
+}
+
 /* str_equals: 
 	compares a string to a target for exact equality.
 	Uses ft_strncmp and also checks that str has no extra characters.

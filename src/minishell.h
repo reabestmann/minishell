@@ -6,7 +6,7 @@
 /*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/12 15:21:44 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/17 16:35:27 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,20 +39,24 @@
  * lexer.c */
 t_token	*lexer(const char *input);
 /* parse.c */
-void    handle_input(char *input, t_env **env);
+int    handle_input(char *input, t_env **env, int status);
+t_command	*parser(t_token *tokens);
 /* parse_utils.c */
 char	*trim_quotes(const char *str, int in_squote, int in_dquote);
 int	skip_spaces(const char *str, int i);
 void	update_quotes(char c, int *in_quote, int *in_dquote);
 void	set_cmd_flags(t_command *cmd);
+int has_dollar(char **args);
+/* expand.c */
+void	dollar_expansion(t_command *cmd, t_env **head, int last_status);
 /* executor/ 
  * exec.c */
 void	execute(char **args, char **envp);
-void	run_command(t_command *cmds, t_env **env);
+int	run_command(t_command *cmds, t_env **env, int status);
 int	run_builtin(t_command *cmd, t_env **env);
 /* pipes.c */
 void	run_child(t_command *cmd, t_env **env);
-void	run_pipeline(t_command *cmds, t_env **env);
+int	run_pipeline(t_command *cmds, t_env **env);
 /* redirections.c */
 void	parse_redirection(t_command *cmd, t_token **cpy);
 void    apply_redirections(t_command *cmd);
@@ -83,6 +87,7 @@ void    free_commands(t_command *cmds);
 void    free_tokens(t_token *tokens);
 void	free_env_struct(t_env *head);
 /* utils.c */
+int     get_exit_status(int status);
 int     str_equals(const char *str, const char *target);
 void	*handle_malloc(size_t bytes);
 void	error(const char *msg);
