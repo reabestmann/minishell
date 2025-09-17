@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:53:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/10 22:56:30 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/17 17:47:44 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ int	main(int params, char **argv, char **envp)
 			free(input);
 			break ;
 		}
-		handle_input(input, &env, status);
+		status = handle_input(input, &env, status);
 		free(input);
 	}
 	/*todo: final clean up*/
