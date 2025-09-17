@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/04 18:56:49 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/17 14:45:39 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@
 		execute(): resolves path + calls execve().
 		str_equals() + is_builtin(): helpers to detect builtins. (in utils.c) 
 */
-
 /* run_builtin: 
 	checks if 'cmd' matches any builtin name.
 	Calls str_equals for each of the 7 builtin commands.
@@ -32,24 +31,25 @@
 	-> 0 = success, >0 = Error.
 	returns -1 if command is not a builtin.
 */
-int run_builtin(t_command *cmd, t_env **env)
+
+int	run_builtin(t_command *cmd, t_env **env)
 {
-    if (str_equals(cmd->args[0], "echo")) 
+	if (str_equals(cmd->args[0], "echo"))
 		return (echo_cmd(cmd));
-    if (str_equals(cmd->args[0], "cd"))
+	if (str_equals(cmd->args[0], "cd"))
 		return (cd_cmd(cmd, env));
-    if (str_equals(cmd->args[0], "pwd"))
+	if (str_equals(cmd->args[0], "pwd"))
 		return (pwd_cmd(env));
-    if (str_equals(cmd->args[0], "export"))
+	if (str_equals(cmd->args[0], "export"))
 		return (printf("export not ready yet \n"));
 		//return (export_cmd(cmd, env));
-    if (str_equals(cmd->args[0], "unset"))
+	if (str_equals(cmd->args[0], "unset"))
 		return (unset_cmd(cmd, env));
-    if (str_equals(cmd->args[0], "env"))
+	if (str_equals(cmd->args[0], "env"))
 		return (env_cmd(env));
-    if (str_equals(cmd->args[0], "exit"))
+	if (str_equals(cmd->args[0], "exit"))
 		return (exit_cmd(cmd));
-    return (-1);
+	return (-1);
 }
 
 /* find_path: 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 15:26:43 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/02 17:32:23 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/17 14:55:16 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,6 @@ static t_token	*create_token(const char *str, t_token_type type, int in_squote, 
 	token->in_squote = in_squote;
 	token->in_dquote = in_dquote;
 	token->next = NULL;
-
 	return (token);
 }
 
@@ -50,17 +49,17 @@ static t_token	*create_token(const char *str, t_token_type type, int in_squote, 
 	Adds a token to the end of a token linked list.
 	If the list is empty, the new token becomes the head.
 */
-static void append_token(t_token **head, t_token *new_token)
+static void	append_token(t_token **head, t_token *new_token)
 {
 	t_token	*tmp;
 
 	if (!*head)
-        *head = new_token;
+		*head = new_token;
 	else
 	{
 		tmp = *head;
 		while (tmp->next)
-		tmp = tmp->next;
+			tmp = tmp->next;
 		tmp->next = new_token;
 	}
 }
@@ -73,8 +72,8 @@ static void append_token(t_token **head, t_token *new_token)
 */
 static int	handle_stype(t_token **tokens, const char *str)
 {
-	int	len;
-	char	*tmp;
+	int				len;
+	char			*tmp;
 	t_token_type	type;
 
 	len = 1;
@@ -94,7 +93,6 @@ static int	handle_stype(t_token **tokens, const char *str)
 		type = TOKEN_REDIR_IN;
 	else
 		type = TOKEN_PIPE;
-	
 	tmp = ft_substr(str, 0, len);
 	append_token(tokens, create_token(tmp, type, 0, 0));
 	free(tmp);
@@ -109,9 +107,9 @@ static int	handle_stype(t_token **tokens, const char *str)
 */
 static int	handle_wtype(t_token **tokens, const char *str)
 {
-	int	len;
-	int	in_squote;
-	int	in_dquote;
+	int		len;
+	int		in_squote;
+	int		in_dquote;
 	char	*tmp;
 
 	len = 0;
@@ -120,14 +118,14 @@ static int	handle_wtype(t_token **tokens, const char *str)
 	while (str[len])
 	{
 		if (!in_squote && !in_dquote && ft_strchr(" \t<>|", str[len]))
-			break;
+			break ;
 		update_quotes(str[len], &in_squote, &in_dquote);
 		len++;
 	}
 	tmp = ft_substr(str, 0, len);
 	append_token(tokens, create_token(tmp, TOKEN_WORD, (str[0] == '\''), (str[0] == '\"')));
 	free(tmp);
-	return(len);
+	return (len);
 }
 /*	lexer
 	Converts the raw input string into a linked list of tokens.

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   exec_utils.c                                       :+:      :+:    :+:   */
+/*   redir.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 16:02:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/11 12:51:56 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/17 14:43:03 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ static int	heredoc_fd(const char *delimiter)
 		if (str_equals(line, delimiter))
 		{
 			free(line);
-			break;
+			break ;
 		}
 		ft_putstr_fd(line, fd);
 		ft_putstr_fd("\n", fd);
@@ -110,8 +110,8 @@ void	apply_redirections(t_command *cmd)
 	{
 		if (cmd->append == 1 || cmd->append == 2)
 		{
-			if (cmd->append == 1)	// >>
-				fd = open(cmd->outfile, O_WRONLY | O_CREAT | O_APPEND, 0644); 
+			if (cmd->append == 1) // >>
+				fd = open(cmd->outfile, O_WRONLY | O_CREAT | O_APPEND, 0644);
 			else if (cmd->append == 2) // >
 				fd = open(cmd->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 			fd_check(fd, STDOUT_FILENO, cmd->outfile);
@@ -129,13 +129,13 @@ void	apply_redirections(t_command *cmd)
     fills the command struct with the values of its outfile and append type
     based on the values contained in the token.
 */
-static void set_redirection(t_command *cmd, t_token *token, int append_type)
+static void	set_redirection(t_command *cmd, t_token *token, int append_type)
 {
-    if (token && token->type == TOKEN_WORD)
-    {
-        cmd->outfile = ft_strdup(token->val);
-        cmd->append = append_type;
-    }
+	if (token && token->type == TOKEN_WORD)
+	{
+		cmd->outfile = ft_strdup(token->val);
+		cmd->append = append_type;
+	}
 }
 
 /* parse_redirection:
@@ -145,12 +145,11 @@ static void set_redirection(t_command *cmd, t_token *token, int append_type)
 */
 void	parse_redirection(t_command *cmd, t_token **cpy)
 {
-    t_token *next;
+	t_token	*next;
 
 	if (!*cpy)
 		return ;
 	next = (*cpy)->next;
-
 	if ((*cpy)->type == TOKEN_REDIR_IN)
 	{
 		if (next && next->type == TOKEN_WORD)
@@ -162,7 +161,6 @@ void	parse_redirection(t_command *cmd, t_token **cpy)
 		set_redirection(cmd, next, 1);
 	else if ((*cpy)->type == TOKEN_HEREDOC)
 		set_redirection(cmd, next, 3);
-
 	if (next)
 		*cpy = next;
 }
