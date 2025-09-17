@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:01:13 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/11 13:13:05 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/17 15:22:54 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,22 +23,23 @@
 */
 static int	count_nodes(t_env *head, int export_only)
 {
-	int count;
-	t_env *temp;
+	int		count;
+	t_env	*temp;
 
 	count = 0;
 	temp = head;
-	while(temp)
-	{ 
+	while (temp)
+	{
 		if (!export_only || temp->exported)
 			count++;
 		temp = temp->next;
 	}
-	return(count);
+	return (count);
 }
 
 /* add_strings(t_env *head, char **envp, int export_only)
-   - Purpose: Converts a t_env linked list into a null-terminated array of strings.
+   - Purpose: Converts a t_env linked list into a null-terminated array 
+   		of strings.
               Each string is of the form "KEY=VALUE".
               Can optionally include only exported variables.
    - Parameters:
@@ -46,69 +47,71 @@ static int	count_nodes(t_env *head, int export_only)
        * envp: preallocated array of char * to fill.
        * export_only: if non-zero, only include nodes where exported == 1.
    - Returns: 0 on success, 1 if a malloc failure occurs.
-   - Notes: Safely handles nodes with NULL value (shell-only variables without '=').
+   - Notes: Safely handles nodes with NULL value (shell-only variables 
+   		without '=').
             Frees any previously allocated strings on failure.
 */
-static int add_strings(t_env *head, char **envp, int export_only)
+static int	add_strings(t_env *head, char **envp, int export_only)
 {
-	int i;
-	int buff;
-	t_env *temp;
-	int val_len;
+	int		i;
+	int		buff;
+	t_env	*temp;
+	int		val_len;
 
 	i = 0;
 	temp = head;
-	while(temp)
-	{ 
-		if(!export_only || temp->exported)
+	while (temp)
+	{
+		if (!export_only || temp->exported)
 		{
-			if(temp->value)
+			if (temp->value)
 				val_len = ft_strlen(temp->value);
 			else
 				val_len = 0;
 			buff = (ft_strlen(temp->key) + val_len + 2);
 			envp[i] = malloc(buff);
-			if(!envp[i])
+			if (!envp[i])
 			{
-				while(--i >= 0)
+				while (--i >= 0)
 					free(envp[i]);
 				return (1);
 			}
 			ft_strlcpy(envp[i], temp->key, buff);
-			ft_strlcat(envp[i], "=", buff);	
-			if(temp->value)
+			ft_strlcat(envp[i], "=", buff);
+			if (temp->value)
 				ft_strlcat(envp[i], temp->value, buff);
 			i++;
 		}
 		temp = temp->next;
 	}
-	return(0);
+	return (0);
 }
 
 /* struct_to_envp(t_env *head, int export_only)
-   - Purpose: Converts a t_env linked list into a null-terminated array of strings
-              ready to pass to execve() or use in an env-like builtin.
+   - Purpose: Converts a t_env linked list into a null-terminated array 
+   		of strings ready to pass to execve() or use in an env-like builtin.
    - Parameters:
        * head: pointer to the first node of the linked list.
        * export_only: if non-zero, only include exported variables.
    - Returns: Pointer to the newly allocated char ** array, or NULL on failure.
    - Notes: Allocates exactly the right number of strings using count_nodes().
-            Frees the array on error. Caller is responsible for freeing the returned array.
+            Frees the array on error. Caller is responsible for freeing the 
+					returned array.
 */
-char **struct_to_envp(t_env *head, int export_only)
+char	**struct_to_envp(t_env *head, int export_only)
 {
-	char **envp;
-	int struct_size;
+	char	**envp;
+	int		struct_size;
 
 	struct_size = count_nodes(head, export_only);
 	envp = malloc(sizeof(char *) * (struct_size + 1));
 	if (!envp)
-		return(NULL);
+		return (NULL);
 	envp[struct_size] = NULL;
 	if (add_strings(head, envp, export_only) == 1)
 	{
 		free_array(envp);
-		return(NULL);
+		return (NULL);
 	}
-	return(envp);
+	return (envp);
 }
