@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/17 14:45:39 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/17 17:17:39 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,7 +147,7 @@ int	run_command(t_command *cmds, t_env **env, int status)
 	if (!cmds || !cmds->args || !cmds->args[0])
 		return (0);
 	if (has_dollar(cmds->args))
-        dollar_expansion(cmds, env, status);
+		dollar_expansion(cmds, env, status);
 	if (!cmds->in_child && !cmds->infile && !cmds->outfile && !cmds->next)
 	{
 		if (cmds->modifies_shell)

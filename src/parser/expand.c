@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   dollar_expansion.c                                 :+:      :+:    :+:   */
+/*   expand.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/16 17:34:46 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/17 13:19:49 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/17 17:15:31 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,7 +217,7 @@ void	dollar_expansion(t_command *cmd, t_env **head, int last_status) // just sen
 	//int		j;
 	char	*expanded;
 
-	i = 0;
+	i = 1;
 	//j = 0;
 	while (cmd->args[i] != NULL)
 	{
