@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:43 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/11 13:35:58 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/17 14:00:53 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,9 @@ int env_cmd(t_env **env)
 	i = 0;
 	temp = struct_to_envp(*env, 1);
     if (!temp)
+	{
         return (1);
+	}
 	while(temp[i])
 	{
 		printf("%s\n", temp[i]);

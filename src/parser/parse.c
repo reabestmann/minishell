@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 15:23:19 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/02 17:39:54 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/17 14:51:11 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,6 @@ static t_command	*create_cmd(void)
 	cmd->append = 0;
 	cmd->in_child = 0;
 	cmd->next = NULL;
-
 	return (cmd);
 }
 
@@ -53,7 +52,7 @@ static t_command	*create_cmd(void)
 */
 static void	append_cmd(t_command **head, t_command *new_cmd)
 {
-	t_command *tmp;
+	t_command	*tmp;
 
 	if (!*head)
 		*head = new_cmd;
@@ -72,8 +71,8 @@ static void	append_cmd(t_command **head, t_command *new_cmd)
 static void	add_arg(t_command *cmd, const char *arg)
 {
 	char	**new_args;
-	int	count;
-	int	i;
+	int		count;
+	int		i;
 
 	count = 0;
 	if (cmd->args)
@@ -101,7 +100,7 @@ static t_command	*parser(t_token *tokens)
 {
 	t_command	*cmds;
 	t_command	*current;
-	t_token	*cpy;
+	t_token		*cpy;
 
 	cmds = NULL;
 	current = create_cmd();
@@ -141,12 +140,12 @@ static t_command	*parser(t_token *tokens)
 */
 void	handle_input(char *input, t_env **env)
 {
-	t_token	*tokens;
+	t_token		*tokens;
 	t_command	*cmds;
 
 	tokens = lexer(input);
 	if (!tokens)
-		return;
+		return ;
 	cmds = parser(tokens);
 	if (cmds)
 	{
