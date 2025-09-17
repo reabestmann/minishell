@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   free.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 15:10:03 by rbestman          #+#    #+#             */
-/*   Updated: 2025/08/11 15:18:50 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/17 15:28:18 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,8 @@
    - Variables:
      * array: array of strings.
      * i: index to iterate through envp.
-   - Called from: Anywhere you need to free a char ** representing the environment.
+   - Called from: Anywhere you need to free a char ** representing 
+   		the environment.
    - Calls: free(). 
 */
 void	free_array(char **array)
@@ -37,7 +38,7 @@ void	free_array(char **array)
 */
 void	free_tokens(t_token *tokens)
 {
-	t_token *tmp;
+	t_token	*tmp;
 
 	while (tokens)
 	{
@@ -55,7 +56,7 @@ void	free_tokens(t_token *tokens)
 */
 void	free_commands(t_command *cmds)
 {
-	t_command *tmp;
+	t_command	*tmp;
 
 	while (cmds)
 	{
@@ -73,18 +74,19 @@ void	free_commands(t_command *cmds)
    - Variables:
      * head: pointer to the first node of the linked list; iterates through list.
      * temp: temporary pointer to store next node while freeing current node.
-   - Called from: Anywhere you need to free a t_env linked list (e.g., on error or program exit).
+   - Called from: Anywhere you need to free a t_env linked list (e.g., on error 
+   		or program exit).
    - Calls: free(). */
-void free_env_struct(t_env *head)
+void	free_env_struct(t_env *head)
 {
-	t_env *temp;
+	t_env	*temp;
 
-	while(head)
+	while (head)
 	{
 		temp = head->next;
 		free(head->key);
 		free(head->value);
 		free(head);
-		head = temp;	
+		head = temp;
 	}
 }

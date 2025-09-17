@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:43 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/17 14:00:53 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/17 16:03:30 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,18 +22,18 @@ Frees the allocated array.
 Return Value: 0 on success, 1 if memory allocation fails.
 */
 
-int env_cmd(t_env **env)
+int	env_cmd(t_env **env)
 {
-	int i;
-	char **temp;
+	int		i;
+	char	**temp;
 
 	i = 0;
 	temp = struct_to_envp(*env, 1);
-    if (!temp)
+	if (!temp)
 	{
-        return (1);
+		return (1);
 	}
-	while(temp[i])
+	while (temp[i])
 	{
 		printf("%s\n", temp[i]);
 		i++;

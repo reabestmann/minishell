@@ -6,13 +6,13 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:37 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/11 15:52:06 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/17 16:02:31 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
- /* BUILTIN_LIST
+/* BUILTIN_LIST
  	/echo with option -n 
 	/cd with only a relative or absolute path
 	/pwd with no optios
@@ -21,10 +21,10 @@
 	/env with no options
 	exit with no options
 */
-int echo_cmd(t_command *cmd)
+int	echo_cmd(t_command *cmd)
 {
 	int	i;
-	int new_line;
+	int	new_line;
 
 	i = 1;
 	new_line = 1;
@@ -33,14 +33,14 @@ int echo_cmd(t_command *cmd)
 		new_line = 0;
 		i++;
 	}
-    while (cmd->args[i] != NULL)
-    {
+	while (cmd->args[i] != NULL)
+	{
 		printf("%s", cmd->args[i]);
 		if (cmd->args[i + 1] != NULL)
 			printf(" ");
 		i++;
-    }
+	}
 	if (new_line == 1)
 		printf("\n");
-	return(0);
+	return (0);
 }

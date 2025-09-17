@@ -6,19 +6,18 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:59 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/10 21:00:51 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/17 16:40:05 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int pwd_cmd(t_env **env)
+int	pwd_cmd(t_env **env)
 {
-	t_env *temp;
+	t_env	*temp;
 	//char *cwd;
 
 	temp = *env;
-
 	while (!str_equals(temp->key, "PWD"))
 		temp = temp->next;
 	if (temp && temp->value)
@@ -32,5 +31,5 @@ int pwd_cmd(t_env **env)
 		printf("%s\n", cwd);
 		free(cwd);*/
 	}
-	return(0);
+	return (0);
 }

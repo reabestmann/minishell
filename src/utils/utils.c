@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/11 14:28:03 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/11 14:28:19 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/17 15:25:36 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,9 @@ int	str_equals(const char *str, const char *target)
 	len = 0;
 	while (target[len])
 		len++;
-    if (ft_strncmp(str, target, len) == 0 && str[len] == '\0')
-        return (1);
-    return (0);
+	if (ft_strncmp(str, target, len) == 0 && str[len] == '\0')
+		return (1);
+	return (0);
 }
 
 /* handle_malloc:
