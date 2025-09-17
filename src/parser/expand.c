@@ -26,10 +26,10 @@ char	*find_env_value(t_env *head, char *key)
 	while (temp)
 	{
 		if (ft_strncmp(temp->key, key, ft_strlen(key) + 1) == 0)
-			return (temp->value);
+			return (ft_strdup(temp->value));
 		temp = temp->next;
 	}
-	return (""); //saying that key wasnt found so no only appending empty string
+	return (ft_strdup("")); //saying that key wasnt found so no only appending empty string
 }
 
 // set_result:
@@ -143,7 +143,7 @@ int	append_rest(int *i, char *arg, char **result, t_env *head)
 
 	start = *i;
 	while (arg[*i] && arg[*i] != '$')
-		*i++;
+		(*i)++;
 	rest = malloc(*i - start + 1);
 	if (!rest)
 		return (-1);
@@ -188,8 +188,10 @@ char	*expand_one_arg(char *arg, t_env *head, int last_status)
 			if (arg[i] == '?') //
 				append_questionmark(&result, head, &i, last_status);
 			else if (is_valid_key(arg, i, &key_len))
+			{
 				if (set_key(head, arg, &i, &result) == -1)
 					return (free(result), NULL);
+			}
 			else
 				result = append_result(head, "$", result, -1);
 		}
@@ -212,11 +214,11 @@ char	*expand_one_arg(char *arg, t_env *head, int last_status)
 void	dollar_expansion(t_command *cmd, t_env **head, int last_status) // just sending 1 cmd at a time and assumes it wasnt in single quotes
 {
 	int		i;
-	int		j;
+	//int		j;
 	char	*expanded;
 
 	i = 0;
-	j = 0;
+	//j = 0;
 	while (cmd->args[i] != NULL)
 	{
 		expanded = expand_one_arg(cmd->args[i], *head, last_status);

@@ -117,7 +117,7 @@ void	execute(char **args, char **envp)
 	In the child: sets signals, (TODO redirections), then execve().
 	In the parent: waits for the child and resets signals.
 */
-static void	fork_process(t_command *cmds, t_env **env)
+static int	fork_process(t_command *cmds, t_env **env)
 {
 	pid_t	pid;
 	int		status;
@@ -127,13 +127,11 @@ static void	fork_process(t_command *cmds, t_env **env)
 		error("minishell: fork");
 	if (pid == 0)
 		run_child(cmds, env);
-	else
-	{
-		parent_signal_setup();
-		if (waitpid(pid, &status, 0) == -1)
-			error("waitpid");
-		init_signals();
-	}
+	parent_signal_setup();
+	if (waitpid(pid, &status, 0) == -1)
+		error("waitpid");
+	init_signals();
+	return (get_exit_status(status));
 }
 
 /* run_command: 
@@ -144,19 +142,18 @@ static void	fork_process(t_command *cmds, t_env **env)
 		otherwise runs via fork/execve.
 	if cmd is not a standalone, run_pipeline runs it.
 */
-void	run_command(t_command *cmds, t_env **env)
+int	run_command(t_command *cmds, t_env **env, int status)
 {
 	if (!cmds || !cmds->args || !cmds->args[0])
-		return ;
+		return (0);
+	if (has_dollar(cmds->args))
+        dollar_expansion(cmds, env, status);
 	if (!cmds->in_child && !cmds->infile && !cmds->outfile && !cmds->next)
 	{
 		if (cmds->modifies_shell)
-		{
-			run_builtin(cmds, env);
-			return ;
-		}
-		fork_process(cmds, env);
+			return (run_builtin(cmds, env));
+		return (fork_process(cmds, env));
 	}
 	else
-		run_pipeline(cmds, env);
+		return (run_pipeline(cmds, env));
 }
