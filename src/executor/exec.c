@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/17 17:17:39 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/18 16:23:35 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@
 
 int	run_builtin(t_command *cmd, t_env **env)
 {
+	trim_quotes_for_execution(cmd->args);
 	if (str_equals(cmd->args[0], "echo"))
 		return (echo_cmd(cmd));
 	if (str_equals(cmd->args[0], "cd"))
@@ -104,6 +105,7 @@ void	execute(char **args, char **envp)
 		ft_putstr_fd("\n", 2);
 		exit(127);
 	}
+	trim_quotes_for_execution(args);
 	if (execve(path, args, envp) == -1)
 	{
 		perror("execve");
@@ -133,6 +135,7 @@ static int	fork_process(t_command *cmds, t_env **env)
 	init_signals();
 	return (get_exit_status(status));
 }
+
 
 /* run_command: 
 	main entry point to run a command node.

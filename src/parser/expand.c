@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/16 17:34:46 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/17 17:15:31 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/18 17:49:26 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,17 +130,38 @@ int	set_key(t_env *head, char *arg, int *i, char **result)
 	return (0);
 }
 
+char *append_normal_text(char *text, char *result)
+{
+	int res_len;
+	int val_len;
+	char *new_result;
+
+	if (!text)
+		return (result);
+	if (result)
+		res_len = ft_strlen(result);
+	else
+		res_len = 0;
+	val_len = ft_strlen(text);
+	new_result = set_result(res_len, val_len, result, text);
+	if (result)
+		free(result);
+	return (new_result);
+}
+
 // append_rest:
 //  - Called from: expand_one_arg
 //  - Purpose: append literal text (not part of $VAR or $?) to result
 //  - Calls: malloc, ft_strlcpy, append_result, free
 //  - Returns: 0 on success, -1 on malloc fail
 //  - Memory: frees temporary buffer for literal
-int	append_rest(int *i, char *arg, char **result, t_env *head)
+int	append_rest(int *i, char *arg, char **result)
 {
 	int		start;
 	char	*rest;
-
+	
+	if (!arg || !result || !i)
+		return (-1);
 	start = *i;
 	while (arg[*i] && arg[*i] != '$')
 		(*i)++;
@@ -148,7 +169,7 @@ int	append_rest(int *i, char *arg, char **result, t_env *head)
 	if (!rest)
 		return (-1);
 	ft_strlcpy(rest, arg + start, *i - start + 1);
-	*result = append_result(head, rest, *result, -1);
+	*result = append_normal_text(rest, *result);
 	free(rest);
 	return (0);
 }
@@ -196,8 +217,10 @@ char	*expand_one_arg(char *arg, t_env *head, int last_status)
 				result = append_result(head, "$", result, -1);
 		}
 		else
-			if (append_rest(&i, arg, &result, head) == -1)
+		{
+			if (append_rest(&i, arg, &result) == -1)
 				return (free(result), NULL);
+		}
 	}
 	return (result);
 }
@@ -216,23 +239,29 @@ void	dollar_expansion(t_command *cmd, t_env **head, int last_status) // just sen
 	int		i;
 	//int		j;
 	char	*expanded;
+	size_t len;
 
 	i = 1;
 	//j = 0;
 	while (cmd->args[i] != NULL)
 	{
-		expanded = expand_one_arg(cmd->args[i], *head, last_status);
-		if (!expanded)
+		
+		len = ft_strlen(cmd->args[i]);
+		if (!(len >= 2 && cmd->args[i][0] == '\'' && cmd->args[i][len - 1] == '\''))
+		{
+			expanded = expand_one_arg(cmd->args[i], *head, last_status);
+			if (!expanded)
 		/*{
 			while(j < i)
 			{
 				free(cmd->args[j]);
 				j++;
 			}*/
-			return ;
+				return ;
 		//}do we want to free already set expansions if one malloc fails?
-		free(cmd->args[i]);
-		cmd->args[i] = expanded;
+			free(cmd->args[i]);
+			cmd->args[i] = expanded;
+		}
 		i++;
 	}
 	return ;
