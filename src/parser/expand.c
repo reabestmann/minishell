@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/16 17:34:46 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/18 17:49:26 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/19 21:38:00 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,6 +225,229 @@ char	*expand_one_arg(char *arg, t_env *head, int last_status)
 	return (result);
 }
 
+//
+char *join_and_free(char *dst, char *src)
+{
+    char *joined;
+    int len1 = dst ? ft_strlen(dst) : 0;
+    int len2 = src ? ft_strlen(src) : 0;
+
+    joined = malloc(len1 + len2 + 1);
+    if (!joined)
+        return (free(dst), free(src), NULL);
+
+    if (dst)
+        ft_strlcpy(joined, dst, len1 + 1);
+    else
+        joined[0] = '\0';
+
+    if (src)
+        ft_strlcat(joined, src, len1 + len2 + 1);
+
+    free(dst);
+    free(src);
+    return joined;
+}
+
+/*
+ * expand_arg:
+ *  - Handles $ expansion in unquoted or double-quoted parts
+ *  - Skips expansion in single quotes
+ *  - Returns fully expanded string (malloc'd)
+ */
+///// this one almost worked
+/*char *expand_arg(const char *arg, t_env *head, int last_status)
+{
+    char state = 0;   // 0 = unquoted, ' = single, " = double
+    int i = 0, start = 0;
+    char *result = ft_strdup("");
+    if (!result)
+        return NULL;
+
+    while (arg[i]) {
+        if (state == 0) {
+            if (arg[i] == '\'') {
+                // expand everything before the quote
+                if (i > start) {
+                    char *chunk = ft_substr(arg, start, i - start);
+                    if (!chunk)
+                        return (free(result), NULL);
+                    result = join_and_free(result,
+                        expand_one_arg(chunk, head, last_status));
+                }
+                state = '\''; // enter single quote mode
+                start = i + 1;
+            }
+            else if (arg[i] == '"') {
+                if (i > start) {
+                    char *chunk = ft_substr(arg, start, i - start);
+                    if (!chunk)
+                        return (free(result), NULL);
+                    result = join_and_free(result,
+                        expand_one_arg(chunk, head, last_status));
+                }
+                state = '"'; // enter double quote mode
+                start = i + 1;
+            }
+        }
+        else if (state == '\'') {
+            if (arg[i] == '\'') {
+                // inside single quotes → copy literally
+                char *chunk = ft_substr(arg, start, i - start);
+                if (!chunk)
+                    return (free(result), NULL);
+                result = join_and_free(result, chunk);
+                state = 0;
+                start = i + 1;
+            }
+        }
+        else if (state == '"') {
+            if (arg[i] == '"') {
+                // inside double quotes → expand
+                char *chunk = ft_substr(arg, start, i - start);
+                if (!chunk)
+                    return (free(result), NULL);
+                result = join_and_free(result,
+                    expand_one_arg(chunk, head, last_status));
+                state = 0;
+                start = i + 1;
+            }
+        }
+        i++;
+    }
+
+    // flush last segment
+    if (start < i) {
+        char *chunk = ft_substr(arg, start, i - start);
+        if (!chunk)
+            return (free(result), NULL);
+        if (state == 0)
+            result = join_and_free(result,
+                expand_one_arg(chunk, head, last_status));
+        else if (state == '\'')
+            result = join_and_free(result, chunk); // literal
+        else if (state == '"')
+            result = join_and_free(result,
+                expand_one_arg(chunk, head, last_status));
+    }
+
+    if (state != 0) {
+        // unterminated quote → error
+        free(result);
+        return NULL;
+    }
+    return result;
+}*/
+/*
+char *expand_arg(const char *arg, t_env *head, int last_status)
+{
+    char state = 0;   // 0 = unquoted, ' = single, " = double
+    int i = 0, start = 0;
+    char *result = ft_strdup("");
+
+    while (arg[i]) {
+        if (state == 0) {
+            if (arg[i] == '\'') {
+                // expand everything before the quote
+                if (i > start)
+                    result = join_and_free(result,
+                        expand_one_arg(ft_substr(arg, start, i - start), head, last_status));
+                state = '\'';
+                start = i + 1;
+            }
+            else if (arg[i] == '"') {
+                if (i > start)
+                    result = join_and_free(result,
+                        expand_one_arg(ft_substr(arg, start, i - start), head, last_status));
+                state = '"';
+                start = i + 1;
+            }
+        }
+        else if (state == '\'') {
+            if (arg[i] == '\'') {
+                // inside single quotes: copy literally
+                result = join_and_free(result,
+                    ft_substr(arg, start, i - start));
+                state = 0;
+                start = i + 1;
+            }
+        }
+        else if (state == '"') {
+            if (arg[i] == '"') {
+                // inside double quotes: expand
+                result = join_and_free(result,
+                    expand_one_arg(ft_substr(arg, start, i - start), head, last_status));
+                state = 0;
+                start = i + 1;
+            }
+        }
+        i++;
+    }
+
+    // flush last segment
+    if (start < i) {
+        if (state == 0)
+            result = join_and_free(result,
+                expand_one_arg(ft_substr(arg, start, i - start), head, last_status));
+        else if (state == '\'')
+            result = join_and_free(result,
+                ft_substr(arg, start, i - start));
+        else if (state == '"')
+            result = join_and_free(result,
+                expand_one_arg(ft_substr(arg, start, i - start), head, last_status));
+    }
+	if (state != 0)
+	{
+		// unterminated quote
+		free(result);
+		return NULL; // signal error
+	}
+    return result;
+}*/
+/*
+char *expand_arg(const char *arg, t_env *head, int last_status)
+{
+    char state = 0;
+    int i = 0, start = 0;
+    char *result = ft_strdup("");
+
+    while (arg[i]) {
+        if (state == 0) {
+            if (arg[i] == '\'') {
+                // expand the part before the quote
+                if (i > start)
+                    result = str_join_free(result,
+                        expand_one_arg(ft_substr(arg, start, i - start), head, last_status));
+
+                state = '\'';
+                start = i + 1;
+            }
+        } else if (state == '\'') {
+            if (arg[i] == '\'') {
+                // copy literal chunk (inside single quotes)
+                result = str_join_free(result,
+                        ft_substr(arg, start, i - start));
+                state = 0;
+                start = i + 1;
+            }
+        }
+        i++;
+    }
+
+    // flush remainder (expand if outside quotes, literal if still inside)
+    if (start < i) {
+        if (state == 0)
+            result = str_join_free(result,
+                expand_one_arg(ft_substr(arg, start, i - start), head, last_status));
+        else
+            result = str_join_free(result,
+                ft_substr(arg, start, i - start));
+    }
+
+    return result;
+}
+
+*/
 // dollar_expansion:
 //  - Called from: main execution loop 
 //			(one command at a time)
@@ -234,39 +457,156 @@ char	*expand_one_arg(char *arg, t_env *head, int last_status)
 //  - Returns: void
 //  - Memory: frees old argument strings and replaces with
 //			expanded versions
+/*
 void	dollar_expansion(t_command *cmd, t_env **head, int last_status) // just sending 1 cmd at a time and assumes it wasnt in single quotes
 {
 	int		i;
 	//int		j;
 	char	*expanded;
-	size_t len;
+	//size_t len;
 
 	i = 1;
 	//j = 0;
 	while (cmd->args[i] != NULL)
 	{
-		
-		len = ft_strlen(cmd->args[i]);
-		if (!(len >= 2 && cmd->args[i][0] == '\'' && cmd->args[i][len - 1] == '\''))
-		{
-			expanded = expand_one_arg(cmd->args[i], *head, last_status);
-			if (!expanded)
+		//plug in checker here - might need to modify expand_one_arg a bit
+		expanded = expand_arg(cmd->args[i], *head, last_status);
+		if (!expanded)*/
 		/*{
 			while(j < i)
 			{
 				free(cmd->args[j]);
 				j++;
 			}*/
-				return ;
+			/*return ;
 		//}do we want to free already set expansions if one malloc fails?
-			free(cmd->args[i]);
-			cmd->args[i] = expanded;
-		}
+		free(cmd->args[i]);
+		cmd->args[i] = expanded;
 		i++;
 	}
 	return ;
 }
+*/
+char *expand_arg_keep_quotes(const char *arg, t_env *head, int last_status)
+{
+    int i = 0;
+    char state = 0; // 0 = unquoted, ' = single, " = double
+    char *result = ft_strdup("");
+    if (!result)
+        return NULL;
 
+    while (arg[i])
+    {
+        if (arg[i] == '\'' && state == 0)
+        {
+            result = append_normal_text("'", result); // keep the quote
+            state = '\'';
+        }
+        else if (arg[i] == '\'' && state == '\'')
+        {
+            result = append_normal_text("'", result); // keep the quote
+            state = 0;
+        }
+        else if (arg[i] == '"' && state == 0)
+        {
+            result = append_normal_text("\"", result); // keep the quote
+            state = '"';
+        }
+        else if (arg[i] == '"' && state == '"')
+        {
+            result = append_normal_text("\"", result); // keep the quote
+            state = 0;
+        }
+        else if (arg[i] == '$' && state != '\'') // expand only outside single quotes
+        {
+            i++; // skip '$'
+            if (arg[i] == '?')
+            {
+                result = append_result(head, NULL, result, last_status);
+                i++;
+            }
+            else
+            {
+                int key_len;
+                if (is_valid_key((char *)arg, i, &key_len))
+                {
+                    char *key = ft_substr(arg, i, key_len);
+                    if (!key)
+                        return free(result), NULL;
+                    result = append_result(head, key, result, -1);
+                    free(key);
+                    i += key_len;
+                }
+                else
+                {
+                    result = append_result(head, "$", result, -1);
+                }
+            }
+            continue;
+        }
+        else
+        {
+            char tmp[2] = {arg[i], '\0'};
+            result = append_normal_text(tmp, result);
+        }
+        i++;
+    }
+
+    return result;
+}
+
+void dollar_expansion(t_command *cmd, t_env **head, int last_status)
+{
+    for (int i = 1; cmd->args[i]; i++)
+    {
+        char *expanded = expand_arg_keep_quotes(cmd->args[i], *head, last_status);
+        if (!expanded)
+            return;
+        free(cmd->args[i]);
+        cmd->args[i] = expanded;
+    }
+}
+
+/*char *strip_quotes(const char *token)
+{
+    int i = 0, j = 0;
+    char state = 0;
+    char *clean = malloc(strlen(token) + 1);
+    if (!clean) return NULL;
+
+    while (token[i]) { //going thoruhg token looking for ' or " when we find it change 
+        if (state == 0) {
+            if (token[i] == '\'') state = '\'' clean[j++] = token[i];
+            else if (token[i] == '"') state = '"'clean[j++] = token[i]; ;
+            else clean[j++] = token[i]; //send to expander
+        } else if (state == '\'') { //if state is ' then keep adding until find another and dont expand
+            if (token[i] == '\'') state = 0;
+            else clean[j++] = token[i];
+			//dont send to expander
+        } else if (state == '"') {
+            if (token[i] == '"') state = 0;
+            else clean[j++] = token[i]; //send to expander - building up piece by piece
+        }
+        i++;
+    }
+	  if (state != 0) {
+		printf(">");
+        // unclosed quote detected
+        free(clean);
+        return NULL; //let main know to do >
+    clean[j] = '\0';
+    return clean;
+}
+}
+
+void trim_quotes_for_execution(char **tokens) //sendng each arg to strip quotes 
+{
+    for (int i = 0; tokens[i]; i++) {
+        char *cleaned = strip_quotes(tokens[i]);
+        free(tokens[i]);
+        tokens[i] = cleaned;
+    }
+}*/
 /*
 | Approach           | Frees old args on failure? | Pros                      | Cons                            |
 | ------------------ | -------------------------- | ------------------------- | ------------------------------- |

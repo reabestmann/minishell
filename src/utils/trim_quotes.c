@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/18 15:46:22 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/18 16:21:47 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/19 21:06:03 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 /* trim_quotes:
  * If the token text is wrapped by matching quotes ('...' or "...")
  * remove exactly one pair; otherwise return a duplicate unchanged.
- */
+ 
 char	*trim_quotes(const char *str)
 {
 	size_t	len;
@@ -47,4 +47,54 @@ void	trim_quotes_for_execution(char **args)
 		args[i] = temp;
 		i++;
 	}
+}
+
+*/
+
+char *strip_quotes(const char *token)
+{
+    int i = 0, j = 0;
+    char state = 0;
+    char *clean = malloc(strlen(token) + 1);
+    if (!clean) return NULL;
+
+    while (token[i]) 
+	{
+        if (state == 0)
+		{
+            if (token[i] == '\'') state = '\'';
+            else if (token[i] == '"') state = '"';
+            else clean[j++] = token[i];
+        } 
+		else if (state == '\'') 
+		{
+            if (token[i] == '\'') state = 0;
+            else clean[j++] = token[i];
+			//dont send to expander
+        } 
+		else if (state == '"') 
+		{
+            if (token[i] == '"') state = 0;
+            else clean[j++] = token[i];
+        }
+        i++;
+    }
+	if (state != 0) 
+	  {
+		printf(">");
+        // unclosed quote detected
+        free(clean);
+        return NULL; //let main know to do >
+	  }
+    clean[j] = '\0';
+    return clean;
+}
+
+void trim_quotes_for_execution(char **tokens) 
+{
+    for (int i = 0; tokens[i]; i++) {
+        char *cleaned = strip_quotes(tokens[i]);
+        free(tokens[i]);
+        tokens[i] = cleaned;
+    }
 }
