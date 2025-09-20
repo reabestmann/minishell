@@ -68,6 +68,7 @@ void	fd_check(int fd, int std_fd, char *file)
 static int	heredoc_fd(const char *delimiter)
 {
 	int		fd;
+	int		rfd;
 	char	*line;
 
 	fd = open(".heredoc_tmp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -86,21 +87,25 @@ static int	heredoc_fd(const char *delimiter)
 		free(line);
 	}
 	close(fd);
-	return (open(".heredoc_tmp", O_RDONLY));
+	rfd = open(".heredoc_tmp", O_RDONLY);
+	unlink(".heredoc_tmp");
+	return (rfd);
 }
 
 /* apply_redirections:
 	Applies input/output redirections for a command.
 	Redirects stdin from infile, stdout to outfile. 
+	- if heredoc, call fd_check
 	- if append = 1, it appends the outfile (>>).
 	- if append = 2, it overwrites/truncates the outfile (>).
-	- if append = 3, temporary heredoc file (<<), redirected from STDIN.
 	Calls fd_check for safe file descriptor handling.
 */
 void	apply_redirections(t_command *cmd)
 {
 	int	fd;
 
+	if (cmd->heredoc != -1)
+		fd_check(cmd->heredoc, STDIN_FILENO, "heredoc");
 	if (cmd->infile)
 	{
 		fd = open(cmd->infile, O_RDONLY);
@@ -108,20 +113,11 @@ void	apply_redirections(t_command *cmd)
 	}
 	if (cmd->outfile)
 	{
-		if (cmd->append == 1 || cmd->append == 2)
-		{
-			if (cmd->append == 1) // >>
-				fd = open(cmd->outfile, O_WRONLY | O_CREAT | O_APPEND, 0644);
-			else if (cmd->append == 2) // >
-				fd = open(cmd->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-			fd_check(fd, STDOUT_FILENO, cmd->outfile);
-		}
-		else if (cmd->append == 3) // <<
-		{
-			fd = heredoc_fd(cmd->outfile);
-			fd_check(fd, STDIN_FILENO, cmd->outfile);
-			unlink(".heredoc_tmp");
-		}
+		if (cmd->append == 1) // >>
+			fd = open(cmd->outfile, O_WRONLY | O_CREAT | O_APPEND, 0644);
+		else if (cmd->append == 2) // >
+			fd = open(cmd->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		fd_check(fd, STDOUT_FILENO, cmd->outfile);
 	}
 }
 
@@ -160,7 +156,10 @@ void	parse_redirection(t_command *cmd, t_token **cpy)
 	else if ((*cpy)->type == TOKEN_REDIR_APPEND)
 		set_redirection(cmd, next, 1);
 	else if ((*cpy)->type == TOKEN_HEREDOC)
-		set_redirection(cmd, next, 3);
+	{
+		if (next && next->type == TOKEN_WORD)
+			cmd->heredoc = heredoc_fd(next->val);
+	}
 	if (next)
 		*cpy = next;
 }

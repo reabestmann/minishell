@@ -41,6 +41,7 @@ static t_command	*create_cmd(void)
 	cmd->append = 0;
 	cmd->in_child = 0;
 	cmd->next = NULL;
+	cmd->heredoc = -1;
 	return (cmd);
 }
 
