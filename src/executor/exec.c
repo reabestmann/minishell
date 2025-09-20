@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/17 17:17:39 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/19 21:34:31 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@
 
 int	run_builtin(t_command *cmd, t_env **env)
 {
+	trim_quotes_for_execution(cmd->args);
 	if (str_equals(cmd->args[0], "echo"))
 		return (echo_cmd(cmd));
 	if (str_equals(cmd->args[0], "cd"))
@@ -104,6 +105,7 @@ void	execute(char **args, char **envp)
 		ft_putstr_fd("\n", 2);
 		exit(127);
 	}
+	trim_quotes_for_execution(args);
 	if (execve(path, args, envp) == -1)
 	{
 		perror("execve");
@@ -134,6 +136,7 @@ static int	fork_process(t_command *cmds, t_env **env)
 	return (get_exit_status(status));
 }
 
+
 /* run_command: 
 	main entry point to run a command node.
 	If args is empty, does nothing.  
@@ -148,6 +151,12 @@ int	run_command(t_command *cmds, t_env **env, int status)
 		return (0);
 	if (has_dollar(cmds->args))
 		dollar_expansion(cmds, env, status);
+	//I want to print all my commands here so that I can see how they look
+	  // --- DEBUG: print all args after expansion ---
+    for (int i = 0; cmds->args[i]; i++)
+        printf("arg[%d] = %s\n", i, cmds->args[i]);
+    // ---------------------------------------------
+
 	if (!cmds->in_child && !cmds->infile && !cmds->outfile && !cmds->next)
 	{
 		if (cmds->modifies_shell)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/17 16:35:27 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/18 15:58:24 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ t_token	*lexer(const char *input);
 int    handle_input(char *input, t_env **env, int status);
 t_command	*parser(t_token *tokens);
 /* parse_utils.c */
-char	*trim_quotes(const char *str, int in_squote, int in_dquote);
+char	*trim_quotes(const char *str);
 int	skip_spaces(const char *str, int i);
 void	update_quotes(char c, int *in_quote, int *in_dquote);
 void	set_cmd_flags(t_command *cmd);
@@ -80,8 +80,11 @@ int	exit_cmd(t_command *cmd);
 int	export_cmd(t_command *cmd, t_env **env);
 /* unset_cmd.c */
 int	unset_cmd(t_command *cmd, t_env **env);
-/* utils/
- * free.c */
+/* utils*/
+/* trim_quotes */
+char	*trim_quotes(const char *str);
+void	trim_quotes_for_execution(char **args);
+/* free.c */
 void    free_array(char **array);
 void    free_commands(t_command *cmds);
 void    free_tokens(t_token *tokens);

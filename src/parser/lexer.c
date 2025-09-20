@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 15:26:43 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/17 14:55:16 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/18 14:33:37 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,8 @@ static t_token	*create_token(const char *str,
 	t_token	*token;
 
 	token = handle_malloc(sizeof(t_token));
-	token->val = trim_quotes(str, in_squote, in_dquote);
+	token->val = ft_strdup((char *)str); //this is malloced
+	//token->val = trim_quotes(str, in_squote, in_dquote);
 	if (!token->val)
 	{
 		free(token);
