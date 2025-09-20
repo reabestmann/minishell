@@ -134,9 +134,12 @@ t_command	*parser(t_token *tokens)
 	cpy = tokens;
 	while (cpy)
 	{
+		if (cpy->type == TOKEN_PIPE && (check_pipe_syntax(current, cpy) == -1))
+				return (NULL);
 		if (handle_token(&cpy, &cmds, &current) == -1)
 			return (NULL);
 		cpy = cpy->next;
+		
 	}
 	set_cmd_flags(current);
 	append_cmd(&cmds, current);

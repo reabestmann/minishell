@@ -25,7 +25,6 @@
      - FDs are closed after dup2 to prevent leaks
      - Works with standalone commands, pipelines, heredocs, and redirections
 */
-*/
 
 /* fd_check:
    Safely redirects one file descriptor to another.
