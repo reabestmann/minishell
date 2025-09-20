@@ -12,15 +12,31 @@
 
 #include "../minishell.h"
 
-int	check_pipe_syntax(t_command *current, t_token *token)
+static int	check_pipe_syntax(t_token *token)
 {
 	if (!token || token->type != TOKEN_PIPE)
 		return (0);
-	if (!current->args || current->args[0] ||
-		!token->next || token->next->type == TOKEN_PIPE)
+	if (!token->next || token->next->type == TOKEN_PIPE)
 	{
 		ft_putstr_fd("minishell: parse error near pipe.\n", 2);
 		return (-1);
 	}
 	return (0);
+}
+
+int	syntax_valid(t_token *tokens)
+{
+	t_token	*cpy;
+
+	if (tokens && tokens->type == TOKEN_PIPE)
+		return (0);
+	cpy = tokens;
+	while (cpy)
+	{
+		if (check_pipe_syntax(cpy) == -1)
+				return (0);
+		// todo: add more syntax checks that might be missing
+		cpy = cpy->next;
+	}
+	return (1);
 }

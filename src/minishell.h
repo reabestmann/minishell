@@ -6,7 +6,7 @@
 /*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/20 18:32:21 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/20 18:46:20 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ void	update_quotes(char c, int *in_quote, int *in_dquote);
 void	set_cmd_flags(t_command *cmd);
 int has_dollar(char **args);
 /* syntax.c */
-int	check_pipe_syntax(t_command *current, t_token *token);
+int	syntax_valid(t_token *tokens);
 /* expand.c */
 void	dollar_expansion(t_command *cmd, t_env **head, int last_status);
 /* executor/ 

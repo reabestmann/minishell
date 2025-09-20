@@ -30,6 +30,11 @@ int	handle_input(char *input, t_env **env, int status)
 	tokens = lexer(input);
 	if (!tokens)
 		return (0);
+	if (!syntax_valid(tokens))
+	{
+		free_tokens(tokens);
+		return (2);
+	}
 	cmds = parser(tokens);
 	if (cmds)
 	{
@@ -55,7 +60,6 @@ int	main(int params, char **argv, char **envp)
 	init_signals();
 	disable_ctrl_echo();
 	status = 0;
-
 	while (1)
 	{
 		input = readline("mini$	");
