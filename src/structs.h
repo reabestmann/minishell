@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 14:17:57 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/20 16:12:41 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/20 17:46:10 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ typedef struct s_command
 	char	*infile;		// Redirection input file
 	char	*outfile;		// Redirection output file
 	int	append;			// 1 to append (>>), 2 to overwrite (>)
-	int	heredoc;		// -1 if not a herec, else the open fd
+	int	heredoc;		// -1 if not a heredoc, else the fd
 	int	modifies_shell;		// 1 if cmd modifies envp, 0 if not
 	int	in_child;		// 1 if cmd is already running in a child process
 	struct s_command	*next;  // Next command in pipeline

@@ -12,36 +12,28 @@
 
 #include "../minishell.h"
 
-/* REMINDERS
+/*    Execution flow:
+     1. parse_redirection() sets infile, outfile, append, heredoc
+     2. heredoc_fd() reads user input → returns fd
+     3. apply_redirections() dup2s FDs based on priority:
+        stdin  ← heredoc / infile / pipe read
+        stdout → outfile / pipe write
+     4. fd_check() safely duplicates and closes original fd.
 
-   REDIRECTIONS:
-    < = input redirection
-    > = output overwrite
-    >> = output append
-    << = heredoc
-
-	
-   FILE PERMISSION '0644':
-	0 6 4 4
-	│ │ │ │
-	│ │ │ └─ others: read only (4)
-	│ │ └── group: read only (4)
-	│ └── owner: read + write (6)
-	└── special flag (0)
-
-   FILE DESCRIPTORS:
-	0 = stdin
-	1 = stdout
-	2 = stderr
+	 Notes:
+     - Heredoc overrides infile if both exist
+     - FDs are closed after dup2 to prevent leaks
+     - Works with standalone commands, pipelines, heredocs, and redirections
+*/
 */
 
 /* fd_check:
-	Checks if 'fd' is valid.
-	calls dup2(old_fd, new_fd): 
-	 redirects stdin/stdout to files, pipes or heredocs.
-	 - makes new_fd point to the same file/pipe as old_fd.
-	 - if new_fd was open, it closes it.
-	Closes the orinigal fd and handles errors.
+   Safely redirects one file descriptor to another.
+   - Checks if 'fd' is valid (<0 = error).
+   - Uses dup2(fd, std_fd) to make std_fd point to the same source as fd.
+   - Closes fd after duplication to avoid leaks.
+   - Handles stdin, stdout, heredocs, files, or pipes.
+   - Example: fd_check(cmd->heredoc, STDIN_FILENO, "heredoc")
 */
 void	fd_check(int fd, int std_fd, char *file)
 {
@@ -56,14 +48,12 @@ void	fd_check(int fd, int std_fd, char *file)
 }
 
 /* heredoc_fd:
-	Reads user input until the user specified delimiter
-	- eg.: cat << EOF
-	  Hello
-	  World
-	  EOF
-	  -> Everything typed goes to cat until EOF is typed on a line by itself.
-	Writes those input lines to a pipe, then returns the read end of the pipe.
-	The calling command can redirect stdin from this file descriptor.
+   Implements the << heredoc behavior.
+   - Reads lines from the user until the specified delimiter is typed.
+   - Writes all lines to a temporary file.
+   - Returns an fd that can be used as stdin for a command.
+   - Temporary file is deleted immediately after opening for reading.
+   - Example usage: cmd->heredoc = heredoc_fd("EOF");
 */
 static int	heredoc_fd(const char *delimiter)
 {
@@ -93,12 +83,15 @@ static int	heredoc_fd(const char *delimiter)
 }
 
 /* apply_redirections:
-	Applies input/output redirections for a command.
-	Redirects stdin from infile, stdout to outfile. 
-	- if heredoc, call fd_check
-	- if append = 1, it appends the outfile (>>).
-	- if append = 2, it overwrites/truncates the outfile (>).
-	Calls fd_check for safe file descriptor handling.
+   Sets up all input/output redirections for a command before execution.
+   Input priority: heredoc > infile > pipe from previous command
+   Output priority: outfile > pipe to next command
+   - If heredoc exists (cmd->heredoc != -1), dup2 it to STDIN
+   - If infile exists, open it and dup2 to STDIN
+   - If outfile exists:
+       append == 1 → >> append mode
+       append == 2 → > truncate/overwrite mode
+       dup2 to STDOUT
 */
 void	apply_redirections(t_command *cmd)
 {
@@ -122,8 +115,8 @@ void	apply_redirections(t_command *cmd)
 }
 
 /* set_redirection:
-    fills the command struct with the values of its outfile and append type
-    based on the values contained in the token.
+   Helper for parse_redirection.
+   Sets cmd->outfile and cmd->append type based on the token.
 */
 static void	set_redirection(t_command *cmd, t_token *token, int append_type)
 {
@@ -135,9 +128,12 @@ static void	set_redirection(t_command *cmd, t_token *token, int append_type)
 }
 
 /* parse_redirection:
-    Checks the current token for a redirection operator.
-    Sets the command's infile or outfile and append type accordingly.
-    Advances the token pointer to the filename/delimiter token.
+   Parses a token and updates the command struct with redirection info.
+   - < : input file → cmd->infile
+   - > : output truncate → cmd->outfile, append=2
+   - >>: output append → cmd->outfile, append=1
+   - <<: heredoc → cmd->heredoc = heredoc_fd(delimiter)
+   - Advances token pointer to the filename/delimiter
 */
 void	parse_redirection(t_command *cmd, t_token **cpy)
 {
