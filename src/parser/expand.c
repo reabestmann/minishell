@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/16 17:34:46 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/22 18:14:14 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/22 19:48:55 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,7 +204,6 @@ char	*append_key_value(t_env *head, char *arg, int *i, char *result)
 	return (result);
 }
 
-
 // expand_one_arg:
 //  - Purpose: Expand one $ token (VAR or ?)
 //  - Calls: append_key_value, append_result
@@ -265,7 +264,7 @@ char	*add_temp(char *arg, char *result, int *i)
 //  - Calls: set_state, init_expansion, add_temp, expand_one_arg
 //  - Returns: New allocated string with expansions
 // 0 = unquoted, ' = single, " = double
-char	*expand_arg_keep_quotes(char *arg, t_env *head, int last_status)
+/*char	*expand_arg_keep_quotes(char *arg, t_env *head, int last_status)
 {
 	int		i;
 	char	state;
@@ -290,6 +289,56 @@ char	*expand_arg_keep_quotes(char *arg, t_env *head, int last_status)
 		}
 		else
 			result = add_temp(arg, result, &i);
+	}
+	return (result);
+}*/
+char	*expand_arg_keep_quotes(char *arg, t_env *head, int last_status)
+{
+	int		i;
+	char	state;
+	char	*result;
+	char	*sub;
+	int		start;
+
+	i = 0;
+	state = 0;
+	result = ft_strdup("");
+	if (!result)
+		return (NULL);
+
+	while (arg[i])
+	{
+		// update quote state and append quote char if needed
+		result = set_state(arg, &i, result, &state);
+		if (!arg[i])
+			break;
+
+		if (state == '\'')
+		{
+			// Inside single quotes: copy everything literally until next '
+			start = i;
+			while (arg[i] && arg[i] != '\'')
+				i++;
+			sub = ft_substr(arg, start, i - start);
+			result = append_normal_text(sub, result);
+			free(sub);
+		}
+		else if (arg[i] == '$')
+		{
+			// Expand variable (only outside or in double quotes)
+			sub = expand_one_arg(arg, &i, head, last_status);
+			result = append_expansion(&sub, result);
+		}
+		else
+		{
+			// Normal text (outside quotes or in double quotes)
+			start = i;
+			while (arg[i] && arg[i] != '$' && arg[i] != '"' && arg[i] != '\'')
+				i++;
+			sub = ft_substr(arg, start, i - start);
+			result = append_normal_text(sub, result);
+			free(sub);
+		}
 	}
 	return (result);
 }
