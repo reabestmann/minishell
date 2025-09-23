@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/19 21:34:31 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/23 13:30:51 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,7 @@ int	run_builtin(t_command *cmd, t_env **env)
 	if (str_equals(cmd->args[0], "pwd"))
 		return (pwd_cmd(env));
 	if (str_equals(cmd->args[0], "export"))
-		return (printf("export not ready yet \n"));
-		//return (export_cmd(cmd, env));
+		return (export_cmd(cmd, env));
 	if (str_equals(cmd->args[0], "unset"))
 		return (unset_cmd(cmd, env));
 	if (str_equals(cmd->args[0], "env"))
@@ -151,11 +150,11 @@ int	run_command(t_command *cmds, t_env **env, int status)
 		return (0);
 	if (has_dollar(cmds->args))
 		dollar_expansion(cmds, env, status);
-	//I want to print all my commands here so that I can see how they look
+	/*//I want to print all my commands here so that I can see how they look
 	  // --- DEBUG: print all args after expansion ---
     for (int i = 0; cmds->args[i]; i++)
         printf("arg[%d] = %s\n", i, cmds->args[i]);
-    // ---------------------------------------------
+    // ---------------------------------------------*/
 
 	if (!cmds->in_child && !cmds->infile && !cmds->outfile && !cmds->next)
 	{

@@ -6,13 +6,24 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/18 15:46:22 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/22 23:38:15 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/22 23:42:26 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
 /*
+trim_quotes_for_execution(args)    <-- called from your shell/main
+│
+├─ remove_quotes(arg)               <-- called for each argument
+│   │
+│   └─ arg_loop(arg, &i, &j, clean)  <-- called for each character
+│       │
+│       ├─ quote_check(arg, &i, &state)  <-- sets state when a quote is found
+│       │
+│       └─ found(arg, &i)    
+
+
  * quote_check:
  *  - Sets the quote state when a single (') or double (") quote is found.
  *  - Inputs:

@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/16 17:34:46 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/22 22:02:58 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/23 15:11:10 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ char	*append_result(t_env *head, char *key, char *result, int last_status)
 - Purpose: Check if arg[i] starts a valid env key
 - Returns: 1 if valid, 0 if not
 - Side effect: sets *len to key length*/
-int	is_valid_key(char *arg, int i, int *len)
+static int	is_valid_key(char *arg, int i, int *len)
 {
 	int	start;
 
