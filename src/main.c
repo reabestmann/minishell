@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:53:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/23 18:37:09 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/23 20:07:33 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,11 @@ int	handle_input(char *input, t_env **env, int status)
 	tokens = lexer(input);
 	if (!tokens)
 		return (0);
-	/*if (!syntax_valid(tokens))
+	if (!syntax_valid(tokens))
 	{
 		free_tokens(tokens);
 		return (2);
-	}*/
+	}
 	cmds = parser(tokens);
 	if (cmds)
 	{
@@ -66,8 +66,6 @@ int	main(int params, char **argv, char **envp)
 		if (!input)
 		{
 			printf("exit\n");
-		/*todo: clean up here ie deal with any resources*/
-			enable_ctrl_echo();
 			break ;
 		}
 		if (*input)
