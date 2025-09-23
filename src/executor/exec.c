@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/23 16:59:08 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/23 19:15:31 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ int	run_builtin(t_command *cmd, t_env **env)
 	if (str_equals(cmd->args[0], "env"))
 		return (env_cmd(env));
 	if (str_equals(cmd->args[0], "exit"))
-		return (exit_cmd(cmd));
+		return (exit_cmd(cmd, env));
 	return (-1);
 }
 

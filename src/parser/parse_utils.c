@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 12:00:54 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/18 22:54:30 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/23 19:23:13 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,8 @@ void	set_cmd_flags(t_command *cmd)
 		return ;
 	if (str_equals(cmd->args[0], "cd") || 
 		str_equals(cmd->args[0], "export") ||
-		str_equals(cmd->args[0], "unset"))
+		str_equals(cmd->args[0], "unset") ||
+		str_equals(cmd->args[0], "exit")) 
 		cmd->modifies_shell = 1;
 	else
 		cmd->modifies_shell = 0;
