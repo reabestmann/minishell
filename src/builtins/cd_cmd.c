@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:25 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/23 16:06:53 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/23 17:52:24 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,13 @@ char *expand_home(char *target_dir)
 	return(ft_strdup(target_dir));
 }
 
+static int is_quoted(char *arg)
+{
+	if (!arg)
+		return (0);
+	return (arg[0] == '\'' || arg[0] =='"');
+}
+
 int	cd_cmd(t_command *cmd, t_env **env)
 {
 	char	*oldpwd;
@@ -103,14 +110,16 @@ int	cd_cmd(t_command *cmd, t_env **env)
 	target_dir = cmd->args[1];
 	if (!target_dir)
 		target_dir = getenv("HOME");
-	else if (ft_strncmp(target_dir, "~", 1) == 0 && (target_dir[1] == '\0' || target_dir[1] == '/'))
+	else if (target_dir[0] == '~' && (target_dir[1] == '\0' || target_dir[1] == '/') && !is_quoted(target_dir))
 	{
 		temp = expand_home(target_dir);
-		/*if (!temp)
+		if (!temp)
 			return (1);
-		target_dir = temp;*/
 	}
-	else if (ft_strncmp(target_dir, "-", 1) == 0 && target_dir[1] == '\0')
+	trim_quotes_for_execution(cmd->args);
+	if (cmd->args[1])
+		target_dir = cmd->args[1];
+	if (ft_strncmp(target_dir, "-", 1) == 0 && target_dir[1] == '\0')
 	{
 		paths = *env;
 		while(paths && ft_strncmp(paths->key, "OLDPWD", 6) != 0)
@@ -141,5 +150,7 @@ int	cd_cmd(t_command *cmd, t_env **env)
 	update_newpwd(env, newpwd);
 	free(oldpwd);
 	free(newpwd);
+	if (temp)
+		free(temp);
 	return (0);
 }
