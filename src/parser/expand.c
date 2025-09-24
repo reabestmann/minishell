@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/16 17:34:46 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/23 15:11:10 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/24 12:09:20 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,8 +112,7 @@ char	*append_result(t_env *head, char *key, char *result, int last_status)
 	new_result = set_result(res_len, val_len, result, val);
 	if (!new_result)
 		return (free_val(&last_status, &val), NULL);
-	if (last_status != -1)
-		free(val);
+	free(val);
 	if (result)
 		free(result);
 	return (new_result);

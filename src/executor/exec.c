@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/23 19:15:31 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/24 21:59:52 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,26 +92,144 @@ static char	*find_path(char *cmd, char **envp)
 	and exits 127 (command not found).
 	If found, runs execve() with args/envp, exits on failure.
 */
-void	execute(char **args, char **envp)
+/*void	execute(char **args, char **envp)
 {
 	char	*path;
 
-	path = find_path(args[0], envp);
+	trim_quotes_for_execution(args);
+	if (args[0][0] == '/' || args[0][0] == '.')
+		path = ft_strdup(args[0]);
+	else
+		path = find_path(args[0], envp);
 	if (!path)
 	{
-		ft_putstr_fd("minishell: command not found: ", 2);
+		ft_putstr_fd("minishell: ", 2);
 		ft_putstr_fd(args[0], 2);
-		ft_putstr_fd("\n", 2);
+		ft_putstr_fd(": No such file or directory\n", 2);
 		exit(127);
 	}
-	trim_quotes_for_execution(args);
 	if (execve(path, args, envp) == -1)
 	{
-		perror("execve");
+		ft_putstr_fd("minishell: ", 2);
+		ft_putstr_fd(args[0], 2);
+		ft_putstr_fd(": ", 2);
+		//ft_putstr_fd(strerror(errno), 2);
+		ft_putstr_fd("\n", 2);
 		free(path);
-		exit(1);
+		if (errno == 13)
+			exit(126); //permission denied
+		else
+			exit(127); //command not found
 	}
+}*/
+
+void execute(char **args, char **envp)
+{
+    char *path;
+    struct stat sb;
+
+    if (!args || !args[0])
+        return;
+
+    trim_quotes_for_execution(args);
+	if (!args[0] || args[0][0] == '\0')
+		return;
+    // Determine the path
+    if (args[0][0] == '/' || (args[0][0] == '.' && args[0][1] == '/'))
+        path = ft_strdup(args[0]);
+    else
+        path = find_path(args[0], envp);
+
+    if (!path)
+    {        
+        if (args[0][0] == '/' || args[0][0] == '.')
+		{
+			ft_putstr_fd("minishell: ", 2);
+        	ft_putstr_fd(args[0], 2);
+            ft_putstr_fd(": No such file or directory\n", 2);
+		}
+		else
+		{
+			ft_putstr_fd(args[0], 2);
+            ft_putstr_fd(": command not found\n", 2);
+		}
+        exit(127);
+    }
+
+    // Check file existence and type
+    if (stat(path, &sb) == -1)
+    {
+        ft_putstr_fd("minishell: ", 2);
+        ft_putstr_fd(args[0], 2);
+        ft_putstr_fd(": No such file or directory\n", 2);
+        free(path);
+        exit(127);
+    }
+
+    // Check if path is a directory
+    if (S_ISDIR(sb.st_mode))
+    {
+        ft_putstr_fd("minishell: ", 2);
+        ft_putstr_fd(args[0], 2);
+        ft_putstr_fd(": Is a directory\n", 2);
+        free(path);
+        exit(126);
+    }
+
+    // Check execute permission
+    if (access(path, X_OK) == -1)
+    {
+        ft_putstr_fd("minishell: ", 2);
+        ft_putstr_fd(args[0], 2);
+        ft_putstr_fd(": Permission denied\n", 2);
+        free(path);
+        exit(126);
+    }
+
+    // Execute the command
+    execve(path, args, envp);
+
+    // If execve fails for some reason
+    ft_putstr_fd("minishell: ", 2);
+    ft_putstr_fd(args[0], 2);
+    ft_putstr_fd(": execution failed\n", 2);
+    free(path);
+    exit(1);
 }
+/*
+void execute(char **args, char **envp)
+{
+    char *path;
+
+    trim_quotes_for_execution(args);
+
+    // Skip empty commands
+    if (!args[0] || args[0][0] == '\0')
+        return;
+
+    if (args[0][0] == '/' || args[0][0] == '.')
+        path = ft_strdup(args[0]);
+    else
+        path = find_path(args[0], envp);
+
+    if (!path)
+    {
+        ft_putstr_fd("minishell: ", 2);
+        ft_putstr_fd(args[0], 2);
+        if (args[0][0] == '/' || args[0][0] == '.')
+            ft_putstr_fd(": No such file or directory\n", 2);
+        else
+            ft_putstr_fd(": command not found\n", 2);
+        exit(127);
+    }
+
+    if (execve(path, args, envp) == -1)
+    {
+        perror("execve");
+        free(path);
+        exit(1);
+    }
+}*/
 
 /* fork_process: 
 	creates a child process with fork().

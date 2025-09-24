@@ -6,23 +6,29 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:54 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/23 15:16:02 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/24 22:04:50 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-static int	is_valid_key(char *arg, int i, int *len)
+static int	is_valid_key(char *arg, int *len)
 {
-	int	start;
+	int	i;
 
-	start = i;
+	i = 0;
+	if (!arg || arg[0] == '\0')
+		return (0);
 	if (!ft_isalpha(arg[i]) && arg[i] != '_')
 		return (0);
 	i++;
-	while (arg[i] != '\0' && (ft_isalnum(arg[i]) || arg[i] == '_'))
+	while (arg[i] != '\0' && arg[i] != '=')
+	{
+		if (!ft_isalnum(arg[i]) && arg[i] != '_')
+			return (0);
 		i++;
-	*len = i - start;
+	}
+	*len = i;
 	return (1);
 }
 /* setting_key(path, equals, new_node)
@@ -228,7 +234,7 @@ static int	update_var(char *path, t_env **env)
 	int		match;
 	int		key_len;
 
-	if (!is_valid_key(path, 0, &key_len))
+	if (!is_valid_key(path, &key_len))
 	{
 		ft_putstr_fd("-mini: export: `", 2);
 		ft_putstr_fd(path, 2);
