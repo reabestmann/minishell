@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 16:02:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/25 21:04:02 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/25 21:27:12 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,16 +81,31 @@ void	fd_check(int fd, int std_fd, char *file)
 	return (rfd);
 }*/
 
-int dol_q_expansion(char *line, int *i, int last_status, char *result)
+/* dol_q_expansion:
+   Handles the special "$?" expansion inside heredocs.
+   - If current char is '?', replace with last_status converted to string.
+   - Appends it to result using append_normal_text().
+   - Advances index past '?'.
+   - Returns:
+       1 → expansion handled
+      -1 → malloc failure
+       0 → not a "$?" expansion
+*/
+int dol_q_expansion(char *line, int *i, int last_status, char **result)
 {
 	char	*num;
+	char	*temp;
 
 	if (line[*i] == '?') // special case $?
 	{
 		num = ft_itoa(last_status);
 		if (!num)
 			return (-1);
-		result = append_normal_text(num, result);
+		temp = append_normal_text(num, *result);
+		if (!temp)
+			return (free(num), -1);
+		free(*result);
+		*result = temp;
 		free(num);
 		(*i)++;
 		return (1);
@@ -98,11 +113,22 @@ int dol_q_expansion(char *line, int *i, int last_status, char *result)
 	return (0);
 }
 
+/* parse_key:
+   Parses a variable name starting at *i inside heredoc expansion.
+   - Extracts alphanumeric/underscore sequence as key.
+   - Looks up value with getenv(key) (later replace with lookup in t_env).
+   - Appends value (or "" if not found) to *result.
+   - Advances *i to the end of the key.
+   - On malloc failure, frees key and leaves *result unchanged.
+   - Note:
+   ⚠️ Later you might replace getenv with lookup in your own t_env.
+*/
 void	parse_key(int start_idx, int *i, char *line, char **result)
 {
 	char	*key;
 	char	*val;
 	int		start;
+	char	*temp;
 
 	start = start_idx;
 	if (start == -1)
@@ -115,19 +141,45 @@ void	parse_key(int start_idx, int *i, char *line, char **result)
 	val = getenv(key); // is out t_env available at this point?
 	if (!val)
 		val = "";
-	*result = append_normal_text(val, *result);
+	temp = append_normal_text(val, *result);
+	if (!temp)
+	{
+		free(key);
+		return ;
+	}
+	free(*result);
+	*result = temp;
 	free(key);
 }
 
+/* handle_normal_txt:
+   Appends a single non-special character from line[*i] to result.
+   - Wraps it in a buffer and calls append_normal_text().
+   - Returns updated result, or NULL on malloc failure.
+   - Caller must free result if NULL is returned.
+*/
 char	*handle_normal_txt(int *i, char *line, char *result)
 {
 	char	buf[2];
+	char	*temp;
 
 	buf[0] = line[*i];
 	buf[1] = '\0';
-	return (append_normal_text(buf, result));
+	temp = append_normal_text(buf, result);
+	if (!temp)
+	{
+		free(result);
+		return (NULL);
+	}
+	return (temp);
 }
 
+/* init_res_i:
+   Initializes heredoc expansion loop variables.
+   - Sets index *i to 0.
+   - Allocates an empty result string ("").
+   - Returns 1 on success, 0 on malloc failure.
+*/
 int	init_res_i(int *i, char **result)
 {
 	*i = 0;
@@ -137,6 +189,15 @@ int	init_res_i(int *i, char **result)
 	return (1);
 }
 
+/* expand_for_heredoc:
+   Performs variable expansion inside a heredoc line.
+   - Iterates through characters in line.
+   - If '$' is found:
+       → try "$?" via dol_q_expansion
+       → else parse variable with parse_key
+   - Otherwise appends normal characters.
+   - Returns expanded result string or NULL on error.
+*/
 char	*expand_for_heredoc(char *line, int last_status)
 {
 	char	*result;
@@ -150,7 +211,7 @@ char	*expand_for_heredoc(char *line, int last_status)
 		if (line[i] == '$')
 		{
 			i++;
-			handled = dol_q_expansion(line, &i, last_status, result);
+			handled = dol_q_expansion(line, &i, last_status, &result);
 			if (handled == -1)
 				return (free(result), NULL);
 			if (handled == 1)
@@ -166,6 +227,12 @@ char	*expand_for_heredoc(char *line, int last_status)
 	return (result);
 }
 
+/* process_line:
+   Prepares a line before writing it to heredoc file.
+   - If expand == 1, performs variable expansion.
+   - If expand == 0, returns line unchanged.
+   - Always frees original line if expansion is done.
+*/
 char	*process_line(char *line, int expand)
 {
 	char	*result;
@@ -173,12 +240,17 @@ char	*process_line(char *line, int expand)
 	result = line;
 	if (expand)
 	{
-		result = expand_for_heredoc(line, -1);
+		result = expand_for_heredoc(line, -1);//how can I actally get last_status here?
 		free(line);
 	}
 	return (result);
 }
 
+/* delimiter_was_quoted:
+   Checks if a heredoc delimiter is quoted.
+   - Returns 1 if delimiter starts/ends with matching quotes.
+   - Used to decide whether expansion is disabled in heredoc.
+*/
 int	delimiter_was_quoted(const char *delimiter)
 {
 	int	len;
@@ -188,6 +260,11 @@ int	delimiter_was_quoted(const char *delimiter)
 			|| (delimiter[0] == '"' && delimiter[len - 1] == '"')));
 }
 
+/* get_trimmed_delimiter:
+   Removes surrounding quotes from heredoc delimiter if present.
+   - Returns newly allocated string with quotes stripped.
+   - If not quoted, returns a strdup of original delimiter.
+*/
 char	*get_trimmed_delimiter(const char *delimiter)
 {
 	int	len;
@@ -199,6 +276,13 @@ char	*get_trimmed_delimiter(const char *delimiter)
 	return (ft_strdup(delimiter));
 }
 
+/* run_heredoc:
+   Reads one line of heredoc input.
+   - Prompts with "> ".
+   - If line matches trimmed delimiter → return 1 (stop).
+   - Otherwise, expand (if expand==1), write line to fd, and continue.
+   - Returns 0 if more lines expected.
+*/
 int	run_heredoc(char *trimmed, int expand, int fd)
 {
 	char	*line;
@@ -216,6 +300,14 @@ int	run_heredoc(char *trimmed, int expand, int fd)
 	return (0);
 }
 
+/* heredoc_fd:
+   Full heredoc implementation for << operator.
+   - Trims delimiter (removes quotes if present).
+   - Determines if expansion is enabled (no quotes).
+   - Reads lines until delimiter is reached.
+   - Writes to temporary ".heredoc_tmp" file.
+   - Returns fd opened for reading the collected heredoc text.
+*/
 static int	heredoc_fd(const char *delimiter)
 {
 	int		fd;
