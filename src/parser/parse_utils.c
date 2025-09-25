@@ -66,8 +66,10 @@ void	set_cmd_flags(t_command *cmd)
 		cmd->modifies_shell = 0;
 }
 
-// Update the quote state for a whole string (token value)
-// state: pointer to current quote state (0, '\'', or '"')
+/* update_state:
+ * Update the quote state for a whole string (token value)
+ * state: pointer to current quote state (0, '\'', or '"')
+ */
 void update_state(const char *str, char *state)
 {
     int i = 0;
@@ -75,14 +77,13 @@ void update_state(const char *str, char *state)
     while (str[i])
     {
         if (str[i] == '\'' && *state == 0)
-            *state = '\'';       // open single quote
+            *state = '\'';
         else if (str[i] == '\'' && *state == '\'')
-            *state = 0;          // close single quote
+            *state = 0;
         else if (str[i] == '"' && *state == 0)
-            *state = '"';        // open double quote
+            *state = '"';
         else if (str[i] == '"' && *state == '"')
-            *state = 0;          // close double quote
-        // single quotes inside double quotes or vice versa are literal
+            *state = 0;
         i++;
     }
 }

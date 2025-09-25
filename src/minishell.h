@@ -94,6 +94,7 @@ int     str_equals(const char *str, const char *target);
 void	*handle_malloc(size_t bytes);
 void	error(const char *msg);
 void	trim_quotes_for_execution(char **args);
+char	*remove_quotes(char *arg);
 /* signals/
  * parent_child_setup.c */
 void	child_signal_setup(void);
