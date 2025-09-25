@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 16:02:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/25 21:33:44 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/25 23:28:32 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,7 +147,6 @@ void	parse_key(int start_idx, int *i, char *line, char **result)
 		free(key);
 		return ;
 	}
-	free(*result);
 	*result = temp;
 	free(key);
 }
@@ -221,6 +220,8 @@ char	*expand_for_heredoc(char *line, int last_status)
 		else
 		{
 			result = handle_normal_text(&i, line, result);
+			if (!result)
+				return (NULL);
 			i++;
 		}
 	}
@@ -237,12 +238,17 @@ char	*process_line(char *line, int expand)
 {
 	char	*result;
 
-	result = line;
+	if (!line)
+		return (NULL);
 	if (expand)
 	{
 		result = expand_for_heredoc(line, -1);//how can I actally get last_status here?
 		free(line);
+		return (result);
 	}
+	// Always return a new allocation, so caller can always free
+	result = ft_strdup(line);
+	free(line);
 	return (result);
 }
 
@@ -286,17 +292,22 @@ char	*get_trimmed_delimiter(const char *delimiter)
 int	run_heredoc(char *trimmed, int expand, int fd)
 {
 	char	*line;
+	char	*processed;
 
 	line = readline("> ");
+	if (!line)
+		return (1);
 	if (str_equals(line, trimmed))
 	{
 		free(line);
 		return (1);
 	}
-	line = process_line(line, expand);
-	ft_putstr_fd(line, fd);
+	processed = process_line(line, expand);
+	if (!processed)
+		return (free(line), 1);
+	ft_putstr_fd(processed, fd);
 	ft_putstr_fd("\n", fd);
-	free(line);
+	free(processed);
 	return (0);
 }
 
