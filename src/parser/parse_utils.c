@@ -66,6 +66,28 @@ void	set_cmd_flags(t_command *cmd)
 		cmd->modifies_shell = 0;
 }
 
+/* update_state:
+ * Update the quote state for a whole string (token value)
+ * state: pointer to current quote state (0, '\'', or '"')
+ */
+void update_state(const char *str, char *state)
+{
+    int i = 0;
+
+    while (str[i])
+    {
+        if (str[i] == '\'' && *state == 0)
+            *state = '\'';
+        else if (str[i] == '\'' && *state == '\'')
+            *state = 0;
+        else if (str[i] == '"' && *state == 0)
+            *state = '"';
+        else if (str[i] == '"' && *state == '"')
+            *state = 0;
+        i++;
+    }
+}
+
 /* trim_quotes:
  * If the token text is wrapped by matching quotes ('...' or "...")
  * remove exactly one pair; otherwise return a duplicate unchanged.

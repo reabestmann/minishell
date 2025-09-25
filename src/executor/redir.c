@@ -187,6 +187,34 @@ static int heredoc_fd(const char *delimiter)
     return rfd;
 }
 
+// helper functions of apply, redirections
+static void	handle_infile(char **filename)
+{
+	char	*clean;
+	int		fd;
+
+	clean = remove_quotes(*filename);
+	free(*filename);
+	*filename = clean;
+	fd = open(*filename, O_RDONLY);
+	fd_check(fd, STDIN_FILENO, *filename);
+}
+
+static void	handle_outfile(char **filename, int append)
+{
+	char	*clean;
+	int		fd;
+
+	clean = remove_quotes(*filename);
+	free(*filename);
+	*filename = clean;
+	fd = 0;
+	if (append == 1)
+		fd = open(*filename, O_WRONLY | O_CREAT | O_APPEND, 0664);
+	else if (append == 2)
+		fd = open(*filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	fd_check(fd, STDOUT_FILENO, *filename);
+}
 /* apply_redirections:
    Sets up all input/output redirections for a command before execution.
    Input priority: heredoc > infile > pipe from previous command
@@ -200,23 +228,12 @@ static int heredoc_fd(const char *delimiter)
 */
 void	apply_redirections(t_command *cmd)
 {
-	int	fd;
-
 	if (cmd->heredoc != -1)
 		fd_check(cmd->heredoc, STDIN_FILENO, "heredoc");
 	if (cmd->infile)
-	{
-		fd = open(cmd->infile, O_RDONLY);
-		fd_check(fd, STDIN_FILENO, cmd->infile);
-	}
+		handle_infile(&cmd->infile);
 	if (cmd->outfile)
-	{
-		if (cmd->append == 1) // >>
-			fd = open(cmd->outfile, O_WRONLY | O_CREAT | O_APPEND, 0644);
-		else if (cmd->append == 2) // >
-			fd = open(cmd->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		fd_check(fd, STDOUT_FILENO, cmd->outfile);
-	}
+		handle_outfile(&cmd->outfile, cmd->append);
 }
 
 /* set_redirection:

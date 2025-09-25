@@ -26,14 +26,16 @@ int	handle_input(char *input, t_env **env, int status)
 {
 	t_token		*tokens;
 	t_command	*cmds;
+	int			valid;
 
 	tokens = lexer(input);
 	if (!tokens)
 		return (0);
-	if (!syntax_valid(tokens))
+	valid = syntax_valid(tokens);
+	if (valid > 0)
 	{
 		free_tokens(tokens);
-		return (2);
+		return (valid);
 	}
 	cmds = parser(tokens);
 	if (cmds)
@@ -76,6 +78,10 @@ int	main(int params, char **argv, char **envp)
 		if (*input && isatty(STDIN_FILENO))
 			add_history(input);
 		status = handle_input(input, &env, status);
+		if (status == 2)
+			input = readline("quote> ");
+		else if (status == 3)
+			input = readline("dquote> ");
 		free(input);
 	}
 	enable_ctrl_echo();
