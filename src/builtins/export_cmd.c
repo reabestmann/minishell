@@ -6,12 +6,31 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:54 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/17 16:37:03 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/24 22:04:50 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
+static int	is_valid_key(char *arg, int *len)
+{
+	int	i;
+
+	i = 0;
+	if (!arg || arg[0] == '\0')
+		return (0);
+	if (!ft_isalpha(arg[i]) && arg[i] != '_')
+		return (0);
+	i++;
+	while (arg[i] != '\0' && arg[i] != '=')
+	{
+		if (!ft_isalnum(arg[i]) && arg[i] != '_')
+			return (0);
+		i++;
+	}
+	*len = i;
+	return (1);
+}
 /* setting_key(path, equals, new_node)
    - Purpose: Extracts the key part from a "KEY=VALUE" string and assigns it to 
    		the node.
@@ -62,7 +81,15 @@ static int	setting_value(char **equals, t_env **new_node)
 		}
 	}
 	else
-		(*new_node)->value = NULL;
+	{
+		(*new_node)->value = ft_strdup("");
+		if (!(*new_node)->value)
+		{
+			free((*new_node)->key);
+			free(*new_node);
+			return (1);
+		}
+	}
 	return (0);
 }
 
@@ -146,7 +173,6 @@ static int	found_match(char *key, t_env *temp, int key_len, char *path)
 	equals = ft_strchr(path, '=');
 	if (ft_strncmp(key, temp->key, key_len) == 0 && temp->key[key_len] == '\0')
 	{
-		free(key);
 		if (temp->value)
 			free(temp->value);
 		if (equals)
@@ -156,7 +182,11 @@ static int	found_match(char *key, t_env *temp, int key_len, char *path)
 				return (1);
 		}
 		else
-			temp->value = NULL;
+		{
+			temp->value = ft_strdup("");
+			if (!temp->value)
+				return (1);
+		}
 		temp->exported = 1;
 		return (2);
 	}
@@ -204,6 +234,13 @@ static int	update_var(char *path, t_env **env)
 	int		match;
 	int		key_len;
 
+	if (!is_valid_key(path, &key_len))
+	{
+		ft_putstr_fd("-mini: export: `", 2);
+		ft_putstr_fd(path, 2);
+		ft_putendl_fd("': not a valid identifier", 2);
+		return(1);
+	}
 	key = find_key(path, &key_len);
 	if (!key)
 		return (1);

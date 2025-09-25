@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:53:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/17 17:47:44 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/23 20:07:33 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,21 +66,15 @@ int	main(int params, char **argv, char **envp)
 		if (!input)
 		{
 			printf("exit\n");
-		/*todo: clean up here ie deal with any resources*/
-			enable_ctrl_echo();
 			break ;
 		}
 		if (*input)
 			add_history(input);
-		if (str_equals(input, "exit"))
-		{
-			free(input);
-			break ;
-		}
 		status = handle_input(input, &env, status);
 		free(input);
 	}
-	/*todo: final clean up*/
 	enable_ctrl_echo();
+	if (env)
+		free_env_struct(env);
 	return (status);
 }

@@ -28,9 +28,7 @@ typedef struct s_token
 {
 	char          *val;     // "echo"
 	t_token_type  type;       // TOKEN_WORD
-	int           in_squote;  // was it inside ' '
-	int           in_dquote;  // was it inside " "
-	struct s_token	*next;	// next member of the linked list
+	struct s_token	*next; // next member of the linked list
 }   t_token;
 
 typedef struct s_command

@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 15:26:43 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/18 14:33:37 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/23 20:10:05 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,7 @@ typedef struct s_token
 	Stores the token string (with quotes trimmed), type, and quote state.
 	Returns pointer to the new t_token.
 */
-static t_token	*create_token(const char *str,
-	t_token_type type, int in_squote, int in_dquote)
+static t_token	*create_token(const char *str, t_token_type type)
 {
 	t_token	*token;
 
@@ -41,8 +40,6 @@ static t_token	*create_token(const char *str,
 		return (NULL);
 	}
 	token->type = type;
-	token->in_squote = in_squote;
-	token->in_dquote = in_dquote;
 	token->next = NULL;
 	return (token);
 }
@@ -96,7 +93,7 @@ static int	handle_stype(t_token **tokens, const char *str)
 	else
 		type = TOKEN_PIPE;
 	tmp = ft_substr(str, 0, len);
-	append_token(tokens, create_token(tmp, type, 0, 0));
+	append_token(tokens, create_token(tmp, type));
 	free(tmp);
 	return (len);
 }
@@ -109,26 +106,25 @@ static int	handle_stype(t_token **tokens, const char *str)
 */
 static int	handle_wtype(t_token **tokens, const char *str)
 {
-	int		len;
-	int		in_squote;
-	int		in_dquote;
-	char	*tmp;
+	int len;
+	int in_squote;
+	int in_dquote;
+	char *tmp;
 
 	len = 0;
 	in_squote = 0;
 	in_dquote = 0;
-	while (str[len])
+	while (str[len]) 
 	{
 		if (!in_squote && !in_dquote && ft_strchr(" \t<>|", str[len]))
-			break ;
+			break;
 		update_quotes(str[len], &in_squote, &in_dquote);
 		len++;
 	}
 	tmp = ft_substr(str, 0, len);
-	append_token(tokens, create_token(tmp, TOKEN_WORD,
-			(str[0] == '\''), (str[0] == '\"')));
+	append_token(tokens, create_token(tmp, TOKEN_WORD));
 	free(tmp);
-	return (len);
+	return len;
 }
 
 /*	lexer

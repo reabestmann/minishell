@@ -6,18 +6,45 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/16 17:34:46 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/19 21:38:00 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/24 12:09:20 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-// find_env_value:
-//  - Called from: append_result
-//  - Purpose: return value of env variable by key
-//  - Calls: ft_strncmp, ft_strlen
-//  - Returns: value string if found, "" if not
-//  - Memory: does not free anything
+/*
+Call Diagram (Textual / Visual)
+dollar_expansion(cmd)
+    └─ expand_arg_keep_quotes(arg)
+        ├─ set_state(arg, i, result, &state)
+        │     ├─ set_state_one  // handles single quotes
+        │     └─ set_state_two  // handles double quotes
+        │     Notes:
+        │       - Single quotes inside double quotes are treated as literal
+        │       - Double quotes inside single quotes are treated as literal
+        │       - Unclosed quotes are allowed; infinite loops avoided
+        ├─ append_normal_text // used to append literal characters
+        └─ append_expansion(&sub, result)
+              └─ expand_one_arg(arg, &i, head, last_status)
+                    ├─ append_key_value (for $VAR)
+                    │      └─ append_result
+                    │            └─ find_env_value
+                    └─ append_result (for $?)
+
+Quote Handling Rules:
+- 0 = unquoted, ' = single, " = double
+- Single quotes inside double quotes are appended literally
+- Double quotes inside single quotes are appended literally
+- $ expansion occurs:
+    - Inside double quotes
+    - Outside quotes
+    - Not inside single quotes
+- Unclosed quotes are allowed; processing stops safely at string end
+*/
+/*find_env_value:
+- Purpose: Return the value of an environment variable by key
+- Returns: Duplicated value string if found, "" if not
+- Memory: Caller must free the returned string*/
 char	*find_env_value(t_env *head, char *key)
 {
 	t_env	*temp;
@@ -29,15 +56,14 @@ char	*find_env_value(t_env *head, char *key)
 			return (ft_strdup(temp->value));
 		temp = temp->next;
 	}
-	return (ft_strdup("")); //saying that key wasnt found so no only appending empty string
+	return (ft_strdup(""));
 }
 
-// set_result:
-//  - Called from: append_result
-//  - Purpose: concatenate result + val into new string
-//  - Calls: malloc, ft_strlcpy, ft_strlcat
-//  - Returns: new allocated string, NULL on malloc fail
-//  - Memory: frees nothing
+/*set_result:
+- Purpose: Concatenate result + val into a new allocated string
+- Returns: New allocated string or NULL on failure
+- Memory: Does not free inputs
+- Caller responsible for freeing previous result*/
 char	*set_result(int res_len, int val_len, char *result, char *val)
 {
 	char	*new_result;
@@ -53,12 +79,18 @@ char	*set_result(int res_len, int val_len, char *result, char *val)
 	return (new_result);
 }
 
-// append_result:
-//  - Called from: expand_one_arg, set_key, append_rest, append_questionmark
-//  - Purpose: append env value or last_status to result
-//  - Calls: find_env_value, ft_itoa, set_result, ft_strlen, free
-//  - Returns: new concatenated string, NULL on malloc fail
-//  - Memory: frees old result and val if dynamically allocated
+void	free_val(int *last_status, char **val)
+{
+	if (*last_status != -1)
+		free(*val);
+}
+
+/*append_result:
+- Purpose: Append env value or last_status to result
+- Memory: Frees old result and temporary value if dynamically allocated
+- Notes: last_status == -1 means use env value, otherwise append last_status 
+	as string
+*/
 char	*append_result(t_env *head, char *key, char *result, int last_status)
 {
 	char	*val;
@@ -78,21 +110,19 @@ char	*append_result(t_env *head, char *key, char *result, int last_status)
 		res_len = 0;
 	val_len = ft_strlen(val);
 	new_result = set_result(res_len, val_len, result, val);
-	if (last_status != -1)
-		free(val);
+	if (!new_result)
+		return (free_val(&last_status, &val), NULL);
+	free(val);
 	if (result)
 		free(result);
 	return (new_result);
 }
 
-// is_valid_key:
-//  - Called from: expand_one_arg, set_key
-//  - Purpose: check if arg[i] starts a valid env key
-//  - Calls: ft_isalpha, ft_isalnum
-//  - Returns: 1 if valid, 0 if not
-//  - Memory: none
-//  - Side effect: sets *len to key length
-int	is_valid_key(char *arg, int i, int *len)
+/*is_valid_key:
+- Purpose: Check if arg[i] starts a valid env key
+- Returns: 1 if valid, 0 if not
+- Side effect: sets *len to key length*/
+static int	is_valid_key(char *arg, int i, int *len)
 {
 	int	start;
 
@@ -106,35 +136,15 @@ int	is_valid_key(char *arg, int i, int *len)
 	return (1);
 }
 
-// set_key:
-//  - Called from: expand_one_arg
-//  - Purpose: extract key from arg and append its value to result
-//  - Calls: is_valid_key, malloc, ft_strlcpy, append_result, free
-//  - Returns: 0 on success, -1 on malloc fail
-//  - Memory: frees temporary key buffer
-int	set_key(t_env *head, char *arg, int *i, char **result)
+/*append_normal_text:
+- Appends literal text to result using set_result
+- Frees old result
+- Always used for literal characters including quotes*/
+char	*append_normal_text(char *text, char *result)
 {
-	char	*key;
-	int		key_len;
-
-	if (is_valid_key(arg, *i, &key_len))
-	{
-		key = malloc(key_len + 1);
-		if (!key)
-			return (-1);
-		ft_strlcpy(key, arg + *i, key_len + 1);
-		*result = append_result(head, key, *result, -1); //i assume -1 is an invalid last_status
-		free(key);
-		*i += key_len;
-	}
-	return (0);
-}
-
-char *append_normal_text(char *text, char *result)
-{
-	int res_len;
-	int val_len;
-	char *new_result;
+	int		res_len;
+	int		val_len;
+	char	*new_result;
 
 	if (!text)
 		return (result);
@@ -144,480 +154,238 @@ char *append_normal_text(char *text, char *result)
 		res_len = 0;
 	val_len = ft_strlen(text);
 	new_result = set_result(res_len, val_len, result, text);
+	if (!new_result)
+	{
+		free(result);
+		return (NULL);
+	}
 	if (result)
 		free(result);
 	return (new_result);
 }
 
-// append_rest:
-//  - Called from: expand_one_arg
-//  - Purpose: append literal text (not part of $VAR or $?) to result
-//  - Calls: malloc, ft_strlcpy, append_result, free
-//  - Returns: 0 on success, -1 on malloc fail
-//  - Memory: frees temporary buffer for literal
-int	append_rest(int *i, char *arg, char **result)
+/*set_state_one / set_state_two:
+- Purpose: Track quote states and append quote characters
+- Notes:
+    - Single quotes inside double quotes are literal
+    - Double quotes inside single quotes are literal
+    - Unclosed quotes are allowed; processing stops safely at end of string
+    - Always uses append_normal_text*/
+char	*set_state_one(char *arg, int *i, char *result, char *state)
 {
-	int		start;
-	char	*rest;
-	
-	if (!arg || !result || !i)
-		return (-1);
-	start = *i;
-	while (arg[*i] && arg[*i] != '$')
-		(*i)++;
-	rest = malloc(*i - start + 1);
-	if (!rest)
-		return (-1);
-	ft_strlcpy(rest, arg + start, *i - start + 1);
-	*result = append_normal_text(rest, *result);
-	free(rest);
-	return (0);
-}
-
-// append_questionmark:
-//  - Called from: expand_one_arg
-//  - Purpose: append last_status ($?) to result
-//  - Calls: append_result
-//  - Returns: void
-//  - Memory: frees nothing
-void	append_questionmark(char **result, t_env *head, int *i, int last_status)
-{
-	*result = append_result(head, NULL, *result, last_status);
-	(*i)++;
-}
-
-// expand_one_arg:
-//  - Called from: dollar_expansion
-//  - Purpose: expand all $VAR and $? in a single argument string
-//  - Calls: append_questionmark, is_valid_key, set_key, append_rest, 
-//			append_result, ft_strdup, free
-//  - Returns: new allocated string with expansions, NULL on malloc fail
-//  - Memory: frees intermediate result on error
-char	*expand_one_arg(char *arg, t_env *head, int last_status)
-{
-	char	*result;/*dont forget to free result later*/
-	int		key_len;
-	int		i;
-
-	i = 0;
-	result = ft_strdup("");
-	while (arg[i] != '\0')
+	if (arg[*i] == '\'' && *state == 0)
 	{
-		if (arg[i] == '$')
-		{
-			i++;
-			if (arg[i] == '?') //
-				append_questionmark(&result, head, &i, last_status);
-			else if (is_valid_key(arg, i, &key_len))
-			{
-				if (set_key(head, arg, &i, &result) == -1)
-					return (free(result), NULL);
-			}
-			else
-				result = append_result(head, "$", result, -1);
-		}
-		else
-		{
-			if (append_rest(&i, arg, &result) == -1)
-				return (free(result), NULL);
-		}
+		result = append_normal_text("'", result);
+		*state = '\'';
+		(*i)++;
+	}
+	else if (arg[*i] == '\'' && *state == '\'')
+	{
+		result = append_normal_text("'", result);
+		*state = 0;
+		(*i)++;
+	}
+	else if (arg[*i] == '\'' && *state == '"')
+	{
+		result = append_normal_text("'", result);
+		(*i)++;
 	}
 	return (result);
 }
 
-//
-char *join_and_free(char *dst, char *src)
+char	*set_state_two(char *arg, int *i, char *result, char *state)
 {
-    char *joined;
-    int len1 = dst ? ft_strlen(dst) : 0;
-    int len2 = src ? ft_strlen(src) : 0;
-
-    joined = malloc(len1 + len2 + 1);
-    if (!joined)
-        return (free(dst), free(src), NULL);
-
-    if (dst)
-        ft_strlcpy(joined, dst, len1 + 1);
-    else
-        joined[0] = '\0';
-
-    if (src)
-        ft_strlcat(joined, src, len1 + len2 + 1);
-
-    free(dst);
-    free(src);
-    return joined;
-}
-
-/*
- * expand_arg:
- *  - Handles $ expansion in unquoted or double-quoted parts
- *  - Skips expansion in single quotes
- *  - Returns fully expanded string (malloc'd)
- */
-///// this one almost worked
-/*char *expand_arg(const char *arg, t_env *head, int last_status)
-{
-    char state = 0;   // 0 = unquoted, ' = single, " = double
-    int i = 0, start = 0;
-    char *result = ft_strdup("");
-    if (!result)
-        return NULL;
-
-    while (arg[i]) {
-        if (state == 0) {
-            if (arg[i] == '\'') {
-                // expand everything before the quote
-                if (i > start) {
-                    char *chunk = ft_substr(arg, start, i - start);
-                    if (!chunk)
-                        return (free(result), NULL);
-                    result = join_and_free(result,
-                        expand_one_arg(chunk, head, last_status));
-                }
-                state = '\''; // enter single quote mode
-                start = i + 1;
-            }
-            else if (arg[i] == '"') {
-                if (i > start) {
-                    char *chunk = ft_substr(arg, start, i - start);
-                    if (!chunk)
-                        return (free(result), NULL);
-                    result = join_and_free(result,
-                        expand_one_arg(chunk, head, last_status));
-                }
-                state = '"'; // enter double quote mode
-                start = i + 1;
-            }
-        }
-        else if (state == '\'') {
-            if (arg[i] == '\'') {
-                // inside single quotes → copy literally
-                char *chunk = ft_substr(arg, start, i - start);
-                if (!chunk)
-                    return (free(result), NULL);
-                result = join_and_free(result, chunk);
-                state = 0;
-                start = i + 1;
-            }
-        }
-        else if (state == '"') {
-            if (arg[i] == '"') {
-                // inside double quotes → expand
-                char *chunk = ft_substr(arg, start, i - start);
-                if (!chunk)
-                    return (free(result), NULL);
-                result = join_and_free(result,
-                    expand_one_arg(chunk, head, last_status));
-                state = 0;
-                start = i + 1;
-            }
-        }
-        i++;
-    }
-
-    // flush last segment
-    if (start < i) {
-        char *chunk = ft_substr(arg, start, i - start);
-        if (!chunk)
-            return (free(result), NULL);
-        if (state == 0)
-            result = join_and_free(result,
-                expand_one_arg(chunk, head, last_status));
-        else if (state == '\'')
-            result = join_and_free(result, chunk); // literal
-        else if (state == '"')
-            result = join_and_free(result,
-                expand_one_arg(chunk, head, last_status));
-    }
-
-    if (state != 0) {
-        // unterminated quote → error
-        free(result);
-        return NULL;
-    }
-    return result;
-}*/
-/*
-char *expand_arg(const char *arg, t_env *head, int last_status)
-{
-    char state = 0;   // 0 = unquoted, ' = single, " = double
-    int i = 0, start = 0;
-    char *result = ft_strdup("");
-
-    while (arg[i]) {
-        if (state == 0) {
-            if (arg[i] == '\'') {
-                // expand everything before the quote
-                if (i > start)
-                    result = join_and_free(result,
-                        expand_one_arg(ft_substr(arg, start, i - start), head, last_status));
-                state = '\'';
-                start = i + 1;
-            }
-            else if (arg[i] == '"') {
-                if (i > start)
-                    result = join_and_free(result,
-                        expand_one_arg(ft_substr(arg, start, i - start), head, last_status));
-                state = '"';
-                start = i + 1;
-            }
-        }
-        else if (state == '\'') {
-            if (arg[i] == '\'') {
-                // inside single quotes: copy literally
-                result = join_and_free(result,
-                    ft_substr(arg, start, i - start));
-                state = 0;
-                start = i + 1;
-            }
-        }
-        else if (state == '"') {
-            if (arg[i] == '"') {
-                // inside double quotes: expand
-                result = join_and_free(result,
-                    expand_one_arg(ft_substr(arg, start, i - start), head, last_status));
-                state = 0;
-                start = i + 1;
-            }
-        }
-        i++;
-    }
-
-    // flush last segment
-    if (start < i) {
-        if (state == 0)
-            result = join_and_free(result,
-                expand_one_arg(ft_substr(arg, start, i - start), head, last_status));
-        else if (state == '\'')
-            result = join_and_free(result,
-                ft_substr(arg, start, i - start));
-        else if (state == '"')
-            result = join_and_free(result,
-                expand_one_arg(ft_substr(arg, start, i - start), head, last_status));
-    }
-	if (state != 0)
+	if (arg[*i] == '"' && *state == 0)
 	{
-		// unterminated quote
-		free(result);
-		return NULL; // signal error
+		result = append_normal_text("\"", result);
+		*state = '"';
+		(*i)++;
 	}
-    return result;
-}*/
-/*
-char *expand_arg(const char *arg, t_env *head, int last_status)
-{
-    char state = 0;
-    int i = 0, start = 0;
-    char *result = ft_strdup("");
-
-    while (arg[i]) {
-        if (state == 0) {
-            if (arg[i] == '\'') {
-                // expand the part before the quote
-                if (i > start)
-                    result = str_join_free(result,
-                        expand_one_arg(ft_substr(arg, start, i - start), head, last_status));
-
-                state = '\'';
-                start = i + 1;
-            }
-        } else if (state == '\'') {
-            if (arg[i] == '\'') {
-                // copy literal chunk (inside single quotes)
-                result = str_join_free(result,
-                        ft_substr(arg, start, i - start));
-                state = 0;
-                start = i + 1;
-            }
-        }
-        i++;
-    }
-
-    // flush remainder (expand if outside quotes, literal if still inside)
-    if (start < i) {
-        if (state == 0)
-            result = str_join_free(result,
-                expand_one_arg(ft_substr(arg, start, i - start), head, last_status));
-        else
-            result = str_join_free(result,
-                ft_substr(arg, start, i - start));
-    }
-
-    return result;
+	else if (arg[*i] == '"' && *state == '"')
+	{
+		result = append_normal_text("\"", result);
+		*state = 0;
+		(*i)++;
+	}
+	else if (arg[*i] == '"' && *state == '\'')
+	{
+		result = append_normal_text("\"", result);
+		(*i)++;
+	}
+	return (result);
 }
 
-*/
-// dollar_expansion:
-//  - Called from: main execution loop 
-//			(one command at a time)
-//  - Purpose: expand $VAR and $? in all arguments 
-//			of a command
-//  - Calls: expand_one_arg, free
-//  - Returns: void
-//  - Memory: frees old argument strings and replaces with
-//			expanded versions
+char	*set_state(char *arg, int *i, char *result, char *state)
+{
+	result = set_state_one(arg, i, result, state);
+	result = set_state_two(arg, i, result, state);
+	return (result);
+}
+
+// append_key_value:
+//  - Purpose: Append the value of $VAR to result
+//  - Calls: is_valid_key, malloc, ft_strlcpy, append_result, free
+//  - Returns: New result string or NULL on malloc failure
+//- Allocates memory for key, frees it after use
+char	*append_key_value(t_env *head, char *arg, int *i, char *result)
+{
+	char	*key;
+	int		key_len;
+
+	if (!is_valid_key(arg, *i, &key_len))
+		return (append_normal_text("$", result));
+	key = malloc(key_len + 1);
+	if (!key)
+		return (free(result), NULL);
+	ft_strlcpy(key, arg + *i, key_len + 1);
+	result = append_result(head, key, result, -1);
+	free(key);
+	*i += key_len;
+	return (result);
+}
+
+// expand_one_arg:
+//  - Purpose: Expand one $ token (VAR or ?)
+//  - Calls: append_key_value, append_result, append_normal_text
+//  - Returns: New allocated string with expansion
+//- Handles $?, $VAR, and lone $ at end of string
+char	*expand_one_arg(char *arg, int *i, t_env *head, int last_status)
+{
+	char	*result;
+
+	result = ft_strdup("");
+	if (!result)
+		return (NULL);
+	if (arg[*i] == '\0')
+		return (result);
+	(*i)++;
+	if (arg[*i] == '\0')
+		return (append_normal_text("$", result));
+	if (arg[*i] == '?')
+	{
+		result = append_result(head, NULL, result, last_status);
+		(*i)++;
+	}
+	else
+		result = append_key_value(head, arg, i, result);
+	return (result);
+}
+
+// append_expansion:
+//  - Purpose: Append expanded $ token to result
+//  - Calls: append_normal_text
+//  - Returns: New result string or NULL on malloc failure
+char	*append_expansion(char **sub, char *result)
+{
+	if (!*sub)
+		return (free(result), NULL);
+	result = append_normal_text(*sub, result);
+	free(*sub);
+	return (result);
+}
+
+/*copy_squote:
+- Copies characters inside single quotes to result
+- Stops safely if closing quote is missing*/
+char	*copy_squote(int *i, char *arg, char *result)
+{
+	int		start;
+	char	*sub;
+
+	start = *i;
+	while (arg[*i] && arg[*i] != '\'')
+		(*i)++;
+	sub = ft_substr(arg, start, *i - start);
+	result = append_normal_text(sub, result);
+	free(sub);
+	return (result);
+}
+
+/*handle_normal_txt:
+- Copies literal characters until a special character ($, ', ")
+- Uses append_normal_text*/
+char	*handle_normal_txt(int *i, char *arg, char *result)
+{
+	int		start;
+	char	*sub;
+
+	start = *i;
+	while (arg[*i] && arg[*i] != '$' && arg[*i] != '"' && arg[*i] != '\'')
+		(*i)++;
+	sub = ft_substr(arg, start, *i - start);
+	result = append_normal_text(sub, result);
+	free(sub);
+	return (result);
+}
+
 /*
-void	dollar_expansion(t_command *cmd, t_env **head, int last_status) // just sending 1 cmd at a time and assumes it wasnt in single quotes
+set_vars:
+- Initializes variables for expand_arg_keep_quotes*/
+int	set_vars(int *i, char *state, char **result)
+{
+	*i = 0;
+	*state = 0;
+	*result = ft_strdup("");
+	if (!*result)
+		return (0);
+	else
+		return (1);
+}
+
+/*expand_arg_keep_quotes:
+- Expands all $VAR and $? in a single argument while keeping quotes
+- Replaces result string step by step
+- Uses append_normal_text for all literals*/
+char	*expand_arg_keep_quotes(char *arg, t_env *head, int last_status)
 {
 	int		i;
-	//int		j;
-	char	*expanded;
-	//size_t len;
+	char	state;
+	char	*result;
+	char	*sub;
 
-	i = 1;
-	//j = 0;
-	while (cmd->args[i] != NULL)
+	if (!set_vars(&i, &state, &result))
+		return (NULL);
+	while (arg[i])
 	{
-		//plug in checker here - might need to modify expand_one_arg a bit
-		expanded = expand_arg(cmd->args[i], *head, last_status);
-		if (!expanded)*/
-		/*{
-			while(j < i)
+		result = set_state(arg, &i, result, &state);
+		if (state == '\'')
+			result = copy_squote(&i, arg, result);
+		else if (arg[i] == '$')
+		{
+			sub = expand_one_arg(arg, &i, head, last_status);
+			result = append_expansion(&sub, result);
+		}
+		else
+			result = handle_normal_txt(&i, arg, result);
+	}
+	return (result);
+}
+
+/*dollar_expansion:
+- Applies expansion to all command arguments
+- Frees old argument strings and replaces with expanded versions*/
+void	dollar_expansion(t_command *cmd, t_env **head, int last_status)
+{
+	int		i;
+	char	*expanded;
+
+	i = 0;
+	expanded = NULL;
+	while (cmd->args[i])
+	{
+		expanded = expand_arg_keep_quotes(cmd->args[i], *head, last_status);
+		if (!expanded)
+		{
+			while (i >= 0)
 			{
-				free(cmd->args[j]);
-				j++;
-			}*/
-			/*return ;
-		//}do we want to free already set expansions if one malloc fails?
+				free(cmd->args[i]);
+				cmd->args[i] = NULL;
+				i--;
+			}
+			return ;
+		}
 		free(cmd->args[i]);
 		cmd->args[i] = expanded;
 		i++;
 	}
-	return ;
 }
-*/
-char *expand_arg_keep_quotes(const char *arg, t_env *head, int last_status)
-{
-    int i = 0;
-    char state = 0; // 0 = unquoted, ' = single, " = double
-    char *result = ft_strdup("");
-    if (!result)
-        return NULL;
-
-    while (arg[i])
-    {
-        if (arg[i] == '\'' && state == 0)
-        {
-            result = append_normal_text("'", result); // keep the quote
-            state = '\'';
-        }
-        else if (arg[i] == '\'' && state == '\'')
-        {
-            result = append_normal_text("'", result); // keep the quote
-            state = 0;
-        }
-        else if (arg[i] == '"' && state == 0)
-        {
-            result = append_normal_text("\"", result); // keep the quote
-            state = '"';
-        }
-        else if (arg[i] == '"' && state == '"')
-        {
-            result = append_normal_text("\"", result); // keep the quote
-            state = 0;
-        }
-        else if (arg[i] == '$' && state != '\'') // expand only outside single quotes
-        {
-            i++; // skip '$'
-            if (arg[i] == '?')
-            {
-                result = append_result(head, NULL, result, last_status);
-                i++;
-            }
-            else
-            {
-                int key_len;
-                if (is_valid_key((char *)arg, i, &key_len))
-                {
-                    char *key = ft_substr(arg, i, key_len);
-                    if (!key)
-                        return free(result), NULL;
-                    result = append_result(head, key, result, -1);
-                    free(key);
-                    i += key_len;
-                }
-                else
-                {
-                    result = append_result(head, "$", result, -1);
-                }
-            }
-            continue;
-        }
-        else
-        {
-            char tmp[2] = {arg[i], '\0'};
-            result = append_normal_text(tmp, result);
-        }
-        i++;
-    }
-
-    return result;
-}
-
-void dollar_expansion(t_command *cmd, t_env **head, int last_status)
-{
-    for (int i = 1; cmd->args[i]; i++)
-    {
-        char *expanded = expand_arg_keep_quotes(cmd->args[i], *head, last_status);
-        if (!expanded)
-            return;
-        free(cmd->args[i]);
-        cmd->args[i] = expanded;
-    }
-}
-
-/*char *strip_quotes(const char *token)
-{
-    int i = 0, j = 0;
-    char state = 0;
-    char *clean = malloc(strlen(token) + 1);
-    if (!clean) return NULL;
-
-    while (token[i]) { //going thoruhg token looking for ' or " when we find it change 
-        if (state == 0) {
-            if (token[i] == '\'') state = '\'' clean[j++] = token[i];
-            else if (token[i] == '"') state = '"'clean[j++] = token[i]; ;
-            else clean[j++] = token[i]; //send to expander
-        } else if (state == '\'') { //if state is ' then keep adding until find another and dont expand
-            if (token[i] == '\'') state = 0;
-            else clean[j++] = token[i];
-			//dont send to expander
-        } else if (state == '"') {
-            if (token[i] == '"') state = 0;
-            else clean[j++] = token[i]; //send to expander - building up piece by piece
-        }
-        i++;
-    }
-	  if (state != 0) {
-		printf(">");
-        // unclosed quote detected
-        free(clean);
-        return NULL; //let main know to do >
-    clean[j] = '\0';
-    return clean;
-}
-}
-
-void trim_quotes_for_execution(char **tokens) //sendng each arg to strip quotes 
-{
-    for (int i = 0; tokens[i]; i++) {
-        char *cleaned = strip_quotes(tokens[i]);
-        free(tokens[i]);
-        tokens[i] = cleaned;
-    }
-}*/
-/*
-| Approach           | Frees old args on failure? | Pros                      | Cons                            |
-| ------------------ | -------------------------- | ------------------------- | ------------------------------- |
-| Leave originals    | No                         | Original arguments remain | Partial expansion not reflected |
-| Free replaced args | Yes                        | No memory leaks           | Previously expanded args lost   |
-*/
-/*| String                  | Allocated by     | Freed by                                      |
-| ----------------------- | ---------------- | --------------------------------------------- |
-| `temp->value`           | `t_env`          | Never (owned by env list)                     |
-| `ft_itoa(last_status)`  | `append_result`  | Freed in `append_result`                      |
-| `result`                | `expand_one_arg` | Replaced by `append_result` or freed on error |
-| `key` in `set_key`      | `set_key`        | Freed after appending                         |
-| `rest` in `append_rest` | `append_rest`    | Freed after appending                         |
-*/
