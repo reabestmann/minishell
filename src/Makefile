@@ -31,6 +31,7 @@ $(UTILS_DIR)/trim_quotes.c \
 $(UTILS_DIR)/free.c \
 $(UTILS_DIR)/struct_to_ptr.c \
 $(UTILS_DIR)/ptr_to_struct.c \
+$(UTILS_DIR)/get_next_line.c \
 $(BUILTIN_DIR)/cd_cmd.c \
 $(BUILTIN_DIR)/echo_cmd.c \
 $(BUILTIN_DIR)/pwd_cmd.c \

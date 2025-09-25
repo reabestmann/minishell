@@ -3,12 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/22 15:41:26 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/25 18:48:17 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#ifndef BUFFER_SIZE
+#define BUFFER_SIZE 10
+#endif
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
@@ -38,6 +42,8 @@
 /* parser/
  * lexer.c */
 t_token	*lexer(const char *input);
+/*expand.c*/
+char	*append_normal_text(char *text, char *result);
 /* parse.c */
 int    handle_input(char *input, t_env **env, int status);
 t_command	*parser(t_token *tokens);
@@ -89,6 +95,7 @@ void    free_commands(t_command *cmds);
 void    free_tokens(t_token *tokens);
 void	free_env_struct(t_env *head);
 /* utils.c */
+char	*get_next_line(int fd);
 int     get_exit_status(int status);
 int     str_equals(const char *str, const char *target);
 void	*handle_malloc(size_t bytes);
