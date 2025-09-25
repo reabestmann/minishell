@@ -99,7 +99,11 @@ char	*get_next_line(int fd);
 int     get_exit_status(int status);
 int     str_equals(const char *str, const char *target);
 void	*handle_malloc(size_t bytes);
+/* error.c */
 void	error(const char *msg);
+void	exec_error_custom(const char *cmd, const char *msg, int status);
+void	exec_error(const char *msg, int status);
+/* trim_quotes */
 void	trim_quotes_for_execution(char **args);
 char	*remove_quotes(char *arg);
 /* signals/
