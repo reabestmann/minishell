@@ -46,6 +46,7 @@ void	update_quotes(char c, int *in_quote, int *in_dquote);
 int	skip_spaces(const char *str, int i);
 void	set_cmd_flags(t_command *cmd);
 int has_dollar(char **args);
+void update_state(const char *str, char *state);
 /* syntax.c */
 int	syntax_valid(t_token *tokens);
 /* expand.c */

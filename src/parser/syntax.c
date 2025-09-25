@@ -12,6 +12,7 @@
 
 #include "../minishell.h"
 
+
 static int	check_pipe_syntax(t_token *token)
 {
 	if (!token || token->type != TOKEN_PIPE)
@@ -24,19 +25,49 @@ static int	check_pipe_syntax(t_token *token)
 	return (0);
 }
 
+static int check_redirection_syntax(t_token *token)
+{
+	if (ft_strlen(token->val) > 2)
+	{
+		ft_putstr_fd("minishell: parse error near redirection\n", 2);
+		return (-1);
+	}
+	if (!token->next || token->next->type != TOKEN_WORD)
+    {
+    	ft_putstr_fd("minishell: parse error near redirection\n", 2);
+    	return (-1);
+    }
+    return (0);
+}
+
 int	syntax_valid(t_token *tokens)
 {
 	t_token	*cpy;
+	char	state;
 
-	if (tokens && tokens->type == TOKEN_PIPE)
-		return (0);
+	if (tokens && tokens->type != TOKEN_WORD)
+	{
+		ft_putstr_fd("minishell: parse error near start of command\n", 2);
+		return (1);
+	}
 	cpy = tokens;
+	state = 0;
 	while (cpy)
 	{
-		if (check_pipe_syntax(cpy) == -1)
+		update_state(cpy->val, &state);
+		if (cpy->type != TOKEN_WORD && state == 0)
+		{
+			if (check_pipe_syntax(cpy) == -1)
 				return (0);
+			if (check_redirection_syntax(cpy) == -1)
+				return (0);
+		}
 		// todo: add more syntax checks that might be missing
 		cpy = cpy->next;
 	}
-	return (1);
+	if (state == '\'')
+		return (2);
+	else if (state == '"')
+		return (3);
+	return (0);
 }
