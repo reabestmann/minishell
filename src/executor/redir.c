@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 16:02:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/25 21:27:12 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/25 21:33:44 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,7 +134,7 @@ void	parse_key(int start_idx, int *i, char *line, char **result)
 	if (start == -1)
 		start = *i;
 	while (ft_isalnum(line[*i]) || line[*i] == '_')
-		*i++;
+		(*i)++;
 	key = ft_substr(line, start, *i - start);
 	if (!key)
 		return ;
@@ -158,7 +158,7 @@ void	parse_key(int start_idx, int *i, char *line, char **result)
    - Returns updated result, or NULL on malloc failure.
    - Caller must free result if NULL is returned.
 */
-char	*handle_normal_txt(int *i, char *line, char *result)
+char	*handle_normal_text(int *i, char *line, char *result)
 {
 	char	buf[2];
 	char	*temp;
@@ -220,7 +220,7 @@ char	*expand_for_heredoc(char *line, int last_status)
 		}
 		else
 		{
-			result = handle_normal_txt(&i, line, result);
+			result = handle_normal_text(&i, line, result);
 			i++;
 		}
 	}
