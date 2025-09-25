@@ -12,6 +12,15 @@
 
 #include "../minishell.h"
 
+/* free_val:
+- Frees a string for $? expansion if last_status != -1
+- last_status == -1 means env value, which is not freed here
+*/
+void	free_val(int *last_status, char **val)
+{
+	if (*last_status != -1)
+		free(*val);
+}
 /* free_array(char **array)
    - Purpose: Frees memory of a given array of strings.
    - Variables:

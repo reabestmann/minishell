@@ -52,11 +52,20 @@ void	update_quotes(char c, int *in_quote, int *in_dquote);
 int	skip_spaces(const char *str, int i);
 void	set_cmd_flags(t_command *cmd);
 int has_dollar(char **args);
-void update_state(const char *str, char *state);
+/* quote_state.c */
+void    set_state_str(const char *str, char *state);
+char	*copy_squote(int *i, char *arg, char *result);
+char	*set_state(char *arg, int *i, char *result, char *state);
 /* syntax.c */
 int	syntax_valid(t_token *tokens);
 /* expand.c */
 void	dollar_expansion(t_command *cmd, t_env **head, int last_status);
+/* expand_utils.c */
+char	*append_key_value(t_env *head, char *arg, int *i, char *result);
+int     is_valid_key(char *arg, int i, int *len);
+char	*append_result(t_env *head, char *key, char *result, int last_status);
+char	*find_env_value(t_env *head, char *key);
+char	*append_normal_text(char *text, char *result);
 /* executor/ 
  * exec.c */
 void	execute(char **args, char **envp);
@@ -94,6 +103,7 @@ void    free_array(char **array);
 void    free_commands(t_command *cmds);
 void    free_tokens(t_token *tokens);
 void	free_env_struct(t_env *head);
+void	free_val(int *last_status, char **val);
 /* utils.c */
 char	*get_next_line(int fd);
 int     get_exit_status(int status);

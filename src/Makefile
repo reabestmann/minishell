@@ -18,9 +18,11 @@ LIBFT = $(LIBFT_DIR)/libft.a
 SRC_FILES = main.c \
 $(PARSER_DIR)/lexer.c \
 $(PARSER_DIR)/parse.c \
-$(PARSER_DIR)/expand.c \
 $(PARSER_DIR)/parse_utils.c \
+$(PARSER_DIR)/expand.c \
+$(PARSER_DIR)/expand_utils.c \
 $(PARSER_DIR)/syntax.c \
+$(PARSER_DIR)/quote_state.c \
 $(EXECUTER_DIR)/exec.c \
 $(EXECUTER_DIR)/redir.c \
 $(EXECUTER_DIR)/pipes.c \
