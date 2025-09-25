@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 16:02:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/17 14:43:03 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/25 15:03:23 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ void	fd_check(int fd, int std_fd, char *file)
    - Temporary file is deleted immediately after opening for reading.
    - Example usage: cmd->heredoc = heredoc_fd("EOF");
 */
-static int	heredoc_fd(const char *delimiter)
+/*static int	heredoc_fd(const char *delimiter)
 {
 	int		fd;
 	int		rfd;
@@ -79,6 +79,112 @@ static int	heredoc_fd(const char *delimiter)
 	rfd = open(".heredoc_tmp", O_RDONLY);
 	unlink(".heredoc_tmp");
 	return (rfd);
+}*/
+
+char *expand_for_heredoc(char *line, int last_status)
+{
+    char    *result;
+    int     i;
+
+    result = ft_strdup(""); // start with empty string
+    if (!result)
+        return (NULL);
+    i = 0;
+    while (line[i])
+    {
+        if (line[i] == '$')
+        {
+            i++;
+            if (line[i] == '?') // special case $?
+            {
+                char *num = ft_itoa(last_status);
+                result = append_normal_text(num, result);
+                free(num);
+                i++;
+            }
+            else
+            {
+                // parse key
+                int start = i;
+                while (ft_isalnum(line[i]) || line[i] == '_')
+                    i++;
+                char *key = ft_substr(line, start, i - start);
+                char *val = getenv(key);   // use system env for now
+                if (!val)
+                    val = "";
+                result = append_normal_text(val, result);
+                free(key);
+            }
+        }
+        else
+        {
+            char buf[2] = { line[i], '\0' };
+            result = append_normal_text(buf, result);
+            i++;
+        }
+    }
+    return (result);
+}
+
+
+char *process_line(char *line, int expand)
+{
+    char *result = line;
+    if (expand)
+    {
+        result = expand_for_heredoc(line, -1);
+        free(line);
+    }
+    return result;
+}
+int delimiter_was_quoted(const char *delimiter)
+{
+    int len = ft_strlen(delimiter);
+    return (len >= 2 && ((delimiter[0] == '\'' && delimiter[len - 1] == '\'') ||
+                         (delimiter[0] == '"' && delimiter[len - 1] == '"')));
+}
+char *get_trimmed_delimiter(const char *delimiter)
+{
+    int len = ft_strlen(delimiter);
+    if (len >= 2 && ((delimiter[0] == '\'' && delimiter[len - 1] == '\'') ||
+                     (delimiter[0] == '"' && delimiter[len - 1] == '"')))
+        return ft_substr(delimiter, 1, len - 2);
+    return ft_strdup(delimiter);
+}
+
+static int heredoc_fd(const char *delimiter)
+{
+    int fd;
+	int rfd;
+    char *line;
+    char *trimmed;
+    int expand;
+
+    trimmed = get_trimmed_delimiter(delimiter);
+    expand = !delimiter_was_quoted(delimiter);
+
+    fd = open(".heredoc_tmp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd < 0)
+        error("heredoc");
+
+    while (1)
+    {
+        line = readline("> ");
+        if (str_equals(line, trimmed))
+        {
+            free(line);
+            break;
+        }
+        line = process_line(line, expand);
+        ft_putstr_fd(line, fd);
+        ft_putstr_fd("\n", fd);
+        free(line);
+    }
+    close(fd);
+    free(trimmed);
+    rfd = open(".heredoc_tmp", O_RDONLY);
+    unlink(".heredoc_tmp");
+    return rfd;
 }
 
 // helper functions of apply, redirections
