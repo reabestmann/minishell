@@ -39,18 +39,31 @@ static int	check_redirection_syntax(t_token *token)
 	return (0);
 }
 
+static int	check_start(t_token *tokens)
+{
+	if (tokens && tokens->type != TOKEN_WORD)
+	{
+		if (tokens->type == TOKEN_PIPE)
+		{
+			ft_putstr_fd("minishell: parse error near start of command\n", 2);
+			return (-1);
+		}
+		else
+			return (0);
+	}
+	return (0);
+}
+
 int	syntax_valid(t_token *tokens)
 {
 	t_token	*cpy;
 	char	state;
 
-	if (tokens && tokens->type != TOKEN_WORD)
-	{
-		ft_putstr_fd("minishell: parse error near start of command\n", 2);
-		return (1);
-	}
-	cpy = tokens;
 	state = 0;
+	
+	if (check_start(tokens) == -1)
+		return (1);
+	cpy = tokens;
 	while (cpy)
 	{
 		set_state_str(cpy->val, &state);

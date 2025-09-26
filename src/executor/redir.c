@@ -387,7 +387,7 @@ void	apply_redirections(t_command *cmd)
 {
 	if (cmd->heredoc != -1)
 		fd_check(cmd->heredoc, STDIN_FILENO, "heredoc");
-	if (cmd->infile)
+	else if (cmd->infile)
 		handle_infile(&cmd->infile);
 	if (cmd->outfile)
 		handle_outfile(&cmd->outfile, cmd->append);

@@ -35,10 +35,20 @@ static void	apply_pipes(int prev_fd, int pipe_fd[2], t_command *cmd)
 void	run_child(t_command *cmd, t_env **env)
 {
 	char	**envp;
+	char	*line;
 
 	cmd->in_child = 1;
 	child_signal_setup();
 	apply_redirections(cmd);
+	if (!cmd->args || !cmd->args[0])
+	{
+		while((line = get_next_line(STDIN_FILENO)))
+		{
+			write(STDOUT_FILENO, line, ft_strlen(line));
+			free(line);
+		}
+		exit(0);
+	}
 	if (run_builtin(cmd, env) == -1)
 	{
 		envp = struct_to_envp(*env, 1);
