@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/20 18:06:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 18:20:03 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/26 21:08:37 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,6 @@ int	syntax_valid(t_token *tokens)
 	char	state;
 
 	state = 0;
-	
 	if (check_start(tokens) == -1)
 		return (1);
 	cpy = tokens;

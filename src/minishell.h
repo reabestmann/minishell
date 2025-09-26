@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 18:16:09 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/26 21:49:14 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ char		*append_normal_text(char *text, char *result);
 void		execute(char **args, char **envp);
 int			run_command(t_command *cmds, t_env **env, int status);
 int			run_builtin(t_command *cmd, t_env **env);
+void		trim_empty_args(char **args);
 /* pipes.c */
 void		run_child(t_command *cmd, t_env **env);
 int			run_pipeline(t_command *cmds, t_env **env);
@@ -79,6 +80,13 @@ int			run_pipeline(t_command *cmds, t_env **env);
 void		parse_redirection(t_command *cmd, t_token **cpy);
 void		apply_redirections(t_command *cmd);
 void		fd_check(int fd, int std_fd, char *file);
+/*redir_heredoc1.c*/
+int			heredoc_fd(const char *delimiter);
+/*redir_heredoc2.c*/
+char		*expand_for_heredoc(char *line, int last_status);
+/*redir_utils.c*/
+void		fd_check(int fd, int std_fd, char *file);
+int			dol_q_expansion(char *line, int *i, int last_status, char **result);
 /* ptr_to_struct.c */
 t_env		*envp_to_struct(char **envp);
 /* struct_to_ptr.c */

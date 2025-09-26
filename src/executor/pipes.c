@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/11 16:13:11 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 16:52:58 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/26 21:10:34 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void	run_child(t_command *cmd, t_env **env)
 	apply_redirections(cmd);
 	if (!cmd->args || !cmd->args[0])
 	{
-		while((line = get_next_line(STDIN_FILENO)))
+		while ((line = get_next_line(STDIN_FILENO)))
 		{
 			write(STDOUT_FILENO, line, ft_strlen(line));
 			free(line);
