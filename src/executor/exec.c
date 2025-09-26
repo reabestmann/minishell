@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/24 21:59:52 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/26 14:45:31 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,27 @@ static void	check_executable(char **args, char *path)
    5. Call execve() with args/envp.
    6. On execve fail, free path and exit(1).
 */
+
+void	trim_empty_args(char **args)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	j = 0;
+	while (args[i] && args[i][0] == '\0')
+		i++;
+	if (i == 0)
+		return ;
+	while (args[i])
+	{
+		args[j] = args[i];
+		i++;
+		j++;
+	}
+		args[j] = NULL;
+}
+
 void	execute(char **args, char **envp)
 {
 	char	*path;
@@ -114,6 +135,7 @@ void	execute(char **args, char **envp)
 	if (!args || !args[0])
 		return ;
 	trim_quotes_for_execution(args);
+	trim_empty_args(args);
 	if (!args[0] || args[0][0] == '\0')
 		return ;
 	if (args[0][0] == '/' || (args[0][0] == '.' && args[0][1] == '/'))
