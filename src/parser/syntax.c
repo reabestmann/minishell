@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   syntax.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/20 18:06:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/20 18:22:08 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/26 21:08:37 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
 
 static int	check_pipe_syntax(t_token *token)
 {
@@ -25,7 +24,7 @@ static int	check_pipe_syntax(t_token *token)
 	return (0);
 }
 
-static int check_redirection_syntax(t_token *token)
+static int	check_redirection_syntax(t_token *token)
 {
 	if (ft_strlen(token->val) > 2)
 	{
@@ -33,11 +32,11 @@ static int check_redirection_syntax(t_token *token)
 		return (-1);
 	}
 	if (!token->next || token->next->type != TOKEN_WORD)
-    {
-    	ft_putstr_fd("minishell: parse error near redirection\n", 2);
-    	return (-1);
-    }
-    return (0);
+	{
+		ft_putstr_fd("minishell: parse error near redirection\n", 2);
+		return (-1);
+	}
+	return (0);
 }
 
 static int	check_start(t_token *tokens)
@@ -61,7 +60,6 @@ int	syntax_valid(t_token *tokens)
 	char	state;
 
 	state = 0;
-	
 	if (check_start(tokens) == -1)
 		return (1);
 	cpy = tokens;

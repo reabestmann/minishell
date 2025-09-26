@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:01:13 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/17 15:22:54 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/26 18:40:02 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,12 +51,32 @@ static int	count_nodes(t_env *head, int export_only)
    		without '=').
             Frees any previously allocated strings on failure.
 */
+static int	add_strings_help(t_env *temp, char **envp, int *i)
+{
+	int		buff;
+	int		val_len;
+
+	if (!temp->key)
+		return (1);
+	if (temp->value)
+		val_len = ft_strlen(temp->value);
+	else
+		val_len = 0;
+	buff = (ft_strlen(temp->key) + val_len + 2);
+	envp[(*i)] = malloc(buff);
+	if (!envp[(*i)])
+		return (1);
+	ft_strlcpy(envp[(*i)], temp->key, buff);
+	ft_strlcat(envp[(*i)], "=", buff);
+	if (temp->value)
+		ft_strlcat(envp[(*i)], temp->value, buff);
+	return (0);
+}
+
 static int	add_strings(t_env *head, char **envp, int export_only)
 {
 	int		i;
-	int		buff;
 	t_env	*temp;
-	int		val_len;
 
 	i = 0;
 	temp = head;
@@ -64,22 +84,11 @@ static int	add_strings(t_env *head, char **envp, int export_only)
 	{
 		if (!export_only || temp->exported)
 		{
-			if (temp->value)
-				val_len = ft_strlen(temp->value);
-			else
-				val_len = 0;
-			buff = (ft_strlen(temp->key) + val_len + 2);
-			envp[i] = malloc(buff);
-			if (!envp[i])
+			if (add_strings_help(temp, envp, &i) == 1)
 			{
-				while (--i >= 0)
-					free(envp[i]);
+				free_array(envp);
 				return (1);
 			}
-			ft_strlcpy(envp[i], temp->key, buff);
-			ft_strlcat(envp[i], "=", buff);
-			if (temp->value)
-				ft_strlcat(envp[i], temp->value, buff);
 			i++;
 		}
 		temp = temp->next;

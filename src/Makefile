@@ -24,6 +24,9 @@ $(PARSER_DIR)/expand_utils.c \
 $(PARSER_DIR)/syntax.c \
 $(PARSER_DIR)/quote_state.c \
 $(EXECUTER_DIR)/exec.c \
+$(EXECUTER_DIR)/redir_heredoc1.c \
+$(EXECUTER_DIR)/redir_heredoc2.c \
+$(EXECUTER_DIR)/redir_utils.c \
 $(EXECUTER_DIR)/redir.c \
 $(EXECUTER_DIR)/pipes.c \
 $(EXECUTER_DIR)/exec_utils.c \
@@ -37,12 +40,17 @@ $(UTILS_DIR)/struct_to_ptr.c \
 $(UTILS_DIR)/ptr_to_struct.c \
 $(UTILS_DIR)/get_next_line.c \
 $(BUILTIN_DIR)/cd_cmd.c \
+$(BUILTIN_DIR)/cd_cmd_utils.c \
 $(BUILTIN_DIR)/echo_cmd.c \
 $(BUILTIN_DIR)/pwd_cmd.c \
 $(BUILTIN_DIR)/exit_cmd.c \
 $(BUILTIN_DIR)/unset_cmd.c \
 $(BUILTIN_DIR)/env_cmd.c \
-$(BUILTIN_DIR)/export_cmd.c
+$(BUILTIN_DIR)/export_cmd.c \
+$(BUILTIN_DIR)/export_cmd_bubble.c \
+$(BUILTIN_DIR)/export_cmd_keys.c \
+$(BUILTIN_DIR)/export_cmd_utils.c
+
 
 # Object files
 OBJ_FILES = $(SRC_FILES:.c=.o)

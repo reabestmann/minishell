@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 15:10:03 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/17 15:28:18 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/26 21:28:20 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ void	free_val(int *last_status, char **val)
 	if (*last_status != -1)
 		free(*val);
 }
+
 /* free_array(char **array)
    - Purpose: Frees memory of a given array of strings.
    - Variables:
@@ -35,7 +36,7 @@ void	free_array(char **array)
 	int	i;
 
 	if (!array)
-		return;
+		return ;
 	i = -1;
 	while (array[++i])
 		free(array[i]);

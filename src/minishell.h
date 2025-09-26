@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 16:23:55 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/26 21:49:14 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ char		*append_normal_text(char *text, char *result);
 void		execute(char **args, char **envp);
 int			run_command(t_command *cmds, t_env **env, int status);
 int			run_builtin(t_command *cmd, t_env **env);
+void		trim_empty_args(char **args);
 /* pipes.c */
 void		run_child(t_command *cmd, t_env **env);
 int			run_pipeline(t_command *cmds, t_env **env);
@@ -79,6 +80,13 @@ int			run_pipeline(t_command *cmds, t_env **env);
 void		parse_redirection(t_command *cmd, t_token **cpy);
 void		apply_redirections(t_command *cmd);
 void		fd_check(int fd, int std_fd, char *file);
+/*redir_heredoc1.c*/
+int			heredoc_fd(const char *delimiter);
+/*redir_heredoc2.c*/
+char		*expand_for_heredoc(char *line, int last_status);
+/*redir_utils.c*/
+void		fd_check(int fd, int std_fd, char *file);
+int			dol_q_expansion(char *line, int *i, int last_status, char **result);
 /* ptr_to_struct.c */
 t_env		*envp_to_struct(char **envp);
 /* struct_to_ptr.c */
@@ -86,6 +94,12 @@ char		**struct_to_envp(t_env *head, int export_only);
 /* builtins/
  * cd_cmd.c */
 int			cd_cmd(t_command *cmd, t_env **env);
+/*cd_cmd_utils.c*/
+char		*get_env_value(t_env **env, const char *key);
+void		add_pwd_node(t_env **paths, char *pwd, char *old_or_new);
+void		update_oldpwd(t_env **env, char *oldpwd);
+void		update_newpwd(t_env **env, char *new_pwd);
+char		*expand_home(t_env **env, char *target_dir);
 /* echo_cmd.c */
 int			echo_cmd(t_command *cmd);
 /* pwd_cmd.c */
@@ -96,6 +110,18 @@ int			env_cmd(t_env **env);
 int			exit_cmd(t_command *cmd, t_env **env);
 /* export_cmd.c */
 int			export_cmd(t_command *cmd, t_env **env);
+/*export utils*/
+int			setting_value(char **equals, t_env **new_node);
+void		free_keys(char *key_one, char *key_two);
+void		setting_vars(char **path, char **equals, t_env **new_node);
+/*export_cmd_keys.c*/
+int			is_valid_export_key(char *arg, int *len);
+int			setting_key(char **path, char **equals, t_env **new_node);
+char		*find_key(char *path, int *key_len);
+int			validate_and_get_key(char *path, int *key_len, char **key);
+int			key_info(char **envp, int j, char **key_one, char **key_two);
+/*export_cmd_bubble_sort*/
+void		ft_bubble_sort(char **envp);
 /* unset_cmd.c */
 int			unset_cmd(t_command *cmd, t_env **env);
 /* utils/

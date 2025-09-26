@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 14:47:40 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/26 21:28:49 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,27 +97,6 @@ static void	check_executable(char **args, char *path)
 	}
 }
 
-/*trims empty args so that the other args are usable in execute*/
-void	trim_empty_args(char **args)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	j = 0;
-	while (args[i] && args[i][0] == '\0')
-		i++;
-	if (i == 0)
-		return ;
-	while (args[i])
-	{
-		args[j] = args[i];
-		i++;
-		j++;
-	}
-		args[j] = NULL;
-}
-
 /* execute: 
   1. Return early if args empty.
    2. Trim quotes in args.
@@ -178,31 +157,28 @@ static int	fork_process(t_command *cmds, t_env **env)
 		otherwise runs via fork/execve.
 	if cmd is not a standalone, run_pipeline runs it.
 */
-int run_command(t_command *cmds, t_env **env, int status)
+int	run_command(t_command *cmds, t_env **env, int status)
 {
-    if (!cmds)
-        return 0;
-
-    if (has_dollar(cmds->args))
-        dollar_expansion(cmds, env, status);
-    if (!cmds->in_child)
-    {
-        if ((cmds->args && cmds->args[0]) ||
-            cmds->infile || cmds->outfile || cmds->heredoc != -1)
-        {
-            if (cmds->modifies_shell && cmds->args && cmds->args[0])
-                return run_builtin(cmds, env);
-            return fork_process(cmds, env);
-        }
-        else if (cmds->next)
-        {
-            return run_pipeline(cmds, env);
-        }
-        else
-            return 0;
-    }
-    else
-        return run_pipeline(cmds, env);
+	if (!cmds)
+		return (0);
+	if (has_dollar(cmds->args))
+		dollar_expansion(cmds, env, status);
+	if (!cmds->in_child)
+	{
+		if ((cmds->args && cmds->args[0])
+			|| cmds->infile || cmds->outfile || cmds->heredoc != -1)
+		{
+			if (cmds->modifies_shell && cmds->args && cmds->args[0])
+				return (run_builtin(cmds, env));
+			return (fork_process(cmds, env));
+		}
+		else if (cmds->next)
+		{
+			return (run_pipeline(cmds, env));
+		}
+		else
+			return (0);
+	}
+	else
+		return (run_pipeline(cmds, env));
 }
-
-

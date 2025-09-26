@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 20:34:04 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/25 20:34:18 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/26 21:25:44 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,4 +37,25 @@ int	run_builtin(t_command *cmd, t_env **env)
 	if (str_equals(cmd->args[0], "exit"))
 		return (exit_cmd(cmd, env));
 	return (-1);
+}
+
+/*trims empty args so that the other args are usable in execute*/
+void	trim_empty_args(char **args)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	j = 0;
+	while (args[i] && args[i][0] == '\0')
+		i++;
+	if (i == 0)
+		return ;
+	while (args[i])
+	{
+		args[j] = args[i];
+		i++;
+		j++;
+	}
+	args[j] = NULL;
 }
