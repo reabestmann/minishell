@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   quote_state.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 20:51:11 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/25 20:51:32 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/09/26 17:02:16 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,16 +16,16 @@
  * Updates the quote state based on a single character
  * state: 0 (none), '\'' (single quote), '"' (double quote)
 */
-void update_state_char(char c, char *state)
+void	update_state_char(char c, char *state)
 {
-    if (c == '\'' && *state == 0)
-        *state = '\'';
-    else if (c == '\'' && *state == '\'')
-        *state = 0;
-    else if (c == '"' && *state == 0)
-        *state = '"';
-    else if (c == '"' && *state == '"')
-        *state = 0;
+	if (c == '\'' && *state == 0)
+		*state = '\'';
+	else if (c == '\'' && *state == '\'')
+		*state = 0;
+	else if (c == '"' && *state == 0)
+		*state = '"';
+	else if (c == '"' && *state == '"')
+		*state = 0;
 }
 
 /* set_state:
@@ -34,18 +34,21 @@ void update_state_char(char c, char *state)
 */
 char	*set_state(char *arg, int *i, char *result, char *state)
 {
-    char    c;
+	char	c;
+	char	temp[2];
 
-    c = arg[*i];
-    if (c == '\'' || c == '"')
-    {
-        result = append_normal_text((char[]){c, 0}, result);
-        update_state_char(c, state);
-        (*i)++;
-    }
-    if (*state == '\'' && c == '\'')
+	c = arg[*i];
+	if (c == '\'' || c == '"')
+	{
+		temp[0] = c;
+		temp[1] = '\0';
+		result = append_normal_text(temp, result);
+		update_state_char(c, state);
+		(*i)++;
+	}
+	if (*state == '\'' && c == '\'')
 		result = copy_squote(i, arg, result);
-    return (result);
+	return (result);
 }
 
 /* copy_squote:
@@ -70,13 +73,14 @@ char	*copy_squote(int *i, char *arg, char *result)
  * Update the quote state for a whole string (token value)
  * state: pointer to current quote state (0, '\'', or '"')
  */
-void set_state_str(const char *str, char *state)
+void	set_state_str(const char *str, char *state)
 {
-    int i = 0;
+	int	i;
 
-    while (str[i])
-    {
-        update_state_char(str[i], state);
-        i++;
-    }
+	i = 0;
+	while (str[i])
+	{
+		update_state_char(str[i], state);
+		i++;
+	}
 }
