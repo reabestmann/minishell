@@ -58,13 +58,3 @@ void	*handle_malloc(size_t bytes)
 		error("Malloc");
 	return (ret);
 }
-
-/* error:
-    calls perror and exits on failure
-    (wrapper function to safe lines)
-*/
-void	error(const char *msg)
-{
-	perror(msg);
-	exit(1);
-}

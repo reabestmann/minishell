@@ -54,13 +54,13 @@ int	syntax_valid(t_token *tokens)
 	state = 0;
 	while (cpy)
 	{
-		update_state(cpy->val, &state);
+		set_state_str(cpy->val, &state);
 		if (cpy->type != TOKEN_WORD && state == 0)
 		{
 			if (check_pipe_syntax(cpy) == -1)
-				return (0);
+				return (1);
 			if (check_redirection_syntax(cpy) == -1)
-				return (0);
+				return (1);
 		}
 		// todo: add more syntax checks that might be missing
 		cpy = cpy->next;

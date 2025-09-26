@@ -18,17 +18,21 @@ LIBFT = $(LIBFT_DIR)/libft.a
 SRC_FILES = main.c \
 $(PARSER_DIR)/lexer.c \
 $(PARSER_DIR)/parse.c \
-$(PARSER_DIR)/expand.c \
 $(PARSER_DIR)/parse_utils.c \
+$(PARSER_DIR)/expand.c \
+$(PARSER_DIR)/expand_utils.c \
 $(PARSER_DIR)/syntax.c \
+$(PARSER_DIR)/quote_state.c \
 $(EXECUTER_DIR)/exec.c \
 $(EXECUTER_DIR)/redir.c \
 $(EXECUTER_DIR)/pipes.c \
+$(EXECUTER_DIR)/exec_utils.c \
 $(SIGNALS_DIR)/signal_handler.c \
 $(SIGNALS_DIR)/parent_child_setup.c \
 $(UTILS_DIR)/utils.c \
 $(UTILS_DIR)/trim_quotes.c \
 $(UTILS_DIR)/free.c \
+$(UTILS_DIR)/error.c \
 $(UTILS_DIR)/struct_to_ptr.c \
 $(UTILS_DIR)/ptr_to_struct.c \
 $(UTILS_DIR)/get_next_line.c \

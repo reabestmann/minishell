@@ -24,33 +24,6 @@
 		execute(): resolves path + calls execve().
 		str_equals() + is_builtin(): helpers to detect builtins. (in utils.c) 
 */
-/* run_builtin: 
-	checks if 'cmd' matches any builtin name.
-	Calls str_equals for each of the 7 builtin commands.
-	Calls the function directly and returns its result.
-	-> 0 = success, >0 = Error.
-	returns -1 if command is not a builtin.
-*/
-
-int	run_builtin(t_command *cmd, t_env **env)
-{
-	if (str_equals(cmd->args[0], "cd"))
-		return (cd_cmd(cmd, env));
-	trim_quotes_for_execution(cmd->args);
-	if (str_equals(cmd->args[0], "echo"))
-		return (echo_cmd(cmd));
-	if (str_equals(cmd->args[0], "pwd"))
-		return (pwd_cmd(env));
-	if (str_equals(cmd->args[0], "export"))
-		return (export_cmd(cmd, env));
-	if (str_equals(cmd->args[0], "unset"))
-		return (unset_cmd(cmd, env));
-	if (str_equals(cmd->args[0], "env"))
-		return (env_cmd(env));
-	if (str_equals(cmd->args[0], "exit"))
-		return (exit_cmd(cmd, env));
-	return (-1);
-}
 
 /* find_path: 
 	searches envp for PATH, splits it into directories.
@@ -86,150 +59,72 @@ static char	*find_path(char *cmd, char **envp)
 	return (NULL);
 }
 
-/* execute: 
-	calls find_path() to resolve the command's location.
-	If not found, prints "command not found" 
-	and exits 127 (command not found).
-	If found, runs execve() with args/envp, exits on failure.
+/* check_executable:
+ * Validates that the resolved path is runnable.
+ * - NULL path: 
+ * 	'/' or '.' → "No such file or directory" (127),
+ *  else → "command not found" (127).
+ * - stat() fail → "No such file or directory" (127).
+ * - Directory → "Is a directory" (126).
+ * - No exec permission → "Permission denied" (126).
+ * Frees path before exiting when needed.
 */
-/*void	execute(char **args, char **envp)
+static void	check_executable(char **args, char *path)
+{
+	struct stat	sb;
+
+	if (!path)
+	{
+		if (args[0][0] == '/' || args[0][0] == '.')
+			exec_error_custom(args[0], "No such file or directory", 127);
+		else
+			exec_error_custom(args[0], "command not found", 127);
+	}
+	if (stat(path, &sb) == -1)
+	{
+		free(path);
+		exec_error(args[0], 127);
+	}
+	if (S_ISDIR(sb.st_mode))
+	{
+		free(path);
+		exec_error_custom(args[0], "Is a directory", 126);
+	}
+	if (access(path, X_OK) == -1)
+	{
+		free(path);
+		exec_error(args[0], 126);
+	}
+}
+
+/* execute: 
+  1. Return early if args empty.
+   2. Trim quotes in args.
+   3. Resolve command path:
+        '/' or './' → direct,
+        else → PATH lookup.
+   4. Run check_executable() on the path.
+   5. Call execve() with args/envp.
+   6. On execve fail, free path and exit(1).
+*/
+void	execute(char **args, char **envp)
 {
 	char	*path;
 
+	if (!args || !args[0])
+		return ;
 	trim_quotes_for_execution(args);
-	if (args[0][0] == '/' || args[0][0] == '.')
+	if (!args[0] || args[0][0] == '\0')
+		return ;
+	if (args[0][0] == '/' || (args[0][0] == '.' && args[0][1] == '/'))
 		path = ft_strdup(args[0]);
 	else
 		path = find_path(args[0], envp);
-	if (!path)
-	{
-		ft_putstr_fd("minishell: ", 2);
-		ft_putstr_fd(args[0], 2);
-		ft_putstr_fd(": No such file or directory\n", 2);
-		exit(127);
-	}
-	if (execve(path, args, envp) == -1)
-	{
-		ft_putstr_fd("minishell: ", 2);
-		ft_putstr_fd(args[0], 2);
-		ft_putstr_fd(": ", 2);
-		//ft_putstr_fd(strerror(errno), 2);
-		ft_putstr_fd("\n", 2);
-		free(path);
-		if (errno == 13)
-			exit(126); //permission denied
-		else
-			exit(127); //command not found
-	}
-}*/
-
-void execute(char **args, char **envp)
-{
-    char *path;
-    struct stat sb;
-
-    if (!args || !args[0])
-        return;
-
-    trim_quotes_for_execution(args);
-	if (!args[0] || args[0][0] == '\0')
-		return;
-    // Determine the path
-    if (args[0][0] == '/' || (args[0][0] == '.' && args[0][1] == '/'))
-        path = ft_strdup(args[0]);
-    else
-        path = find_path(args[0], envp);
-
-    if (!path)
-    {        
-        if (args[0][0] == '/' || args[0][0] == '.')
-		{
-			ft_putstr_fd("minishell: ", 2);
-        	ft_putstr_fd(args[0], 2);
-            ft_putstr_fd(": No such file or directory\n", 2);
-		}
-		else
-		{
-			ft_putstr_fd(args[0], 2);
-            ft_putstr_fd(": command not found\n", 2);
-		}
-        exit(127);
-    }
-
-    // Check file existence and type
-    if (stat(path, &sb) == -1)
-    {
-        ft_putstr_fd("minishell: ", 2);
-        ft_putstr_fd(args[0], 2);
-        ft_putstr_fd(": No such file or directory\n", 2);
-        free(path);
-        exit(127);
-    }
-
-    // Check if path is a directory
-    if (S_ISDIR(sb.st_mode))
-    {
-        ft_putstr_fd("minishell: ", 2);
-        ft_putstr_fd(args[0], 2);
-        ft_putstr_fd(": Is a directory\n", 2);
-        free(path);
-        exit(126);
-    }
-
-    // Check execute permission
-    if (access(path, X_OK) == -1)
-    {
-        ft_putstr_fd("minishell: ", 2);
-        ft_putstr_fd(args[0], 2);
-        ft_putstr_fd(": Permission denied\n", 2);
-        free(path);
-        exit(126);
-    }
-
-    // Execute the command
-    execve(path, args, envp);
-
-    // If execve fails for some reason
-    ft_putstr_fd("minishell: ", 2);
-    ft_putstr_fd(args[0], 2);
-    ft_putstr_fd(": execution failed\n", 2);
-    free(path);
-    exit(1);
+	check_executable(args, path);
+	execve(path, args, envp);
+	free(path);
+	exec_error(args[0], 1);
 }
-/*
-void execute(char **args, char **envp)
-{
-    char *path;
-
-    trim_quotes_for_execution(args);
-
-    // Skip empty commands
-    if (!args[0] || args[0][0] == '\0')
-        return;
-
-    if (args[0][0] == '/' || args[0][0] == '.')
-        path = ft_strdup(args[0]);
-    else
-        path = find_path(args[0], envp);
-
-    if (!path)
-    {
-        ft_putstr_fd("minishell: ", 2);
-        ft_putstr_fd(args[0], 2);
-        if (args[0][0] == '/' || args[0][0] == '.')
-            ft_putstr_fd(": No such file or directory\n", 2);
-        else
-            ft_putstr_fd(": command not found\n", 2);
-        exit(127);
-    }
-
-    if (execve(path, args, envp) == -1)
-    {
-        perror("execve");
-        free(path);
-        exit(1);
-    }
-}*/
 
 /* fork_process: 
 	creates a child process with fork().
@@ -253,7 +148,6 @@ static int	fork_process(t_command *cmds, t_env **env)
 	return (get_exit_status(status));
 }
 
-
 /* run_command: 
 	main entry point to run a command node.
 	If args is empty, does nothing.  
@@ -268,12 +162,6 @@ int	run_command(t_command *cmds, t_env **env, int status)
 		return (0);
 	if (has_dollar(cmds->args))
 		dollar_expansion(cmds, env, status);
-	/*//I want to print all my commands here so that I can see how they look
-	  // --- DEBUG: print all args after expansion ---
-    for (int i = 0; cmds->args[i]; i++)
-        printf("arg[%d] = %s\n", i, cmds->args[i]);
-    // ---------------------------------------------*/
-
 	if (!cmds->in_child && !cmds->infile && !cmds->outfile && !cmds->next)
 	{
 		if (cmds->modifies_shell)
