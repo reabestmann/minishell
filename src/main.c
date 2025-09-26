@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:53:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 16:15:06 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/26 17:35:15 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,11 +48,11 @@ int	handle_input(char *input, t_env **env, int status)
 }
 
 /*initiates everything */
-void	init_main_vars(int *params, char **argv, char **env, char **envp)
+void	init_main_vars(int *params, char **argv, t_env **env, char **envp)
 {
 	(void)params;
 	(void)argv;
-	env = envp_to_struct(envp);
+	*env = envp_to_struct(envp);
 	if (!env)
 		error("environment: struct not built.");
 	init_signals();
@@ -72,7 +72,7 @@ void	read_line(char **input)
 void	look_at_input(char **input, int *status, t_env **env)
 {
 	if (*input && isatty(STDIN_FILENO))
-		add_history(input);
+		add_history(*input);
 	*status = handle_input(*input, env, *status);
 	if (*status == 2)
 		*input = readline("quote> ");
@@ -87,7 +87,7 @@ int	main(int params, char **argv, char **envp)
 	t_env	*env;
 	int		status;
 
-	init_main_vars(params, argv, env, envp);
+	init_main_vars(&params, argv, &env, envp);
 	status = 0;
 	while (1)
 	{
