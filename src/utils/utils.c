@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/11 14:28:03 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/24 20:00:02 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/26 18:17:34 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ int	get_exit_status(int status)
 		return (WEXITSTATUS(status));
 	if (WIFSIGNALED(status))
 		return (128 + WTERMSIG(status));
-	return (1); // fallback error
+	return (1);
 }
 
 /* str_equals: 

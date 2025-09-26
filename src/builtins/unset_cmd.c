@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:03:05 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/24 22:07:45 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/26 17:45:49 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ t_env	*find_and_delete_node(t_env **env, t_env *crnt, t_env **prev, char *key)
 
 	next = crnt->next;
 	if (ft_strncmp(crnt->key, key, ft_strlen(key)) == 0
-		&& ft_strlen(crnt->key) == ft_strlen(key)) // else circle throuhg until find it
+		&& ft_strlen(crnt->key) == ft_strlen(key))
 	{
 		if (*prev == NULL)
 			*env = next;

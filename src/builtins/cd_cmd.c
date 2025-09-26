@@ -6,106 +6,17 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:25 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/26 14:02:36 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/26 17:41:36 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-char	*get_env_value(t_env **env, const char *key)
-{
-	t_env	*current;
-
-	current = *env;
-	while (current)
-	{
-		if (ft_strncmp(current->key, key, ft_strlen(key)) == 0)
-			return (current->value);
-		current = current->next;
-	}
-	return (NULL);
-}
-
-static void	add_pwd_node(t_env **paths, char *pwd, char *old_or_new)
-{
-	t_env	*new_node;
-	t_env	*temp;
-
-	new_node = malloc(sizeof(t_env));
-	if (!new_node)
-		return ;
-	new_node->key = ft_strdup(old_or_new);
-	new_node->value = ft_strdup(pwd);
-	new_node->next = NULL;
-	if (*paths == NULL)
-		*paths = new_node;
-	else
-	{
-		temp = *paths;
-		while (temp->next != NULL)
-			temp = temp->next;
-		temp->next = new_node;
-	}
-}
-
-static void	update_oldpwd(t_env **env, char *oldpwd)
-{
-	t_env	*paths;
-
-	paths = *env;
-	while (paths != NULL && ft_strncmp(paths->key, "OLDPWD", 6) != 0)
-		paths = paths->next;
-	if (paths == NULL)
-		add_pwd_node(env, oldpwd, "OLDPWD");
-	else
-	{
-		free(paths->value);
-		paths->value = ft_strdup(oldpwd);
-	}
-}
-
-static void	update_newpwd(t_env **env, char *new_pwd)
-{
-	t_env	*paths;
-
-	paths = *env;
-	while (paths != NULL && ft_strncmp(paths->key, "PWD", 3) != 0)
-		paths = paths->next;
-	if (paths == NULL)
-		add_pwd_node(env, new_pwd, "PWD");
-	else
-	{
-		free(paths->value);
-		paths->value = ft_strdup(new_pwd);
-	}
-}
-
-char	*expand_home(t_env **env, char *target_dir)
-{
-	char	*home;
-	char	*expanded;
-
-	if (!target_dir)
-		return (get_env_value(env, "HOME"));
-	if (ft_strncmp(target_dir, "~", 1) == 0)
-	{
-		home = get_env_value(env, "HOME");
-		if (!home)
-			return (NULL);
-		if (target_dir[1] == '/' || target_dir[1] == '\0')
-		{
-			expanded = malloc(ft_strlen(home) + ft_strlen(target_dir));
-			if (!expanded)
-				return (NULL);
-			ft_strlcpy(expanded, home, ft_strlen(home) + 1);
-			ft_strlcat(expanded, target_dir + 1, ft_strlen(home)
-				+ ft_strlen(target_dir) + 1);
-			return (expanded);
-		}
-	}
-	return (ft_strdup(target_dir));
-}
-
+/* is_quoted
+   Checks if a string starts with a single or double quote.
+   @arg: the input string
+   Returns: 1 if quoted, 0 otherwise
+*/
 static int	is_quoted(char *arg)
 {
 	if (!arg)
@@ -113,7 +24,17 @@ static int	is_quoted(char *arg)
 	return (arg[0] == '\'' || arg[0] == '"');
 }
 
-int	go_home(char **target_dir, char **temp, t_env **env)
+/* go_home
+   Handles "cd" with no argument or "~" expansion.
+   @target_dir: pointer to the directory string (may be modified)
+   @temp: temporary string to hold expanded HOME path
+   @env: environment list
+   Cases:
+     - If target_dir is NULL → set it to HOME value
+     - If target_dir starts with "~" (and not quoted) → expand to HOME
+   Returns: 0 on success, 1 on failure
+*/
+static int	go_home(char **target_dir, char **temp, t_env **env)
 {
 	if (!*target_dir)
 		*target_dir = get_env_value(env, "HOME");
@@ -127,7 +48,16 @@ int	go_home(char **target_dir, char **temp, t_env **env)
 	return (0);
 }
 
-int	display_oldpwd(t_env **env, char **temp)
+/* display_oldpwd
+   Handles "cd -" (switch to previous directory).
+   @env: environment list
+   @temp: pointer to store duplicated OLDPWD value
+   Behavior:
+     - If OLDPWD is not set → print error and return 1
+     - Otherwise → copy OLDPWD into temp and print it
+   Returns: 0 on success, 1 on failure
+*/
+static int	display_oldpwd(t_env **env, char **temp)
 {
 	t_env	*paths;
 
@@ -144,7 +74,18 @@ int	display_oldpwd(t_env **env, char **temp)
 	return (0);
 }
 
-int	cd_core(char **target_dir, char **temp, t_env **env)
+/* cd_core
+   Executes the directory change logic.
+   @target_dir: directory to change into
+   @temp: optional temporary expansion string (freed here if used)
+   @env: environment list (updated with new PWD/OLDPWD)
+   Steps:
+     - Save old working directory
+     - Attempt chdir() into target_dir
+     - On success → update OLDPWD and PWD in env
+   Returns: 0 on success, 1 on error
+*/
+static int	cd_core(char **target_dir, char **temp, t_env **env)
 {
 	char	*oldpwd;
 	char	*newpwd;

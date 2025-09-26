@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/18 15:46:22 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/24 20:00:17 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/26 13:13:10 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,6 +155,8 @@ void	trim_quotes_for_execution(char **args)
 	int		i;
 	char	*cleaned;
 
+	if (!args)
+		return ;
 	i = 0;
 	while (args[i])
 	{
