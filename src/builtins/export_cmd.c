@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:54 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/25 18:04:06 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/26 10:42:35 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
        * len: pointer to store the length of the key portion
    - Returns: 1 if valid, 0 if invalid
 */
-static int	is_valid_key(char *arg, int *len)
+static int	is_valid_export_key(char *arg, int *len)
 {
 	int	i;
 
@@ -243,7 +243,7 @@ static char	*find_key(char *path, int *key_len)
 */
 int	validate_and_get_key(char *path, int *key_len, char **key)
 {
-	if (!is_valid_key(path, key_len))
+	if (!is_valid_export_key(path, key_len))
 	{
 		ft_putstr_fd("-mini: export: `", 2);
 		ft_putstr_fd(path, 2);
