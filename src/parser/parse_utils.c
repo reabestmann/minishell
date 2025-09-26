@@ -6,23 +6,26 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 12:00:54 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/23 19:23:13 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/26 17:17:13 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int has_dollar(char **args)
+int	has_dollar(char **args)
 {
-    int i = 0;
-    while (args[i])
-    {
-        if (ft_strchr(args[i], '$'))
-            return (1);
-        i++;
-    }
-    return (0);
+	int	i;
+
+	i = 0;
+	while (args[i])
+	{
+		if (ft_strchr(args[i], '$'))
+			return (1);
+		i++;
+	}
+	return (0);
 }
+
 /*
  * skip_space
  * helper function to avoid repetition across split functions -
@@ -51,16 +54,17 @@ void	update_quotes(char c, int *in_quote, int *in_dquote)
 
 /* set_cmd_flags:
 	sets the modifies_shell flag to 1 if the command is cd, export or unset.
-	Used later to decide wether it must run in the parent instead of a child proccess
+	Used later to decide wether it must run in the parent instead of a 
+	child proccess
 */
 void	set_cmd_flags(t_command *cmd)
 {
 	if (!cmd || !cmd->args || !cmd->args[0])
 		return ;
-	if (str_equals(cmd->args[0], "cd") || 
-		str_equals(cmd->args[0], "export") ||
-		str_equals(cmd->args[0], "unset") ||
-		str_equals(cmd->args[0], "exit")) 
+	if (str_equals(cmd->args[0], "cd")
+		|| str_equals(cmd->args[0], "export")
+		|| str_equals(cmd->args[0], "unset")
+		|| str_equals(cmd->args[0], "exit"))
 		cmd->modifies_shell = 1;
 	else
 		cmd->modifies_shell = 0;
