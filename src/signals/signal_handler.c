@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 15:29:35 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/17 15:38:06 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/26 17:21:48 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 /*TCSANOW is a flag that tells us to set the attribute immediatly*/
 void	disable_ctrl_echo(void)
 {
-	struct termios	term_state; //this is ok right?
+	struct termios	term_state;
 
 	if (tcgetattr(STDOUT_FILENO, &term_state) == -1)
 	{
