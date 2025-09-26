@@ -178,18 +178,31 @@ static int	fork_process(t_command *cmds, t_env **env)
 		otherwise runs via fork/execve.
 	if cmd is not a standalone, run_pipeline runs it.
 */
-int	run_command(t_command *cmds, t_env **env, int status)
+int run_command(t_command *cmds, t_env **env, int status)
 {
-	if (!cmds || !cmds->args || !cmds->args[0])
-		return (0);
-	if (has_dollar(cmds->args))
-		dollar_expansion(cmds, env, status);
-	if (!cmds->in_child && !cmds->infile && !cmds->outfile && !cmds->next)
-	{
-		if (cmds->modifies_shell)
-			return (run_builtin(cmds, env));
-		return (fork_process(cmds, env));
-	}
-	else
-		return (run_pipeline(cmds, env));
+    if (!cmds)
+        return 0;
+
+    if (has_dollar(cmds->args))
+        dollar_expansion(cmds, env, status);
+    if (!cmds->in_child)
+    {
+        if ((cmds->args && cmds->args[0]) ||
+            cmds->infile || cmds->outfile || cmds->heredoc != -1)
+        {
+            if (cmds->modifies_shell && cmds->args && cmds->args[0])
+                return run_builtin(cmds, env);
+            return fork_process(cmds, env);
+        }
+        else if (cmds->next)
+        {
+            return run_pipeline(cmds, env);
+        }
+        else
+            return 0;
+    }
+    else
+        return run_pipeline(cmds, env);
 }
+
+

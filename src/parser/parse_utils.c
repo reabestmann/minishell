@@ -16,6 +16,8 @@ int	has_dollar(char **args)
 {
 	int	i;
 
+	if (!args)
+		return (0);
 	i = 0;
 	while (args[i])
 	{

@@ -39,6 +39,8 @@ void	run_child(t_command *cmd, t_env **env)
 	cmd->in_child = 1;
 	child_signal_setup();
 	apply_redirections(cmd);
+	if (!cmd->args || !cmd->args[0])
+		exit(0);
 	if (run_builtin(cmd, env) == -1)
 	{
 		envp = struct_to_envp(*env, 1);
