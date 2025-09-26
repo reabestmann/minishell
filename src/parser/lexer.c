@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 15:26:43 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/23 20:10:05 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/26 17:12:43 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,14 +26,14 @@ typedef struct s_token
 	Allocates and initializes a new token.
 	Stores the token string (with quotes trimmed), type, and quote state.
 	Returns pointer to the new t_token.
+	strdup uses malloc
 */
 static t_token	*create_token(const char *str, t_token_type type)
 {
 	t_token	*token;
 
 	token = handle_malloc(sizeof(t_token));
-	token->val = ft_strdup((char *)str); //this is malloced
-	//token->val = trim_quotes(str, in_squote, in_dquote);
+	token->val = ft_strdup((char *)str);
 	if (!token->val)
 	{
 		free(token);
@@ -106,25 +106,25 @@ static int	handle_stype(t_token **tokens, const char *str)
 */
 static int	handle_wtype(t_token **tokens, const char *str)
 {
-	int len;
-	int in_squote;
-	int in_dquote;
-	char *tmp;
+	int		len;
+	int		in_squote;
+	int		in_dquote;
+	char	*tmp;
 
 	len = 0;
 	in_squote = 0;
 	in_dquote = 0;
-	while (str[len]) 
+	while (str[len])
 	{
 		if (!in_squote && !in_dquote && ft_strchr(" \t<>|", str[len]))
-			break;
+			break ;
 		update_quotes(str[len], &in_squote, &in_dquote);
 		len++;
 	}
 	tmp = ft_substr(str, 0, len);
 	append_token(tokens, create_token(tmp, TOKEN_WORD));
 	free(tmp);
-	return len;
+	return (len);
 }
 
 /*	lexer
