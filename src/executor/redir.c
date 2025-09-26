@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 16:02:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/25 15:03:23 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/25 23:28:32 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,110 +81,266 @@ void	fd_check(int fd, int std_fd, char *file)
 	return (rfd);
 }*/
 
-char *expand_for_heredoc(char *line, int last_status)
+/* dol_q_expansion:
+   Handles the special "$?" expansion inside heredocs.
+   - If current char is '?', replace with last_status converted to string.
+   - Appends it to result using append_normal_text().
+   - Advances index past '?'.
+   - Returns:
+       1 → expansion handled
+      -1 → malloc failure
+       0 → not a "$?" expansion
+*/
+int dol_q_expansion(char *line, int *i, int last_status, char **result)
 {
-    char    *result;
-    int     i;
+	char	*num;
+	char	*temp;
 
-    result = ft_strdup(""); // start with empty string
-    if (!result)
-        return (NULL);
-    i = 0;
-    while (line[i])
-    {
-        if (line[i] == '$')
-        {
-            i++;
-            if (line[i] == '?') // special case $?
-            {
-                char *num = ft_itoa(last_status);
-                result = append_normal_text(num, result);
-                free(num);
-                i++;
-            }
-            else
-            {
-                // parse key
-                int start = i;
-                while (ft_isalnum(line[i]) || line[i] == '_')
-                    i++;
-                char *key = ft_substr(line, start, i - start);
-                char *val = getenv(key);   // use system env for now
-                if (!val)
-                    val = "";
-                result = append_normal_text(val, result);
-                free(key);
-            }
-        }
-        else
-        {
-            char buf[2] = { line[i], '\0' };
-            result = append_normal_text(buf, result);
-            i++;
-        }
-    }
-    return (result);
+	if (line[*i] == '?') // special case $?
+	{
+		num = ft_itoa(last_status);
+		if (!num)
+			return (-1);
+		temp = append_normal_text(num, *result);
+		if (!temp)
+			return (free(num), -1);
+		free(*result);
+		*result = temp;
+		free(num);
+		(*i)++;
+		return (1);
+	}
+	return (0);
 }
 
-
-char *process_line(char *line, int expand)
+/* parse_key:
+   Parses a variable name starting at *i inside heredoc expansion.
+   - Extracts alphanumeric/underscore sequence as key.
+   - Looks up value with getenv(key) (later replace with lookup in t_env).
+   - Appends value (or "" if not found) to *result.
+   - Advances *i to the end of the key.
+   - On malloc failure, frees key and leaves *result unchanged.
+   - Note:
+   ⚠️ Later you might replace getenv with lookup in your own t_env.
+*/
+void	parse_key(int start_idx, int *i, char *line, char **result)
 {
-    char *result = line;
-    if (expand)
-    {
-        result = expand_for_heredoc(line, -1);
-        free(line);
-    }
-    return result;
+	char	*key;
+	char	*val;
+	int		start;
+	char	*temp;
+
+	start = start_idx;
+	if (start == -1)
+		start = *i;
+	while (ft_isalnum(line[*i]) || line[*i] == '_')
+		(*i)++;
+	key = ft_substr(line, start, *i - start);
+	if (!key)
+		return ;
+	val = getenv(key); // is out t_env available at this point?
+	if (!val)
+		val = "";
+	temp = append_normal_text(val, *result);
+	if (!temp)
+	{
+		free(key);
+		return ;
+	}
+	*result = temp;
+	free(key);
 }
-int delimiter_was_quoted(const char *delimiter)
+
+/* handle_normal_txt:
+   Appends a single non-special character from line[*i] to result.
+   - Wraps it in a buffer and calls append_normal_text().
+   - Returns updated result, or NULL on malloc failure.
+   - Caller must free result if NULL is returned.
+*/
+char	*handle_normal_text(int *i, char *line, char *result)
 {
-    int len = ft_strlen(delimiter);
-    return (len >= 2 && ((delimiter[0] == '\'' && delimiter[len - 1] == '\'') ||
-                         (delimiter[0] == '"' && delimiter[len - 1] == '"')));
+	char	buf[2];
+	char	*temp;
+
+	buf[0] = line[*i];
+	buf[1] = '\0';
+	temp = append_normal_text(buf, result);
+	if (!temp)
+	{
+		free(result);
+		return (NULL);
+	}
+	return (temp);
 }
-char *get_trimmed_delimiter(const char *delimiter)
+
+/* init_res_i:
+   Initializes heredoc expansion loop variables.
+   - Sets index *i to 0.
+   - Allocates an empty result string ("").
+   - Returns 1 on success, 0 on malloc failure.
+*/
+int	init_res_i(int *i, char **result)
 {
-    int len = ft_strlen(delimiter);
-    if (len >= 2 && ((delimiter[0] == '\'' && delimiter[len - 1] == '\'') ||
-                     (delimiter[0] == '"' && delimiter[len - 1] == '"')))
-        return ft_substr(delimiter, 1, len - 2);
-    return ft_strdup(delimiter);
+	*i = 0;
+	*result = ft_strdup(""); // start with empty string
+	if (!*result)
+		return (0);
+	return (1);
 }
 
-static int heredoc_fd(const char *delimiter)
+/* expand_for_heredoc:
+   Performs variable expansion inside a heredoc line.
+   - Iterates through characters in line.
+   - If '$' is found:
+       → try "$?" via dol_q_expansion
+       → else parse variable with parse_key
+   - Otherwise appends normal characters.
+   - Returns expanded result string or NULL on error.
+*/
+char	*expand_for_heredoc(char *line, int last_status)
 {
-    int fd;
-	int rfd;
-    char *line;
-    char *trimmed;
-    int expand;
+	char	*result;
+	int		i;
+	int		handled;
 
-    trimmed = get_trimmed_delimiter(delimiter);
-    expand = !delimiter_was_quoted(delimiter);
+	if (init_res_i(&i, &result) == 0)
+		return (NULL);
+	while (line[i])
+	{
+		if (line[i] == '$')
+		{
+			i++;
+			handled = dol_q_expansion(line, &i, last_status, &result);
+			if (handled == -1)
+				return (free(result), NULL);
+			if (handled == 1)
+				continue ;
+			parse_key(i, &i, line, &result);
+		}
+		else
+		{
+			result = handle_normal_text(&i, line, result);
+			if (!result)
+				return (NULL);
+			i++;
+		}
+	}
+	return (result);
+}
 
-    fd = open(".heredoc_tmp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    if (fd < 0)
-        error("heredoc");
+/* process_line:
+   Prepares a line before writing it to heredoc file.
+   - If expand == 1, performs variable expansion.
+   - If expand == 0, returns line unchanged.
+   - Always frees original line if expansion is done.
+*/
+char	*process_line(char *line, int expand)
+{
+	char	*result;
 
-    while (1)
-    {
-        line = readline("> ");
-        if (str_equals(line, trimmed))
-        {
-            free(line);
-            break;
-        }
-        line = process_line(line, expand);
-        ft_putstr_fd(line, fd);
-        ft_putstr_fd("\n", fd);
-        free(line);
-    }
-    close(fd);
-    free(trimmed);
-    rfd = open(".heredoc_tmp", O_RDONLY);
-    unlink(".heredoc_tmp");
-    return rfd;
+	if (!line)
+		return (NULL);
+	if (expand)
+	{
+		result = expand_for_heredoc(line, -1);//how can I actally get last_status here?
+		free(line);
+		return (result);
+	}
+	// Always return a new allocation, so caller can always free
+	result = ft_strdup(line);
+	free(line);
+	return (result);
+}
+
+/* delimiter_was_quoted:
+   Checks if a heredoc delimiter is quoted.
+   - Returns 1 if delimiter starts/ends with matching quotes.
+   - Used to decide whether expansion is disabled in heredoc.
+*/
+int	delimiter_was_quoted(const char *delimiter)
+{
+	int	len;
+
+	len = ft_strlen(delimiter);
+	return (len >= 2 && ((delimiter[0] == '\'' && delimiter[len - 1] == '\'')
+			|| (delimiter[0] == '"' && delimiter[len - 1] == '"')));
+}
+
+/* get_trimmed_delimiter:
+   Removes surrounding quotes from heredoc delimiter if present.
+   - Returns newly allocated string with quotes stripped.
+   - If not quoted, returns a strdup of original delimiter.
+*/
+char	*get_trimmed_delimiter(const char *delimiter)
+{
+	int	len;
+
+	len = ft_strlen(delimiter);
+	if (len >= 2 && ((delimiter[0] == '\'' && delimiter[len - 1] == '\'')
+			|| (delimiter[0] == '"' && delimiter[len - 1] == '"')))
+		return (ft_substr(delimiter, 1, len - 2));
+	return (ft_strdup(delimiter));
+}
+
+/* run_heredoc:
+   Reads one line of heredoc input.
+   - Prompts with "> ".
+   - If line matches trimmed delimiter → return 1 (stop).
+   - Otherwise, expand (if expand==1), write line to fd, and continue.
+   - Returns 0 if more lines expected.
+*/
+int	run_heredoc(char *trimmed, int expand, int fd)
+{
+	char	*line;
+	char	*processed;
+
+	line = readline("> ");
+	if (!line)
+		return (1);
+	if (str_equals(line, trimmed))
+	{
+		free(line);
+		return (1);
+	}
+	processed = process_line(line, expand);
+	if (!processed)
+		return (free(line), 1);
+	ft_putstr_fd(processed, fd);
+	ft_putstr_fd("\n", fd);
+	free(processed);
+	return (0);
+}
+
+/* heredoc_fd:
+   Full heredoc implementation for << operator.
+   - Trims delimiter (removes quotes if present).
+   - Determines if expansion is enabled (no quotes).
+   - Reads lines until delimiter is reached.
+   - Writes to temporary ".heredoc_tmp" file.
+   - Returns fd opened for reading the collected heredoc text.
+*/
+static int	heredoc_fd(const char *delimiter)
+{
+	int		fd;
+	int		rfd;
+	char	*trimmed;
+	int		expand;
+
+	trimmed = get_trimmed_delimiter(delimiter);
+	expand = !delimiter_was_quoted(delimiter);
+	fd = open(".heredoc_tmp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (fd < 0)
+		error("heredoc");
+	while (1)
+	{
+		if (run_heredoc(trimmed, expand, fd) == 1)
+			break ;
+	}
+	close(fd);
+	free(trimmed);
+	rfd = open(".heredoc_tmp", O_RDONLY);
+	unlink(".heredoc_tmp");
+	return (rfd);
 }
 
 // helper functions of apply, redirections
@@ -215,6 +371,7 @@ static void	handle_outfile(char **filename, int append)
 		fd = open(*filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	fd_check(fd, STDOUT_FILENO, *filename);
 }
+
 /* apply_redirections:
    Sets up all input/output redirections for a command before execution.
    Input priority: heredoc > infile > pipe from previous command
