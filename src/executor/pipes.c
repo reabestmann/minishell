@@ -26,36 +26,49 @@ static void	apply_pipes(int prev_fd, int pipe_fd[2], t_command *cmd)
 		fd_check(pipe_fd[1], STDOUT_FILENO, "pipe write");
 }
 
-/* child_exec:
-   Executed in the forked child process.
-   - Sets up stdin/stdout according to pipes and redirections
-   - Runs a builtin (if allowed) or executes an external command
-   - Exits the child when done
-*/
-void	run_child(t_command *cmd, t_env **env, int status)
+
+static void	mini_tee(t_command *cmd, int out_fd)
 {
-	char	**envp;
 	char	*line;
 
-	cmd->in_child = 1;
-	child_signal_setup();
-	apply_heredocs(cmd, status);
-	apply_redirections(cmd);
-	if (!cmd->args || !cmd->args[0])
-	{
-		while ((line = get_next_line(STDIN_FILENO)))
-		{
-			write(STDOUT_FILENO, line, ft_strlen(line));
-			free(line);
-		}
-		exit(0);
-	}
-	if (run_builtin(cmd, env) == -1)
-	{
-		envp = struct_to_envp(*env, 1);
-		execute(cmd->args, envp);
-	}
-	exit(0);
+    if (cmd->append == 1)
+        out_fd = open(cmd->outfile, O_CREAT | O_WRONLY | O_APPEND, 0644);
+    else if (cmd->append == 2)
+        out_fd = open(cmd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    if (out_fd < 0)
+		error("open fd");
+	line = get_next_line(STDIN_FILENO);
+    while (line)
+    {
+        write(STDOUT_FILENO, line, ft_strlen(line));
+        write(out_fd, line, ft_strlen(line));
+        free(line);
+		line = get_next_line(STDIN_FILENO);
+    }
+    close(out_fd);
+    exit(0);
+}
+
+void run_child(t_command *cmd, t_env **env, int status)
+{
+    int out_fd = -1;
+
+    cmd->in_child = 1;
+    child_signal_setup();
+    apply_heredocs(cmd, status);
+    apply_redirections(cmd);
+	if (cmd-> outfile && cmd->next)
+		mini_tee(cmd, out_fd);
+    if (!cmd->args || !cmd->args[0])
+        exit(0);
+
+    if (run_builtin(cmd, env) == -1)
+    {
+        char **envp = struct_to_envp(*env, 1); // export_only = 1
+        execute(cmd->args, envp);
+    }
+
+    exit(0);
 }
 
 /* parent_process:
@@ -71,7 +84,8 @@ static int	parent_process(t_command *cmd, int prev_fd, int pipe_fd[2])
 		close(prev_fd);
 	if (cmd->next)
 	{
-		close(pipe_fd[1]);
+		if (pipe_fd[1] != -1)
+			close(pipe_fd[1]);
 		return (pipe_fd[0]);
 	}
 	else
@@ -87,7 +101,8 @@ static int	parent_process(t_command *cmd, int prev_fd, int pipe_fd[2])
 /* init_pipes:
     helper function that initializes the pipe fds for the current command.
     - If the cmd is not the last, create a new pipe.
-    - Else, set both ends to -1, signaling "no pipe"*/
+    - Else, set both ends to -1, signaling "no pipe"
+*/
 static pid_t	init_pipes(int pipe_fd[2], t_command *cmd)
 {
 	pid_t	pid;
@@ -137,6 +152,8 @@ int	run_pipeline(t_command *cmds, t_env **env, int status)
 			prev_fd = parent_process(cmd, prev_fd, pipe_fd);
 		cmd = cmd->next;
 	}
+	if (prev_fd != -1)
+		close(prev_fd);
 	while (wait(&status) > 0)
 		status = get_exit_status(status);
 	return (status);

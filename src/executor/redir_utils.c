@@ -32,6 +32,27 @@ void	fd_check(int fd, int std_fd, char *file)
 	close(fd);
 }
 
+void	tee_pipe(int pipe_fd, const char *outfile, int append)
+{
+	int		fd;
+	char	*line;
+
+	fd = -1;
+	if (append == 1)
+		fd = open(outfile, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	else if (append == 2)
+		fd = open(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (fd < 0)
+		error(outfile);
+	line = get_next_line(STDIN_FILENO);
+	while (line)
+	{
+		write(pipe_fd, line, ft_strlen(line));
+		if (fd != -1)
+			write(fd, line, ft_strlen(line));
+		line = get_next_line(STDIN_FILENO);
+	}
+}
 /* heredoc_fd:
    Implements the << heredoc behavior.
    - Reads lines from the user until the specified delimiter is typed.

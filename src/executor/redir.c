@@ -26,7 +26,7 @@
      - Works with standalone commands, pipelines, heredocs, and redirections
 */
 
-// helper functions of apply, redirections
+/* helper functions of apply, redirections */
 static void	handle_infile(char **filename)
 {
 	char	*clean;
@@ -39,7 +39,7 @@ static void	handle_infile(char **filename)
 	fd_check(fd, STDIN_FILENO, *filename);
 }
 
-/* append -> 1 = >>, 2 = > */
+// append -> 1 = >>, 2 = > 
 static void	handle_outfile(char **filename, int append)
 {
 	char	*clean;
@@ -71,7 +71,7 @@ void	apply_redirections(t_command *cmd)
 {
 	if (cmd->infile)
 		handle_infile(&cmd->infile);
-	if (cmd->outfile)
+	if (cmd->outfile && !cmd->next)
 		handle_outfile(&cmd->outfile, cmd->append);
 }
 

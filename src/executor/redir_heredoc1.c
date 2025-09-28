@@ -30,7 +30,7 @@ int	delimiter_was_quoted(const char *delimiter)
    Removes surrounding quotes from heredoc delimiter if present.
    - Returns newly allocated string with quotes stripped.
    - If not quoted, returns a strdup of original delimiter.
-*/
+
 char	*get_trimmed_delimiter(const char *delimiter)
 {
 	int	len;
@@ -42,7 +42,7 @@ char	*get_trimmed_delimiter(const char *delimiter)
 	return (ft_strdup(delimiter));
 }
 
-/* run_heredoc:
+   run_heredoc:
    Reads one line of heredoc input.
    - Prompts with "> ".
    - If line matches trimmed delimiter → return 1 (stop).
