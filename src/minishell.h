@@ -39,6 +39,8 @@
 # include "libft.h"
 # include "structs.h"
 
+#define HEREDOC_TMP ".heredoc_tmp"
+
 /* parser/
  * lexer.c */
 t_token		*lexer(const char *input);
@@ -81,7 +83,9 @@ void		parse_redirection(t_command *cmd, t_token **cpy);
 void		apply_redirections(t_command *cmd);
 void		fd_check(int fd, int std_fd, char *file);
 /*redir_heredoc1.c*/
-int			heredoc_fd(const char *delimiter);
+void	write_heredoc(const char *delimiter, int first);
+int			heredoc_fd(const char *delimiter, int count);
+void		add_heredoc(t_command *cmd, const char *delimiter);
 /*redir_heredoc2.c*/
 char		*expand_for_heredoc(char *line, int last_status);
 /*redir_utils.c*/

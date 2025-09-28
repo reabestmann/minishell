@@ -94,34 +94,59 @@ static int	run_heredoc(char *trimmed, int expand, int fd)
 	return (0);
 }
 
-/* heredoc_fd:
-   Full heredoc implementation for << operator.
-   - Trims delimiter (removes quotes if present).
-   - Determines if expansion is enabled (no quotes).
-   - Reads lines until delimiter is reached.
-   - Writes to temporary ".heredoc_tmp" file.
-   - Returns fd opened for reading the collected heredoc text.
+/* write_heredoc:
+   Creates and fills a temporary file for one heredoc.
+   - Opens a unique .heredoc_tmp file for writing.
+   - Reads lines until the given delimiter is found.
+   - Expands variables if allowed (expand==1).
+   - Writes all valid lines to the file.
+   - Returns the fd opened for reading the heredoc content.
 */
-int	heredoc_fd(const char *delimiter)
+
+void	write_heredoc(const char *delimiter, int first)
 {
-	int		fd;
-	int		rfd;
-	char	*trimmed;
-	int		expand;
+	int fd;
+	char *trimmed;
+	int expand;
 
 	trimmed = get_trimmed_delimiter(delimiter);
 	expand = !delimiter_was_quoted(delimiter);
-	fd = open(".heredoc_tmp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+	if (first)
+		fd = open(HEREDOC_TMP, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	else
+		fd = open(HEREDOC_TMP, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (fd < 0)
 		error("heredoc");
+
 	while (1)
-	{
 		if (run_heredoc(trimmed, expand, fd) == 1)
-			break ;
-	}
+			break;
+
 	close(fd);
 	free(trimmed);
-	rfd = open(".heredoc_tmp", O_RDONLY);
-	unlink(".heredoc_tmp");
-	return (rfd);
+}
+
+void	add_heredoc(t_command *cmd, const char *delimiter)
+{
+	char	**arr;
+	int		i;
+	int		j;
+
+	i = 0;
+	while(cmd->heredoc_delim && cmd->heredoc_delim[i])
+		i++;
+	arr = handle_malloc(sizeof(char *) * (i + 2));
+	j = 0;
+	while (j < i)
+	{
+		arr[j] = ft_strdup(cmd->heredoc_delim[j]);
+		j++;
+	}
+	arr[i] = ft_strdup(delimiter);
+	arr[i + 1] = NULL;
+	if (cmd->heredoc_delim)
+		free_array(cmd->heredoc_delim);
+	cmd->heredoc_delim = arr;
+	cmd->heredoc_count = i + 1;
 }

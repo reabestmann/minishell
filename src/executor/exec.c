@@ -166,7 +166,7 @@ int	run_command(t_command *cmds, t_env **env, int status)
 	if (!cmds->in_child)
 	{
 		if ((cmds->args && cmds->args[0])
-			|| cmds->infile || cmds->outfile || cmds->heredoc != -1)
+			|| cmds->infile || cmds->outfile || cmds->heredoc_delim)
 		{
 			if (cmds->modifies_shell && cmds->args && cmds->args[0])
 				return (run_builtin(cmds, env));

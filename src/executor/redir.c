@@ -39,6 +39,7 @@ static void	handle_infile(char **filename)
 	fd_check(fd, STDIN_FILENO, *filename);
 }
 
+/* append -> 1 = >>, 2 = > */
 static void	handle_outfile(char **filename, int append)
 {
 	char	*clean;
@@ -47,7 +48,7 @@ static void	handle_outfile(char **filename, int append)
 	clean = remove_quotes(*filename);
 	free(*filename);
 	*filename = clean;
-	fd = 0;
+	fd = -1;
 	if (append == 1)
 		fd = open(*filename, O_WRONLY | O_CREAT | O_APPEND, 0664);
 	else if (append == 2)
@@ -68,8 +69,20 @@ static void	handle_outfile(char **filename, int append)
 */
 void	apply_redirections(t_command *cmd)
 {
-	if (cmd->heredoc != -1)
-		fd_check(cmd->heredoc, STDIN_FILENO, "heredoc");
+	int	i;
+	int	fd;
+
+	i = -1;
+	fd = -1;
+	while (++i < cmd->heredoc_count)
+		write_heredoc(cmd->heredoc_delim[i], i == 0);
+	if (cmd->heredoc_count)
+	{
+		fd = open(HEREDOC_TMP, O_RDONLY);
+		if (fd < 0)
+			error("heredoc open for reading");
+		fd_check(fd, STDIN_FILENO, "heredoc");
+	}
 	else if (cmd->infile)
 		handle_infile(&cmd->infile);
 	if (cmd->outfile)
@@ -116,7 +129,7 @@ void	parse_redirection(t_command *cmd, t_token **cpy)
 	else if ((*cpy)->type == TOKEN_HEREDOC)
 	{
 		if (next && next->type == TOKEN_WORD)
-			cmd->heredoc = heredoc_fd(next->val);
+			add_heredoc(cmd, next->val);
 	}
 	if (next)
 		*cpy = next;

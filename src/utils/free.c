@@ -74,6 +74,7 @@ void	free_commands(t_command *cmds)
 	{
 		tmp = cmds->next;
 		free_array(cmds->args);
+		free_array(cmds->heredoc_delim);
 		free(cmds->infile);
 		free(cmds->outfile);
 		free(cmds);

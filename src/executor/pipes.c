@@ -40,6 +40,8 @@ void	run_child(t_command *cmd, t_env **env)
 	cmd->in_child = 1;
 	child_signal_setup();
 	apply_redirections(cmd);
+	if (cmd->heredoc_count)
+		unlink(HEREDOC_TMP);
 	if (!cmd->args || !cmd->args[0])
 	{
 		while ((line = get_next_line(STDIN_FILENO)))
