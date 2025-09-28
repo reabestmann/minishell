@@ -132,16 +132,15 @@ void	execute(char **args, char **envp)
 	In the child: sets signals, (TODO redirections), then execve().
 	In the parent: waits for the child and resets signals.
 */
-static int	fork_process(t_command *cmds, t_env **env)
+static int	fork_process(t_command *cmds, t_env **env, int status)
 {
 	pid_t	pid;
-	int		status;
 
 	pid = fork();
 	if (pid < 0)
 		error("minishell: fork");
 	if (pid == 0)
-		run_child(cmds, env);
+		run_child(cmds, env, status);
 	parent_signal_setup();
 	if (waitpid(pid, &status, 0) == -1)
 		error("waitpid");
@@ -165,20 +164,18 @@ int	run_command(t_command *cmds, t_env **env, int status)
 		dollar_expansion(cmds, env, status);
 	if (!cmds->in_child)
 	{
-		if ((cmds->args && cmds->args[0])
+		if (cmds->next)
+			return (run_pipeline(cmds, env, status));
+		else if ((cmds->args && cmds->args[0])
 			|| cmds->infile || cmds->outfile || cmds->heredoc_delim)
 		{
 			if (cmds->modifies_shell && cmds->args && cmds->args[0])
 				return (run_builtin(cmds, env));
-			return (fork_process(cmds, env));
-		}
-		else if (cmds->next)
-		{
-			return (run_pipeline(cmds, env));
+			return (fork_process(cmds, env, status));
 		}
 		else
 			return (0);
 	}
 	else
-		return (run_pipeline(cmds, env));
+		return (run_pipeline(cmds, env, status));
 }

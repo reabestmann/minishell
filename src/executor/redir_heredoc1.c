@@ -12,35 +12,12 @@
 
 #include "../minishell.h"
 
-/* process_line:
-   Prepares a line before writing it to heredoc file.
-   - If expand == 1, performs variable expansion.
-   - If expand == 0, returns line unchanged.
-   - Always frees original line if expansion is done.
-*/
-static char	*process_line(char *line, int expand)
-{
-	char	*result;
-
-	if (!line)
-		return (NULL);
-	if (expand)
-	{
-		result = expand_for_heredoc(line, -1);//how can I actally get last_status here?
-		free(line);
-		return (result);
-	}
-	result = ft_strdup(line);
-	free(line);
-	return (result);
-}
-
 /* delimiter_was_quoted:
    Checks if a heredoc delimiter is quoted.
    - Returns 1 if delimiter starts/ends with matching quotes.
    - Used to decide whether expansion is disabled in heredoc.
 */
-static int	delimiter_was_quoted(const char *delimiter)
+int	delimiter_was_quoted(const char *delimiter)
 {
 	int	len;
 
@@ -54,7 +31,7 @@ static int	delimiter_was_quoted(const char *delimiter)
    - Returns newly allocated string with quotes stripped.
    - If not quoted, returns a strdup of original delimiter.
 */
-static char	*get_trimmed_delimiter(const char *delimiter)
+char	*get_trimmed_delimiter(const char *delimiter)
 {
 	int	len;
 
@@ -71,7 +48,7 @@ static char	*get_trimmed_delimiter(const char *delimiter)
    - If line matches trimmed delimiter → return 1 (stop).
    - Otherwise, expand (if expand==1), write line to fd, and continue.
    - Returns 0 if more lines expected.
-*/
+
 static int	run_heredoc(char *trimmed, int expand, int fd)
 {
 	char	*line;
@@ -94,14 +71,14 @@ static int	run_heredoc(char *trimmed, int expand, int fd)
 	return (0);
 }
 
-/* write_heredoc:
+ write_heredoc:
    Creates and fills a temporary file for one heredoc.
    - Opens a unique .heredoc_tmp file for writing.
    - Reads lines until the given delimiter is found.
    - Expands variables if allowed (expand==1).
    - Writes all valid lines to the file.
    - Returns the fd opened for reading the heredoc content.
-*/
+
 
 void	write_heredoc(const char *delimiter, int first)
 {
@@ -125,7 +102,7 @@ void	write_heredoc(const char *delimiter, int first)
 
 	close(fd);
 	free(trimmed);
-}
+}*/
 
 void	add_heredoc(t_command *cmd, const char *delimiter)
 {

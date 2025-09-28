@@ -20,7 +20,7 @@
 */
 static void	apply_pipes(int prev_fd, int pipe_fd[2], t_command *cmd)
 {
-	if (prev_fd != -1)
+	if (prev_fd != -1 && !cmd->heredoc_count)
 		fd_check(prev_fd, STDIN_FILENO, "pipe read");
 	if (cmd->next)
 		fd_check(pipe_fd[1], STDOUT_FILENO, "pipe write");
@@ -32,16 +32,15 @@ static void	apply_pipes(int prev_fd, int pipe_fd[2], t_command *cmd)
    - Runs a builtin (if allowed) or executes an external command
    - Exits the child when done
 */
-void	run_child(t_command *cmd, t_env **env)
+void	run_child(t_command *cmd, t_env **env, int status)
 {
 	char	**envp;
 	char	*line;
 
 	cmd->in_child = 1;
 	child_signal_setup();
+	apply_heredocs(cmd, status);
 	apply_redirections(cmd);
-	if (cmd->heredoc_count)
-		unlink(HEREDOC_TMP);
 	if (!cmd->args || !cmd->args[0])
 	{
 		while ((line = get_next_line(STDIN_FILENO)))
@@ -117,24 +116,22 @@ static pid_t	init_pipes(int pipe_fd[2], t_command *cmd)
    		parent if standalone (handled elsewhere)
    - Waits for all children at the end
 */
-int	run_pipeline(t_command *cmds, t_env **env)
+int	run_pipeline(t_command *cmds, t_env **env, int status)
 {
 	t_command	*cmd;
 	int			pipe_fd[2];
 	int			prev_fd;
 	pid_t		pid;
-	int			status;
 
 	cmd = cmds;
 	prev_fd = -1;
-	status = 0;
 	while (cmd)
 	{
 		pid = init_pipes(pipe_fd, cmd);
 		if (pid == 0)
 		{
 			apply_pipes(prev_fd, pipe_fd, cmd);
-			run_child(cmd, env);
+			run_child(cmd, env, status);
 		}
 		else
 			prev_fd = parent_process(cmd, prev_fd, pipe_fd);

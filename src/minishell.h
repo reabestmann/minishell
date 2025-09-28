@@ -76,15 +76,17 @@ int			run_command(t_command *cmds, t_env **env, int status);
 int			run_builtin(t_command *cmd, t_env **env);
 void		trim_empty_args(char **args);
 /* pipes.c */
-void		run_child(t_command *cmd, t_env **env);
-int			run_pipeline(t_command *cmds, t_env **env);
+void		run_child(t_command *cmd, t_env **env, int status);
+int			run_pipeline(t_command *cmds, t_env **env, int status);
 /* redirections.c */
 void		parse_redirection(t_command *cmd, t_token **cpy);
 void		apply_redirections(t_command *cmd);
 void		fd_check(int fd, int std_fd, char *file);
-/*redir_heredoc1.c*/
-void	write_heredoc(const char *delimiter, int first);
-int			heredoc_fd(const char *delimiter, int count);
+/* heredoc.c */
+void    apply_heredocs(t_command *cmd, int last_status);
+/*redir_heredoc1.c */
+char		*get_trimmed_delimiter(const char *delimiter);
+int			delimiter_was_quoted(const char *delimiter);
 void		add_heredoc(t_command *cmd, const char *delimiter);
 /*redir_heredoc2.c*/
 char		*expand_for_heredoc(char *line, int last_status);

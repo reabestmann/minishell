@@ -69,21 +69,7 @@ static void	handle_outfile(char **filename, int append)
 */
 void	apply_redirections(t_command *cmd)
 {
-	int	i;
-	int	fd;
-
-	i = -1;
-	fd = -1;
-	while (++i < cmd->heredoc_count)
-		write_heredoc(cmd->heredoc_delim[i], i == 0);
-	if (cmd->heredoc_count)
-	{
-		fd = open(HEREDOC_TMP, O_RDONLY);
-		if (fd < 0)
-			error("heredoc open for reading");
-		fd_check(fd, STDIN_FILENO, "heredoc");
-	}
-	else if (cmd->infile)
+	if (cmd->infile)
 		handle_infile(&cmd->infile);
 	if (cmd->outfile)
 		handle_outfile(&cmd->outfile, cmd->append);
