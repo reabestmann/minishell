@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:53:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 17:35:15 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/29 15:50:00 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,10 +62,21 @@ void	init_main_vars(int *params, char **argv, t_env **env, char **envp)
 /*determines wether in noninteractive or interactive mode and reads the lines*/
 void	read_line(char **input)
 {
+	char	*line;
+
 	if (isatty(STDIN_FILENO))
 		*input = readline("mini$	");
 	else
-		*input = get_next_line(STDIN_FILENO);
+	{
+		line = get_next_line(STDIN_FILENO);
+		if (line)
+		{
+			*input = ft_strtrim(line, "\n");
+			free(line);
+		}
+		else
+			*input = NULL;
+	}
 }
 
 /*sends to handle input and deals with status*/
@@ -89,14 +100,11 @@ int	main(int params, char **argv, char **envp)
 	{
 		read_line(&input);
 		if (!input)
-		{
-			if (isatty(STDIN_FILENO))
-				printf("exit\n");
 			break ;
-		}
 		look_at_input(&input, &status, &env);
 	}
-	enable_ctrl_echo();
+	if (isatty(STDIN_FILENO))
+		enable_ctrl_echo();
 	if (env)
 		free_env_struct(env);
 	return (status);

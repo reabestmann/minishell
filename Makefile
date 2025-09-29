@@ -1,8 +1,7 @@
 # Compiler & flags
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -I$(LIBFT_DIR) -I/opt/homebrew/opt/readline/include 
-LDFLAGS = -L/opt/homebrew/opt/readline/lib -lreadline -lhistory
-
+CFLAGS = -Wall -Wextra -Werror -I$(LIBFT_DIR)
+LDFLAGS = -lreadline -lncurses
 # Directories
 LIBFT_DIR = libft
 PARSER_DIR = parser

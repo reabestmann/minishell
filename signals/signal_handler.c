@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 15:29:35 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/29 11:11:38 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/29 13:50:07 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,19 @@ void	disable_ctrl_echo(void)
 {
 	struct termios	term_state;
 
-	if (tcgetattr(STDOUT_FILENO, &term_state) == -1)
+	if (isatty(STDIN_FILENO))
 	{
-		write(2, "Error getting terminal attributes\n", 34);
-		exit(1);
-	}
-	term_state.c_lflag &= ~ECHOCTL;
-	if (tcsetattr(STDOUT_FILENO, TCSANOW, &term_state) == -1)
-	{
-		write(2, "Error setting terminal attributes\n", 34);
-		exit(1);
+		if (tcgetattr(STDOUT_FILENO, &term_state) == -1)
+		{
+			write(2, "Error getting terminal attributes\n", 34);
+			exit(1);
+		}
+		term_state.c_lflag &= ~ECHOCTL;
+		if (tcsetattr(STDOUT_FILENO, TCSANOW, &term_state) == -1)
+		{
+			write(2, "Error setting terminal attributes\n", 34);
+			exit(1);
+		}
 	}
 }
 
@@ -45,16 +48,19 @@ void	enable_ctrl_echo(void)
 {
 	struct termios	term_state;
 
-	if (tcgetattr(STDOUT_FILENO, &term_state) == -1)
+	if (isatty(STDIN_FILENO))
 	{
-		write(2, "Error getting terminal attributes\n", 34);
-		exit(1);
-	}
-	term_state.c_lflag |= ECHOCTL;
-	if (tcsetattr(STDOUT_FILENO, TCSANOW, &term_state) == -1)
-	{
-		write(2, "Error setting terminal attributes\n", 34);
-		exit(1);
+		if (tcgetattr(STDOUT_FILENO, &term_state) == -1)
+		{
+			write(2, "Error getting terminal attributes\n", 34);
+			exit(1);
+		}
+		term_state.c_lflag |= ECHOCTL;
+		if (tcsetattr(STDOUT_FILENO, TCSANOW, &term_state) == -1)
+		{
+			write(2, "Error setting terminal attributes\n", 34);
+			exit(1);
+		}
 	}
 }
 
