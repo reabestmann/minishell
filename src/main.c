@@ -74,10 +74,6 @@ void	look_at_input(char **input, int *status, t_env **env)
 	if (*input && isatty(STDIN_FILENO))
 		add_history(*input);
 	*status = handle_input(*input, env, *status);
-	if (*status == 2)
-		*input = readline("quote> ");
-	else if (*status == 3)
-		*input = readline("dquote> ");
 	free(*input);
 }
 

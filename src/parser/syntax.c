@@ -61,7 +61,7 @@ int	syntax_valid(t_token *tokens)
 
 	state = 0;
 	if (check_start(tokens) == -1)
-		return (1);
+		return (2);
 	cpy = tokens;
 	while (cpy)
 	{
@@ -69,16 +69,12 @@ int	syntax_valid(t_token *tokens)
 		if (cpy->type != TOKEN_WORD && state == 0)
 		{
 			if (check_pipe_syntax(cpy) == -1)
-				return (1);
+				return (2);
 			if (check_redirection_syntax(cpy) == -1)
-				return (1);
+				return (2);
 		}
 		// todo: add more syntax checks that might be missing
 		cpy = cpy->next;
 	}
-	if (state == '\'')
-		return (2);
-	else if (state == '"')
-		return (3);
 	return (0);
 }

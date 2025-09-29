@@ -53,40 +53,6 @@ void	tee_pipe(int pipe_fd, const char *outfile, int append)
 		line = get_next_line(STDIN_FILENO);
 	}
 }
-/* heredoc_fd:
-   Implements the << heredoc behavior.
-   - Reads lines from the user until the specified delimiter is typed.
-   - Writes all lines to a temporary file.
-   - Returns an fd that can be used as stdin for a command.
-   - Temporary file is deleted immediately after opening for reading.
-   - Example usage: cmd->heredoc = heredoc_fd("EOF");
-*/
-/*static int	heredoc_fd(const char *delimiter)
-{
-	int		fd;
-	int		rfd;
-	char	*line;
-
-	fd = open(".heredoc_tmp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd < 0)
-		error("heredoc");
-	while (1)
-	{
-		line = readline("> ");
-		if (str_equals(line, delimiter))
-		{
-			free(line);
-			break ;
-		}
-		ft_putstr_fd(line, fd);
-		ft_putstr_fd("\n", fd);
-		free(line);
-	}
-	close(fd);
-	rfd = open(".heredoc_tmp", O_RDONLY);
-	unlink(".heredoc_tmp");
-	return (rfd);
-}*/
 
 /* dol_q_expansion:
    Handles the special "$?" expansion inside heredocs.
