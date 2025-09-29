@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 15:29:35 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/26 17:21:48 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/29 11:11:38 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 /*called from main*/
 /*TCSANOW is a flag that tells us to set the attribute immediatly*/
 
-volatile sig_atomic_t g_sigint_received = 0;
+volatile sig_atomic_t	g_sigint_received = 0;
 
 void	disable_ctrl_echo(void)
 {
