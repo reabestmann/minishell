@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 21:49:14 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/29 11:09:26 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,7 @@
 
 #define HEREDOC_TMP ".heredoc_tmp"
 
-extern volatile sig_atomic_t g_sigint_received;
-
+extern volatile sig_atomic_t	g_sigint_received;
 
 /* parser/
  * lexer.c */

@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/11 16:13:11 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 21:10:34 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/29 11:15:04 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,55 +26,54 @@ static void	apply_pipes(int prev_fd, int pipe_fd[2], t_command *cmd)
 		fd_check(pipe_fd[1], STDOUT_FILENO, "pipe write");
 }
 
-
 static void	mini_tee(t_command *cmd, int out_fd)
 {
 	char	*line;
 
-    if (cmd->append == 1)
-        out_fd = open(cmd->outfile, O_CREAT | O_WRONLY | O_APPEND, 0644);
-    else if (cmd->append == 2)
-        out_fd = open(cmd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-    if (out_fd < 0)
+	if (cmd->append == 1)
+		out_fd = open(cmd->outfile, O_CREAT | O_WRONLY | O_APPEND, 0644);
+	else if (cmd->append == 2)
+		out_fd = open(cmd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	if (out_fd < 0)
 		error("open fd");
 	line = get_next_line(STDIN_FILENO);
-    while (line)
-    {
-        write(STDOUT_FILENO, line, ft_strlen(line));
-        write(out_fd, line, ft_strlen(line));
-        free(line);
+	while (line)
+	{
+		write(STDOUT_FILENO, line, ft_strlen(line));
+		write(out_fd, line, ft_strlen(line));
+		free(line);
 		line = get_next_line(STDIN_FILENO);
-    }
-    close(out_fd);
-    exit(0);
+	}
+	close(out_fd);
+	exit(0);
 }
 
-void run_child(t_command *cmd, t_env **env)
+void	run_child(t_command *cmd, t_env **env)
 {
-    int out_fd = -1;
+	int		out_fd;
+	char	**envp;
 
-    cmd->in_child = 1;
-    child_signal_setup();
-    apply_redirections(cmd);
+	out_fd = -1;
+	cmd->in_child = 1;
+	child_signal_setup();
+	apply_redirections(cmd);
 	if (cmd-> outfile && cmd->next)
 		mini_tee(cmd, out_fd);
-    if (!cmd->args || !cmd->args[0])
-        exit(0);
-
-    if (run_builtin(cmd, env) == -1)
-    {
-        char **envp = struct_to_envp(*env, 1); // export_only = 1
-        execute(cmd->args, envp);
-    }
-
-    exit(0);
+	if (!cmd->args || !cmd->args[0])
+		exit(0);
+	if (run_builtin(cmd, env) == -1)
+	{
+		envp = struct_to_envp(*env, 1); // export_only = 1
+		execute(cmd->args, envp);
+	}
+	exit(0);
 }
 
 /* parent_process:
-   Executed in the parent after forking a child.
-   - Closes old pipe ends no longer needed
-   - Keeps read end of current pipe for next command in the pipeline
-   - Returns the fd to pass to the next child, or -1 if last command
+Executed in the parent after forking a child.
+- Closes old pipe ends no longer needed
+- Keeps read end of current pipe for next command in the pipeline
+- Returns the fd to pass to the next child, or -1 if last command
 */
 static int	parent_process(t_command *cmd, int prev_fd, int pipe_fd[2])
 {
@@ -98,9 +97,9 @@ static int	parent_process(t_command *cmd, int prev_fd, int pipe_fd[2])
 }
 
 /* init_pipes:
-    helper function that initializes the pipe fds for the current command.
-    - If the cmd is not the last, create a new pipe.
-    - Else, set both ends to -1, signaling "no pipe"
+	helper function that initializes the pipe fds for the current command.
+	- If the cmd is not the last, create a new pipe.
+	- Else, set both ends to -1, signaling "no pipe"
 */
 static pid_t	init_pipes(int pipe_fd[2], t_command *cmd)
 {
@@ -123,12 +122,12 @@ static pid_t	init_pipes(int pipe_fd[2], t_command *cmd)
 }
 
 /* run_pipeline:
-   Executes a linked list of commands connected by pipes.
-   - Forks each command in a child process
-   - Pipes output to input of the next child
-   - Builtins modifying the shell still run in 
-   		parent if standalone (handled elsewhere)
-   - Waits for all children at the end
+Executes a linked list of commands connected by pipes.
+- Forks each command in a child process
+- Pipes output to input of the next child
+- Builtins modifying the shell still run in 
+		parent if standalone (handled elsewhere)
+- Waits for all children at the end
 */
 int	run_pipeline(t_command *cmds, t_env **env, int status)
 {

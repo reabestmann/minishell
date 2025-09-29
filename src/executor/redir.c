@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 16:02:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 21:36:50 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/29 11:20:42 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,47 +57,59 @@ static void	handle_outfile(char **filename, int append)
 }
 
 // helper: reads all content from src_fd and writes it to dest_fd
-static void merge_fd_into_pipe(int src_fd, int dest_fd)
+static void	merge_fd_into_pipe(int src_fd, int dest_fd)
 {
-    char buffer[1024];
-    ssize_t n;
+	char	buffer[1024];
+	ssize_t	n;
 
-    while ((n = read(src_fd, buffer, sizeof(buffer))) > 0)
-        write(dest_fd, buffer, n);
-
-    close(src_fd);
+	while ((n = read(src_fd, buffer, sizeof(buffer))) > 0)
+		write(dest_fd, buffer, n);
+	close(src_fd);
 }
+/*
+static void	merge_fd_into_pipe(int src_fd, int dest_fd)
+{
+	char	buffer[1024];
+	ssize_t	n;
+	n = read(src_fd, buffer, sizeof(buffer));
+	while (n > 0)
+	{
+		n = read(src_fd, buffer, sizeof(buffer));
+		write(dest_fd, buffer, n);
+	}
+	close(src_fd);
+}*/
 
 // call this from apply_redirections() before other redirections
-void handle_heredocs(t_command *cmd)
+void	handle_heredocs(t_command *cmd)
 {
 	int	merged_pipe[2];
 	int	i;
-    if (cmd->heredoc_count == 1)
-    {
-        fd_check(cmd->heredoc_fds[0], STDIN_FILENO, "heredoc");
-        return;
-    }
-    if (pipe(merged_pipe) == -1)
-        error("pipe merged heredoc");
+
+	if (cmd->heredoc_count == 1)
+	{
+		fd_check(cmd->heredoc_fds[0], STDIN_FILENO, "heredoc");
+		return ;
+	}
+	if (pipe(merged_pipe) == -1)
+		error("pipe merged heredoc");
 	i = -1;
 	while (++i < cmd->heredoc_count)
-        merge_fd_into_pipe(cmd->heredoc_fds[i], merged_pipe[1]);
-
-    close(merged_pipe[1]);
-    fd_check(merged_pipe[0], STDIN_FILENO, "heredoc");
+		merge_fd_into_pipe(cmd->heredoc_fds[i], merged_pipe[1]);
+	close(merged_pipe[1]);
+	fd_check(merged_pipe[0], STDIN_FILENO, "heredoc");
 }
 
 /* apply_redirections:
-   Sets up all input/output redirections for a command before execution.
-   Input priority: heredoc > infile > pipe from previous command
-   Output priority: outfile > pipe to next command
-   - If heredoc exists (cmd->heredoc != -1), dup2 it to STDIN
-   - If infile exists, open it and dup2 to STDIN
-   - If outfile exists:
-       append == 1 → >> append mode
-       append == 2 → > truncate/overwrite mode
-       dup2 to STDOUT
+Sets up all input/output redirections for a command before execution.
+Input priority: heredoc > infile > pipe from previous command
+Output priority: outfile > pipe to next command
+- If heredoc exists (cmd->heredoc != -1), dup2 it to STDIN
+- If infile exists, open it and dup2 to STDIN
+- If outfile exists:
+	append == 1 → >> append mode
+	append == 2 → > truncate/overwrite mode
+	dup2 to STDOUT
 */
 void	apply_redirections(t_command *cmd)
 {
@@ -110,8 +122,8 @@ void	apply_redirections(t_command *cmd)
 }
 
 /* set_redirection:
-   Helper for parse_redirection.
-   Sets cmd->outfile and cmd->append type based on the token.
+Helper for parse_redirection.
+Sets cmd->outfile and cmd->append type based on the token.
 */
 static void	set_redirection(t_command *cmd, t_token *token, int append_type)
 {
@@ -123,12 +135,12 @@ static void	set_redirection(t_command *cmd, t_token *token, int append_type)
 }
 
 /* parse_redirection:
-   Parses a token and updates the command struct with redirection info.
-   - < : input file → cmd->infile
-   - > : output truncate → cmd->outfile, append=2
-   - >>: output append → cmd->outfile, append=1
-   - <<: heredoc → cmd->heredoc = heredoc_fd(delimiter)
-   - Advances token pointer to the filename/delimiter
+Parses a token and updates the command struct with redirection info.
+- < : input file → cmd->infile
+- > : output truncate → cmd->outfile, append=2
+- >>: output append → cmd->outfile, append=1
+- <<: heredoc → cmd->heredoc = heredoc_fd(delimiter)
+- Advances token pointer to the filename/delimiter
 */
 void	parse_redirection(t_command *cmd, t_token **cpy)
 {
