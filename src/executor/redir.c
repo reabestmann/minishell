@@ -56,6 +56,38 @@ static void	handle_outfile(char **filename, int append)
 	fd_check(fd, STDOUT_FILENO, *filename);
 }
 
+// helper: reads all content from src_fd and writes it to dest_fd
+static void merge_fd_into_pipe(int src_fd, int dest_fd)
+{
+    char buffer[1024];
+    ssize_t n;
+
+    while ((n = read(src_fd, buffer, sizeof(buffer))) > 0)
+        write(dest_fd, buffer, n);
+
+    close(src_fd);
+}
+
+// call this from apply_redirections() before other redirections
+void handle_heredocs(t_command *cmd)
+{
+	int	merged_pipe[2];
+	int	i;
+    if (cmd->heredoc_count == 1)
+    {
+        fd_check(cmd->heredoc_fds[0], STDIN_FILENO, "heredoc");
+        return;
+    }
+    if (pipe(merged_pipe) == -1)
+        error("pipe merged heredoc");
+	i = -1;
+	while (++i < cmd->heredoc_count)
+        merge_fd_into_pipe(cmd->heredoc_fds[i], merged_pipe[1]);
+
+    close(merged_pipe[1]);
+    fd_check(merged_pipe[0], STDIN_FILENO, "heredoc");
+}
+
 /* apply_redirections:
    Sets up all input/output redirections for a command before execution.
    Input priority: heredoc > infile > pipe from previous command
@@ -69,6 +101,8 @@ static void	handle_outfile(char **filename, int append)
 */
 void	apply_redirections(t_command *cmd)
 {
+	if (cmd->heredoc_count)
+		handle_heredocs(cmd);
 	if (cmd->infile)
 		handle_infile(&cmd->infile);
 	if (cmd->outfile && !cmd->next)

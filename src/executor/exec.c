@@ -140,7 +140,7 @@ static int	fork_process(t_command *cmds, t_env **env, int status)
 	if (pid < 0)
 		error("minishell: fork");
 	if (pid == 0)
-		run_child(cmds, env, status);
+		run_child(cmds, env);
 	parent_signal_setup();
 	if (waitpid(pid, &status, 0) == -1)
 		error("waitpid");
@@ -162,6 +162,8 @@ int	run_command(t_command *cmds, t_env **env, int status)
 		return (0);
 	if (has_dollar(cmds->args))
 		dollar_expansion(cmds, env, status);
+	if (collect_heredocs(cmds, status) < 0)
+		return (1);
 	if (!cmds->in_child)
 	{
 		if (cmds->next)

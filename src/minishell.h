@@ -41,6 +41,9 @@
 
 #define HEREDOC_TMP ".heredoc_tmp"
 
+extern volatile sig_atomic_t g_sigint_received;
+
+
 /* parser/
  * lexer.c */
 t_token		*lexer(const char *input);
@@ -76,14 +79,15 @@ int			run_command(t_command *cmds, t_env **env, int status);
 int			run_builtin(t_command *cmd, t_env **env);
 void		trim_empty_args(char **args);
 /* pipes.c */
-void		run_child(t_command *cmd, t_env **env, int status);
+void		run_child(t_command *cmd, t_env **env);
 int			run_pipeline(t_command *cmds, t_env **env, int status);
 /* redirections.c */
 void		parse_redirection(t_command *cmd, t_token **cpy);
 void		apply_redirections(t_command *cmd);
 void		fd_check(int fd, int std_fd, char *file);
 /* heredoc.c */
-void    apply_heredocs(t_command *cmd, int last_status);
+int			apply_heredocs(t_command *cmd, int last_status);
+int			collect_heredocs(t_command *cmds, int status);
 /*redir_heredoc1.c */
 char		*get_trimmed_delimiter(const char *delimiter);
 int			delimiter_was_quoted(const char *delimiter);

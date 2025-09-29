@@ -49,13 +49,12 @@ static void	mini_tee(t_command *cmd, int out_fd)
     exit(0);
 }
 
-void run_child(t_command *cmd, t_env **env, int status)
+void run_child(t_command *cmd, t_env **env)
 {
     int out_fd = -1;
 
     cmd->in_child = 1;
     child_signal_setup();
-    apply_heredocs(cmd, status);
     apply_redirections(cmd);
 	if (cmd-> outfile && cmd->next)
 		mini_tee(cmd, out_fd);
@@ -146,7 +145,7 @@ int	run_pipeline(t_command *cmds, t_env **env, int status)
 		if (pid == 0)
 		{
 			apply_pipes(prev_fd, pipe_fd, cmd);
-			run_child(cmd, env, status);
+			run_child(cmd, env);
 		}
 		else
 			prev_fd = parent_process(cmd, prev_fd, pipe_fd);

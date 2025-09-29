@@ -19,6 +19,9 @@
 	echo*/
 /*called from main*/
 /*TCSANOW is a flag that tells us to set the attribute immediatly*/
+
+volatile sig_atomic_t g_sigint_received = 0;
+
 void	disable_ctrl_echo(void)
 {
 	struct termios	term_state;
@@ -69,6 +72,7 @@ void sigint_handler(int signo)
 static void	sigint_handler(int sig)
 {
 	(void)sig;
+	g_sigint_received = 1;
 	write(STDOUT_FILENO, "\n", 1);
 	rl_on_new_line();
 	rl_replace_line("", 0);

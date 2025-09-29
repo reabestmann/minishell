@@ -37,6 +37,7 @@ typedef struct s_command
 	char				*outfile;
 	char				**heredoc_delim;
 	int					heredoc_count;
+	int					*heredoc_fds;
 	int					append;
 	int					modifies_shell;
 	int					in_child;
