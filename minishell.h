@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/30 18:40:47 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/30 19:22:00 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ int			run_command(t_command *cmds, t_env **env, int status);
 int			run_builtin(t_command *cmd, t_env **env, int status);
 void		trim_empty_args(char **args);
 /* pipes.c */
-void		run_child(t_command *cmd, t_env **env);
+void		run_child(t_command *cmd, t_env **env, int status);
 int			run_pipeline(t_command *cmds, t_env **env, int status);
 /* redirections.c */
 void		parse_redirection(t_command *cmd, t_token **cpy);

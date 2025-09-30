@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/11 16:13:11 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/29 11:15:04 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/30 19:23:28 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ static void	mini_tee(t_command *cmd, int out_fd)
 	exit(0);
 }
 
-void	run_child(t_command *cmd, t_env **env)
+void	run_child(t_command *cmd, t_env **env, int status)
 {
 	int		out_fd;
 	char	**envp;
@@ -61,7 +61,7 @@ void	run_child(t_command *cmd, t_env **env)
 		mini_tee(cmd, out_fd);
 	if (!cmd->args || !cmd->args[0])
 		exit(0);
-	if (run_builtin(cmd, env) == -1)
+	if (run_builtin(cmd, env, status) == -1)
 	{
 		envp = struct_to_envp(*env, 1); // export_only = 1
 		execute(cmd->args, envp);
@@ -144,7 +144,7 @@ int	run_pipeline(t_command *cmds, t_env **env, int status)
 		if (pid == 0)
 		{
 			apply_pipes(prev_fd, pipe_fd, cmd);
-			run_child(cmd, env);
+			run_child(cmd, env, status);
 		}
 		else
 			prev_fd = parent_process(cmd, prev_fd, pipe_fd);

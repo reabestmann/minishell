@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/30 18:39:50 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/30 19:21:33 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,7 +141,7 @@ static int	fork_process(t_command *cmds, t_env **env, int status)
 	if (pid < 0)
 		error("minishell: fork");
 	if (pid == 0)
-		run_child(cmds, env);
+		run_child(cmds, env, status);
 	parent_signal_setup();
 	if (waitpid(pid, &status, 0) == -1)
 		error("waitpid");
