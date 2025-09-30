@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:37 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/23 14:02:31 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/30 19:35:54 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,15 @@
 int	echo_cmd(t_command *cmd)
 {
 	int	i;
+	int j;
 	int	new_line;
 
 	i = 1;
 	new_line = 1;
-	if (str_equals(cmd->args[i], "-n"))
+	j = 1;
+	while (str_equals(cmd->args[i], "-n") || cmd->args[i][j++] == 'n')
 	{
+		j = 1;
 		new_line = 0;
 		i++;
 	}

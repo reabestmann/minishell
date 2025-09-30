@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 20:34:04 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 21:25:44 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/30 18:40:12 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 	-> 0 = success, >0 = Error.
 	returns -1 if command is not a builtin.
 */
-int	run_builtin(t_command *cmd, t_env **env)
+int	run_builtin(t_command *cmd, t_env **env, int status)
 {
 	if (str_equals(cmd->args[0], "cd"))
 		return (cd_cmd(cmd, env));
@@ -35,7 +35,7 @@ int	run_builtin(t_command *cmd, t_env **env)
 	if (str_equals(cmd->args[0], "env"))
 		return (env_cmd(env));
 	if (str_equals(cmd->args[0], "exit"))
-		return (exit_cmd(cmd, env));
+		return (exit_cmd(cmd, env, status));
 	return (-1);
 }
 
