@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 21:28:49 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/29 16:32:46 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ void	execute(char **args, char **envp)
 
 	if (!args || !args[0])
 		return ;
-	trim_quotes_for_execution(args);
+	//trim_quotes_for_execution(args);
 	trim_empty_args(args);
 	if (!args[0] || args[0][0] == '\0')
 		return ;
