@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:49 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/26 17:44:24 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/30 19:05:16 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,9 @@ int	atoi_and_overflow_check(const char *str, long *result, int sign)
 		if (!ft_isdigit(*str))
 			return (0);
 		*result = *result * 10 + (*str - '0');
-		if (sign == 1 && *result > INT_MAX)
+		if (sign == 1 && *result > LONG_MAX)
 			return (0);
-		if (sign == -1 && -(*result) < INT_MIN)
+		if (sign == -1 && -(*result) < LONG_MIN)
 			return (0);
 		str++;
 	}
@@ -62,7 +62,7 @@ static int	safe_atoi(const char *str, int *out)
 		return (0);
 	if (atoi_and_overflow_check(str, &result, sign) == 0)
 		return (0);
-	*out = (int)(sign * result);
+	*out = (sign * result);
 	return (1);
 }
 
@@ -88,7 +88,7 @@ void	exit_cleanup(t_command *cmd, t_env **env)
 */
 void	numeric_problem(t_command *cmd, t_env **env)
 {
-	ft_putstr_fd("exit: ", 2);
+	ft_putstr_fd("minishell: exit: ", 2);
 	ft_putstr_fd(cmd->args[1], 2);
 	ft_putendl_fd(": numeric argument required", 2);
 	exit_cleanup(cmd, env);
@@ -106,15 +106,15 @@ void	numeric_problem(t_command *cmd, t_env **env)
    Always prints "exit" before terminating.
    Returns: 1 if too many arguments, otherwise does not return
 */
-int	exit_cmd(t_command *cmd, t_env **env)
+int	exit_cmd(t_command *cmd, t_env **env, int last_status)
 {
 	int	exit_status;
 
-	ft_putendl_fd("exit", 1);
+	//ft_putendl_fd("exit", 1);
 	if (!cmd || !cmd->args || !cmd->args[1])
 	{
 		exit_cleanup(cmd, env);
-		exit(0);
+		exit(last_status);
 	}
 	if (!safe_atoi(cmd->args[1], &exit_status))
 	{
@@ -123,10 +123,10 @@ int	exit_cmd(t_command *cmd, t_env **env)
 	}
 	if (cmd->args[2])
 	{
-		ft_putendl_fd("exit: too many arguments", 2);
+		ft_putendl_fd("minishell: exit: too many arguments", 2);
 		return (1);
 	}
-	exit_status &= 0xFF;
+	exit_status = (exit_status % 256 + 256) % 256;
 	exit_cleanup(cmd, env);
 	exit(exit_status);
 }

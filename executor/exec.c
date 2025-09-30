@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/29 16:32:46 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/09/30 18:39:50 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,7 @@ void	execute(char **args, char **envp)
 	if (!args || !args[0])
 		return ;
 	//trim_quotes_for_execution(args);
+	//check here for if its  a command?
 	trim_empty_args(args);
 	if (!args[0] || args[0][0] == '\0')
 		return ;
@@ -172,7 +173,7 @@ int	run_command(t_command *cmds, t_env **env, int status)
 			|| cmds->infile || cmds->outfile || cmds->heredoc_delim)
 		{
 			if (cmds->modifies_shell && cmds->args && cmds->args[0])
-				return (run_builtin(cmds, env));
+				return (run_builtin(cmds, env, status));
 			return (fork_process(cmds, env, status));
 		}
 		else
