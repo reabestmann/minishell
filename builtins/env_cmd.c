@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:43 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/17 16:03:30 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/01 16:05:29 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,22 +22,29 @@ Frees the allocated array.
 Return Value: 0 on success, 1 if memory allocation fails.
 */
 
-int	env_cmd(t_env **env)
+int	env_cmd(t_command *cmd, t_env **env)
 {
 	int		i;
-	char	**temp;
-
+	char	**envp;
+	//char	*path;
 	i = 0;
-	temp = struct_to_envp(*env, 1);
-	if (!temp)
+	envp = struct_to_envp(*env, 1);
+	if(cmd->args[1])
+	{
+		if (chdir(cmd->args[1]) == -1)
+		{
+			exec_error_custom("minishell: env: ", "no such file or directory", 127);
+		}
+	}
+	if (!envp)
 	{
 		return (1);
 	}
-	while (temp[i])
+	while (envp[i])
 	{
-		printf("%s\n", temp[i]);
+		printf("%s\n", envp[i]);
 		i++;
 	}
-	free_array(temp);
+	free_array(envp);
 	return (0);
 }

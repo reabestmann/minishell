@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:25 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/01 13:40:59 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/01 16:23:57 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,9 +95,10 @@ static int	cd_core(char **target_dir, char **temp, t_env **env)
 		return (1);
 	if (chdir(*target_dir) == -1)
 	{
-		perror("cd");
+		ft_putstr_fd("minishell: cd: ", 2);
+		perror(*target_dir);
 		free(oldpwd);
-		return (1);
+		return(1);
 	}
 	update_oldpwd(env, oldpwd);
 	newpwd = getcwd(NULL, 0);

@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 20:34:04 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/30 18:40:12 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/01 16:12:45 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,9 @@ int	run_builtin(t_command *cmd, t_env **env, int status)
 {
 	if (str_equals(cmd->args[0], "cd"))
 		return (cd_cmd(cmd, env));
-	trim_quotes_for_execution(cmd->args);
 	if (str_equals(cmd->args[0], "echo"))
 		return (echo_cmd(cmd));
+	trim_quotes_for_execution(cmd->args);
 	if (str_equals(cmd->args[0], "pwd"))
 		return (pwd_cmd(env));
 	if (str_equals(cmd->args[0], "export"))
@@ -33,7 +33,7 @@ int	run_builtin(t_command *cmd, t_env **env, int status)
 	if (str_equals(cmd->args[0], "unset"))
 		return (unset_cmd(cmd, env));
 	if (str_equals(cmd->args[0], "env"))
-		return (env_cmd(env));
+		return (env_cmd(cmd, env));
 	if (str_equals(cmd->args[0], "exit"))
 		return (exit_cmd(cmd, env, status));
 	return (-1);
