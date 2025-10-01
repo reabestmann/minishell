@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/30 19:21:33 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/01 15:35:10 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@
 	Joins each directory with 'cmd' and checks if it's an executable.
 	Returns the full path if found, otherwise NULL.
 */
-static char	*find_path(char *cmd, char **envp)
+char	*find_path(char *cmd, char **envp)
 {
 	char	**paths;
 	char	*part_path;

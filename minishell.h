@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/01 13:38:47 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/01 15:37:29 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@ void		execute(char **args, char **envp);
 int			run_command(t_command *cmds, t_env **env, int status);
 int			run_builtin(t_command *cmd, t_env **env, int status);
 void		trim_empty_args(char **args);
+char		*find_path(char *cmd, char **envp);
 /* pipes.c */
 void		run_child(t_command *cmd, t_env **env, int status);
 int			run_pipeline(t_command *cmds, t_env **env, int status);
@@ -115,7 +116,7 @@ int			echo_cmd(t_command *cmd);
 /* pwd_cmd.c */
 int			pwd_cmd(t_env **env);
 /* env_cmd.c */
-int			env_cmd(t_env **env);
+int			env_cmd(t_command *cmd, t_env **env);
 /* exit_cmd.c */
 int			exit_cmd(t_command *cmd, t_env **env, int last_status);
 /* export_cmd.c */

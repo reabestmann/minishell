@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 15:58:45 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/29 11:24:19 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/01 15:23:07 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,13 +41,19 @@ static int	write_heredoc(char *delim, int write_fd, int status)
 	char	*trimmed_delim;
 	char	*trimmed_line;
 	int		expand;
-
-	trimmed_delim = ft_strtrim(delim, "'\"");
+	int		tty_fd;
+	
+	trimmed_delim = remove_quotes(delim);
 	expand = !delimiter_was_quoted(delim);
 	g_sigint_received = 0;
 	while (1)
 	{
-		ft_putstr_fd("> ", STDERR_FILENO);
+		tty_fd = open("/dev/tty", O_WRONLY);
+		if(tty_fd >= 0)
+		{
+			ft_putstr_fd("> ", tty_fd);
+			close(tty_fd);
+		}
 		line = get_next_line(STDIN_FILENO);
 		if (!line)
 			break ;
