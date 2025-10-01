@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:25 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/26 17:41:36 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/01 13:40:59 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,6 +109,17 @@ static int	cd_core(char **target_dir, char **temp, t_env **env)
 	return (0);
 }
 
+/*checks if extra args following cmd*/
+int too_many_args(t_command *cmd)
+{
+	if (cmd->args[2] != NULL) // extra arguments exist
+	{
+		ft_putendl_fd("minishell: cd: too many arguments", 2);
+		return (1);
+	}
+	return (0);
+}
+
 int	cd_cmd(t_command *cmd, t_env **env)
 {
 	char	*target_dir;
@@ -121,9 +132,14 @@ int	cd_cmd(t_command *cmd, t_env **env)
 	trim_quotes_for_execution(cmd->args);
 	if (cmd->args[1])
 		target_dir = cmd->args[1];
+	if (too_many_args(cmd) == 1)
+		return (1);
 	if (ft_strncmp(target_dir, "-", 1) == 0 && target_dir[1] == '\0')
+	{
 		if (display_oldpwd(env, &temp) == 1)
 			return (1);
+		return (0);
+	}
 	if (temp)
 		target_dir = temp;
 	if (!target_dir)
