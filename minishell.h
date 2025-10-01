@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/30 19:22:00 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/01 13:38:47 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,7 @@ t_env		*envp_to_struct(char **envp);
 char		**struct_to_envp(t_env *head, int export_only);
 /* builtins/
  * cd_cmd.c */
+int			too_many_args(t_command *cmd);
 int			cd_cmd(t_command *cmd, t_env **env);
 /*cd_cmd_utils.c*/
 char		*get_env_value(t_env **env, const char *key);
