@@ -56,7 +56,7 @@ void	run_child(t_command *cmd, t_env **env, int status)
 	out_fd = -1;
 	cmd->in_child = 1;
 	child_signal_setup();
-	apply_redirections(cmd);
+	apply_redirections(cmd, env, status);
 	if (cmd-> outfile && cmd->next)
 		mini_tee(cmd, out_fd);
 	if (!cmd->args || !cmd->args[0])

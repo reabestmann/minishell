@@ -40,20 +40,22 @@ static void	handle_infile(char **filename)
 }
 
 // append -> 1 = >>, 2 = > 
-static void	handle_outfile(char **filename, int append)
+static void	handle_outfile(char *filename, int append, t_env **env, int last_status)
 {
 	char	*clean;
+	char	*file;
 	int		fd;
-
-	clean = remove_quotes(*filename);
-	free(*filename);
-	*filename = clean;
+	
+	file = expand_arg_keep_quotes(filename, *env, last_status);
+	free(filename);
+	clean = remove_quotes(file);
+	file = clean;
 	fd = -1;
 	if (append == 1)
-		fd = open(*filename, O_WRONLY | O_CREAT | O_APPEND, 0664);
+		fd = open(file, O_WRONLY | O_CREAT | O_APPEND, 0664);
 	else if (append == 2)
-		fd = open(*filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	fd_check(fd, STDOUT_FILENO, *filename);
+		fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	fd_check(fd, STDOUT_FILENO, file);
 }
 
 // helper: reads all content from src_fd and writes it to dest_fd
@@ -111,14 +113,14 @@ Output priority: outfile > pipe to next command
 	append == 2 → > truncate/overwrite mode
 	dup2 to STDOUT
 */
-void	apply_redirections(t_command *cmd)
+void	apply_redirections(t_command *cmd, t_env **env, int last_status)
 {
 	if (cmd->heredoc_count)
 		handle_heredocs(cmd);
 	if (cmd->infile)
 		handle_infile(&cmd->infile);
 	if (cmd->outfile && !cmd->next)
-		handle_outfile(&cmd->outfile, cmd->append);
+		handle_outfile(cmd->outfile, cmd->append, env, last_status);
 }
 
 /* set_redirection:

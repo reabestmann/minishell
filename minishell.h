@@ -63,6 +63,7 @@ char		*set_state(char *arg, int *i, char *result, char *state);
 /* syntax.c */
 int			syntax_valid(t_token *tokens);
 /* expand.c */
+char	*expand_arg_keep_quotes(char *arg, t_env *head, int last_status);
 void		dollar_expansion(t_command *cmd, t_env **head, int last_status);
 /* expand_utils.c */
 char		*append_key_value(t_env *head, char *arg, int *i, char *result);
@@ -83,7 +84,7 @@ void		run_child(t_command *cmd, t_env **env, int status);
 int			run_pipeline(t_command *cmds, t_env **env, int status);
 /* redirections.c */
 void		parse_redirection(t_command *cmd, t_token **cpy);
-void		apply_redirections(t_command *cmd);
+void		apply_redirections(t_command *cmd, t_env **env, int last_status);
 void		fd_check(int fd, int std_fd, char *file);
 /* heredoc.c */
 int			apply_heredocs(t_command *cmd, int last_status);
