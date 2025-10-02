@@ -6,11 +6,9 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/26 17:47:56 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/26 18:14:49 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/02 14:16:39 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-//key, value, vars setting
 
 #include "../minishell.h"
 
@@ -109,7 +107,7 @@ int	validate_and_get_key(char *path, int *key_len, char **key)
 {
 	if (!is_valid_export_key(path, key_len))
 	{
-		ft_putstr_fd("-mini: export: `", 2);
+		ft_putstr_fd("mini: export: `", 2);
 		ft_putstr_fd(path, 2);
 		ft_putendl_fd("': not a valid identifier", 2);
 		return (1);
