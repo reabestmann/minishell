@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:54 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/26 18:14:37 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/02 12:39:30 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,6 +141,7 @@ static int	list_exported(t_env **env)
 {
 	char	**envp;
 	int		i;
+	char	*eq;
 
 	i = 0;
 	envp = struct_to_envp(*env, 1);
@@ -149,7 +150,14 @@ static int	list_exported(t_env **env)
 	ft_bubble_sort(envp);
 	while (envp[i])
 	{
-		printf("declare -x %s\n", envp[i]);
+		eq = ft_strchr(envp[i], '=');
+		if(eq)
+		{
+			printf("declare -x %.*s", (int)(eq - envp[i]), envp[i]);
+			printf("=\"%s\"\n", eq +1);
+		}
+		else
+			printf("declare -x %s\n", (envp[i]));
 		i++;
 	}
 	free_array(envp);
