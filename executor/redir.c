@@ -40,25 +40,25 @@ static void	handle_infile(char **filename)
 }
 
 // append -> 1 = >>, 2 = > 
-static void	handle_outfile(char *filename, int append, t_env **env, int last_status)
+static void	handle_outfile(t_command *cmd, t_env **env, int last_status)
 {
 	char	*clean;
 	char	*file;
 	int		fd;
 	
-	file = expand_arg_keep_quotes(filename, *env, last_status);
-	free(filename);
+	file = expand_arg_keep_quotes(cmd->outfile, *env, last_status);
+	free(cmd->outfile);
 	clean = remove_quotes(file);
 	file = clean;
 	fd = -1;
-	if (append == 1)
+	if (cmd->append == 1)
 		fd = open(file, O_WRONLY | O_CREAT | O_APPEND, 0664);
-	else if (append == 2)
+	else if (cmd->append == 2)
 		fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	fd_check(fd, STDOUT_FILENO, file);
+	fd_check(fd, cmd->fd_type, file);
 }
 
-// helper: reads all content from src_fd and writes it to dest_fd
+/* helper: reads all content from src_fd and writes it to dest_fd
 static void	merge_fd_into_pipe(int src_fd, int dest_fd)
 {
 	char	buffer[1024];
@@ -67,20 +67,21 @@ static void	merge_fd_into_pipe(int src_fd, int dest_fd)
 	while ((n = read(src_fd, buffer, sizeof(buffer))) > 0)
 		write(dest_fd, buffer, n);
 	close(src_fd);
-}
-/*
+}*/
+
 static void	merge_fd_into_pipe(int src_fd, int dest_fd)
 {
-	char	buffer[1024];
-	ssize_t	n;
-	n = read(src_fd, buffer, sizeof(buffer));
-	while (n > 0)
+	char	*line;
+
+	line = get_next_line(src_fd);
+	while(line)
 	{
-		n = read(src_fd, buffer, sizeof(buffer));
-		write(dest_fd, buffer, n);
+		write(dest_fd, line, ft_strlen(line));
+		free(line);
+		line = get_next_line(src_fd);
 	}
 	close(src_fd);
-}*/
+}
 
 // call this from apply_redirections() before other redirections
 void	handle_heredocs(t_command *cmd)
@@ -120,7 +121,7 @@ void	apply_redirections(t_command *cmd, t_env **env, int last_status)
 	if (cmd->infile)
 		handle_infile(&cmd->infile);
 	if (cmd->outfile && !cmd->next)
-		handle_outfile(cmd->outfile, cmd->append, env, last_status);
+		handle_outfile(cmd, env, last_status);
 }
 
 /* set_redirection:
@@ -136,6 +137,19 @@ static void	set_redirection(t_command *cmd, t_token *token, int append_type)
 	}
 }
 
+/* set_fd_type:
+Helper for parse_redirection.
+Sets the file descriptor we want to write to.
+(std_out, std_err or both)
+*/
+static void	set_fd_type(t_command *cmd, t_token *cpy)
+{
+	cmd->fd_type = STDOUT_FILENO;
+	if (cpy->type == TOKEN_REDIR_ERR || cpy->type == TOKEN_REDIR_ERR_APPEND)
+		cmd->fd_type = STDERR_FILENO;
+	if (cpy->type == TOKEN_REDIR_BOTH || cpy->type == TOKEN_REDIR_BOTH_APPEND)
+		cmd->fd_type = 3;
+}
 /* parse_redirection:
 Parses a token and updates the command struct with redirection info.
 - < : input file → cmd->infile
@@ -151,14 +165,15 @@ void	parse_redirection(t_command *cmd, t_token **cpy)
 	if (!*cpy)
 		return ;
 	next = (*cpy)->next;
+	set_fd_type(cmd, *cpy);
 	if ((*cpy)->type == TOKEN_REDIR_IN)
 	{
 		if (next && next->type == TOKEN_WORD)
 			cmd->infile = ft_strdup(next->val);
 	}
-	else if ((*cpy)->type == TOKEN_REDIR_OUT)
+	else if ((*cpy)->type == TOKEN_REDIR_OUT || (*cpy)->type == TOKEN_REDIR_ERR || (*cpy)->type == TOKEN_REDIR_BOTH)
 		set_redirection(cmd, next, 2);
-	else if ((*cpy)->type == TOKEN_REDIR_APPEND)
+	else if ((*cpy)->type == TOKEN_REDIR_APPEND || (*cpy)->type == TOKEN_REDIR_ERR_APPEND || (*cpy)->type == TOKEN_REDIR_BOTH_APPEND)
 		set_redirection(cmd, next, 1);
 	else if ((*cpy)->type == TOKEN_HEREDOC)
 	{

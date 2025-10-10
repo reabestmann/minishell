@@ -26,11 +26,6 @@ static int	check_pipe_syntax(t_token *token)
 
 static int	check_redirection_syntax(t_token *token)
 {
-	if (ft_strlen(token->val) > 2)
-	{
-		ft_putstr_fd("minishell: parse error near redirection\n", 2);
-		return (-1);
-	}
 	if (!token->next || token->next->type != TOKEN_WORD)
 	{
 		ft_putstr_fd("minishell: parse error near redirection\n", 2);

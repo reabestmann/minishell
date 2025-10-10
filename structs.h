@@ -20,6 +20,10 @@ typedef enum e_token_type
 	TOKEN_REDIR_IN,
 	TOKEN_REDIR_OUT,
 	TOKEN_REDIR_APPEND,
+	TOKEN_REDIR_ERR,
+	TOKEN_REDIR_ERR_APPEND,
+	TOKEN_REDIR_BOTH,
+	TOKEN_REDIR_BOTH_APPEND,
 	TOKEN_HEREDOC
 }	t_token_type;
 
@@ -41,6 +45,7 @@ typedef struct s_command
 	int					append;
 	int					modifies_shell;
 	int					in_child;
+	int					fd_type;
 	struct s_command	*next;
 }	t_command;
 
