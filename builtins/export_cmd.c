@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:54 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/02 12:39:30 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/13 17:23:26 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,8 @@ static int	found_match(char *key, t_env *temp, int key_len, char *path)
    - Notes: Calls find_key to get key, found_match to update existing nodes, 
    and add_nodes to create new nodes.
 */
-static int	update_var(char *path, t_env **env)
+/*OG*/
+/*static int	update_var(char *path, t_env **env)
 {
 	t_env	*temp;
 	char	*key;
@@ -124,7 +125,45 @@ static int	update_var(char *path, t_env **env)
 	if (!add_nodes(env, path))
 		return (1);
 	return (0);
+}*/
+static int update_var(char *path, t_env **env)
+{
+    t_env *temp;
+    char *key;
+    int match;
+    int key_len;
+
+    // validate key
+    int val = validate_and_get_key(path, &key_len, &key);
+    if (val != 0)
+        return val; // <-- propagate 2 for invalid key, 1 for malloc failure
+
+    // check existing nodes
+    temp = *env;
+    while (temp)
+    {
+        match = found_match(key, temp, key_len, path);
+        if (match == 1) // allocation failure
+        {
+            free(key);
+            return 1;
+        }
+        if (match == 2) // successfully updated
+        {
+            free(key);
+            return 0;
+        }
+        temp = temp->next;
+    }
+
+    // add new node
+    free(key);
+    if (!add_nodes(env, path))
+        return 1; // allocation failure
+
+    return 0; // success
 }
+
 
 /* list_exported(env)
    - Purpose: Prints all exported environment variables in alphabetical order.
@@ -176,7 +215,8 @@ static int	list_exported(t_env **env)
 	   for each argument.
        - Updates existing variables or adds new nodes.
 */
-int	export_cmd(t_command *cmd, t_env **env)
+/*OG*/
+/*int	export_cmd(t_command *cmd, t_env **env)
 {
 	int	i;
 	int	ret;
@@ -194,4 +234,30 @@ int	export_cmd(t_command *cmd, t_env **env)
 		i++;
 	}
 	return (ret);
+}*/
+int export_cmd(t_command *cmd, t_env **env)
+{
+    int i;
+    int ret;
+
+    i = 1;
+    ret = 0;
+
+    if (!cmd || !env)
+        return 1;
+
+    if (!cmd->args[1])
+        return list_exported(env);
+
+    while (cmd->args[i])
+    {
+        int res = update_var(cmd->args[i], env);
+        if (res == 2)      // invalid identifier
+            ret = 2;       // propagate
+        else if (res == 1) // malloc failure
+            ret = 1;
+        i++;
+    }
+    return ret;
 }
+

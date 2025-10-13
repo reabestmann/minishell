@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/13 16:33:54 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/13 17:39:52 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,7 +130,7 @@ int			setting_value(char **equals, t_env **new_node);
 void		free_keys(char *key_one, char *key_two);
 void		setting_vars(char **path, char **equals, t_env **new_node);
 /*export_cmd_keys.c*/
-int			is_valid_export_key(char *arg, int *len);
+int is_valid_export_key(char *arg, int *len);
 int			setting_key(char **path, char **equals, t_env **new_node);
 char		*find_key(char *path, int *key_len);
 int			validate_and_get_key(char *path, int *key_len, char **key);
