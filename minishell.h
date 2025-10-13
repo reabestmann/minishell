@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/02 13:47:49 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/13 16:33:54 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,9 @@ char		*set_state(char *arg, int *i, char *result, char *state);
 /* syntax.c */
 int			syntax_valid(t_token *tokens);
 /* expand.c */
-char	*expand_arg_keep_quotes(char *arg, t_env *head, int last_status);
+char	*expand_one_arg(char *arg, int *i, t_env *head, int last_status);
+char	*handle_normal_txt(int *i, char *arg, char *result);
+char *expand_arg_keep_quotes(char *arg, t_env *head, int last_status, int *had_unquoted);
 void		dollar_expansion(t_command *cmd, t_env **head, int last_status);
 /* expand_utils.c */
 char		*append_key_value(t_env *head, char *arg, int *i, char *result);

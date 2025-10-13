@@ -7,6 +7,7 @@ libft
 libft.h
 main.c
 main.o
+mand
 minishell
 minishell.h
 minishell_subject.pdf
@@ -16,6 +17,8 @@ parser
 signals
 src
 structs.h
+test.sh
+test_redir.sh
 tester
 tmp_err_bash
 tmp_err_minishell
