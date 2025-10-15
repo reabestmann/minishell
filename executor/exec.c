@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/01 15:35:10 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/15 16:48:01 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,112 @@
 	Joins each directory with 'cmd' and checks if it's an executable.
 	Returns the full path if found, otherwise NULL.
 */
-char	*find_path(char *cmd, char **envp)
+
+
+char *find_path(char *cmd, char **envp)
+{
+    char **paths;
+    char *part_path;
+    char *path;
+    int i;
+
+    if (ft_strchr(cmd, '/'))
+    {
+        if (access(cmd, F_OK) == 0 && access(cmd, X_OK) == 0)
+            return ft_strdup(cmd);
+        return NULL;
+    }
+
+    i = 0;
+    while (envp[i] && !ft_strnstr(envp[i], "PATH=", 5))
+    {  
+		i++;
+	}
+	if (!envp[i])
+	{
+		char *cwd = getcwd(NULL, 0);
+		if (!cwd)
+			return NULL;
+
+		part_path = ft_strjoin(cwd, "/");
+		path = ft_strjoin(part_path, cmd);
+		free(part_path);
+		free(cwd);
+
+		if (access(path, F_OK) == 0) // file exists
+			return path;
+
+		free(path);
+		return NULL;
+    }
+
+
+    paths = ft_split(envp[i] + 5, ':');
+    i = 0;
+    while (paths[i])
+    {
+        part_path = ft_strjoin(paths[i], "/");
+        path = ft_strjoin(part_path, cmd);
+        free(part_path);
+        if (access(path, F_OK) == 0 && access(path, X_OK) == 0)
+        {
+            free_array(paths);
+            return path;
+        }
+        free(path);
+        i++;
+    }
+    free_array(paths);
+    return NULL;
+}
+
+/*char *find_path(char *cmd, char **envp)
+{
+    char **paths;
+    char *part_path;
+    char *path;
+    int i;
+
+    // If the command contains a '/', try it directly
+    if (ft_strchr(cmd, '/'))
+    {
+        if (access(cmd, F_OK) == 0 && access(cmd, X_OK) == 0)
+            return ft_strdup(cmd); // file exists and executable
+        return NULL; // path given but file missing → let caller handle perror + 127
+    }
+
+    // Search for PATH in env
+    i = 0;
+    while (envp[i] && !ft_strnstr(envp[i], "PATH=", 5))
+        i++;
+
+    if (!envp[i])
+        return NULL; // PATH unset, no directories to search
+
+    // Split PATH and check each directory
+    paths = ft_split(envp[i] + 5, ':');
+    i = 0;
+    while (paths[i])
+    {
+        part_path = ft_strjoin(paths[i], "/");
+        path = ft_strjoin(part_path, cmd);
+        free(part_path);
+        if (access(path, F_OK) == 0 && access(path, X_OK) == 0)
+        {
+            free_array(paths);
+            return path;
+        }
+        free(path);
+        i++;
+    }
+    free_array(paths);
+    return NULL; // command not found
+}
+*/
+
+
+
+/*char	*find_path(char *cmd, char **envp)
 {
 	char	**paths;
 	char	*part_path;
@@ -57,7 +162,7 @@ char	*find_path(char *cmd, char **envp)
 	}
 	free_array(paths);
 	return (NULL);
-}
+}*/
 
 /* check_executable:
  * Validates that the resolved path is runnable.
@@ -78,7 +183,7 @@ static void	check_executable(char **args, char *path)
 		if (args[0][0] == '/' || args[0][0] == '.')
 			exec_error_custom(args[0], "No such file or directory", 127);
 		else
-			exec_error_custom(args[0], "command not found", 127);
+			exec_error_custom_simple(args[0], "command not found", 127);
 	}
 	if (stat(path, &sb) == -1)
 	{
@@ -156,29 +261,53 @@ static int	fork_process(t_command *cmds, t_env **env, int status)
 		run_builtin will run it in parent;
 		otherwise runs via fork/execve.
 	if cmd is not a standalone, run_pipeline runs it.
-*/
-int	run_command(t_command *cmds, t_env **env, int status)
+*/int run_command(t_command *cmds, t_env **env, int status)
 {
-	if (!cmds)
-		return (0);
-	if (has_dollar(cmds->args))
-		dollar_expansion(cmds, env, status);
-	if (collect_heredocs(cmds, status) < 0)
-		return (1);
-	if (!cmds->in_child)
-	{
-		if (cmds->next)
-			return (run_pipeline(cmds, env, status));
-		else if ((cmds->args && cmds->args[0])
-			|| cmds->infile || cmds->outfile || cmds->heredoc_delim)
-		{
-			if (cmds->modifies_shell && cmds->args && cmds->args[0])
-				return (run_builtin(cmds, env, status));
-			return (fork_process(cmds, env, status));
-		}
-		else
-			return (0);
-	}
-	else
-		return (run_pipeline(cmds, env, status));
+    if (!cmds)
+        return 0;
+
+    // Dollar expansion first
+    if (has_dollar(cmds->args))
+        dollar_expansion(cmds, env, status);
+
+    // Heredocs
+    if (collect_heredocs(cmds, status) < 0)
+        return 1;
+
+    // Not in child process
+    if (!cmds->in_child)
+    {
+        // Pipeline
+        if (cmds->next)
+            return run_pipeline(cmds, env, status);
+
+        // Normal command or redirections
+        if ((cmds->args && cmds->args[0]) || cmds->infile || cmds->outfile || cmds->heredoc_delim)
+        {
+            // Builtins first
+            if (cmds->modifies_shell && cmds->args && cmds->args[0])
+                return run_builtin(cmds, env, status);
+
+            // Special case: literal "" or '' as the command
+            if (cmds->args && ft_strlen(cmds->args[0]) == 2 &&
+                ((cmds->args[0][0] == '"' && cmds->args[0][1] == '"') ||
+                 (cmds->args[0][0] == '\'' && cmds->args[0][1] == '\'')))
+            {
+                exec_error_custom("", "command not found", 127);
+            }
+
+            // Fork external command
+            return fork_process(cmds, env, status);
+        }
+        else
+        {
+            // Nothing to do
+            return 0;
+        }
+    }
+    else
+    {
+        // In child process, run pipeline
+        return run_pipeline(cmds, env, status);
+    }
 }

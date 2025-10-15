@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/16 17:34:46 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/13 16:13:32 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/15 11:06:30 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,13 +191,48 @@ char	*expand_one_arg(char *arg, int *i, t_env *head, int last_status)
 	}
 	else
 	{
+		// Expand $VAR
+		tmp = append_key_value(head, arg, i, result);
+
+		// Minimal change: if variable is undefined, treat as empty string
+		if (!tmp)
+		{
+			tmp = append_normal_text("", result);
+			if (!tmp)
+				return (free(result), NULL);
+		}
+
+		result = tmp;
+	}
+	return (result);
+}
+
+/*OG*/
+/*char	*expand_one_arg(char *arg, int *i, t_env *head, int last_status)
+{
+	char	*result;
+	char	*tmp;
+
+	result = ft_strdup("");
+	if (!result)
+		return (NULL);
+	(*i)++;
+	if (!arg[*i])
+		return (append_normal_text("$", result));
+	if (arg[*i] == '?')
+	{
+		result = append_result(head, NULL, result, last_status);
+		(*i)++;
+	}
+	else
+	{
 		tmp = append_key_value(head, arg, i, result);
 		if (!tmp)
 			return (free(result), NULL);
 		result = tmp;
 	}
 	return (result);
-}
+}*/
 
 /*handle_normal_txt:
 - Copies literal characters until a special character ($, ', ")

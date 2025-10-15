@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:54 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/13 17:23:26 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/14 16:00:50 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ static int	found_match(char *key, t_env *temp, int key_len, char *path)
 		return (1);
 	return (0);
 }*/
-static int update_var(char *path, t_env **env)
+int update_var(char *path, t_env **env)
 {
     t_env *temp;
     char *key;

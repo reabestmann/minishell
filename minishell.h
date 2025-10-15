@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/13 17:39:52 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/15 11:44:54 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,7 @@ t_env		*envp_to_struct(char **envp);
 char		**struct_to_envp(t_env *head, int export_only);
 /* builtins/
  * cd_cmd.c */
+char	*get_env_value(t_env **env, const char *key);
 int	is_quoted(char *arg);
 int			too_many_args(t_command *cmd);
 int			cd_cmd(t_command *cmd, t_env **env);
@@ -124,6 +125,7 @@ int			env_cmd(t_command *cmd, t_env **env);
 /* exit_cmd.c */
 int			exit_cmd(t_command *cmd, t_env **env, int last_status);
 /* export_cmd.c */
+int update_var(char *path, t_env **env);
 int			export_cmd(t_command *cmd, t_env **env);
 /*export utils*/
 int			setting_value(char **equals, t_env **new_node);
@@ -154,6 +156,7 @@ void		*handle_malloc(size_t bytes);
 /* error.c */
 void		error(const char *msg);
 void		exec_error_custom(const char *cmd, const char *msg, int status);
+void		exec_error_custom_simple(const char *cmd, const char *msg, int status);
 void		exec_error(const char *msg, int status);
 /* trim_quotes */
 void		trim_quotes_for_execution(char **args);

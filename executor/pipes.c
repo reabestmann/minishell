@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/11 16:13:11 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/30 19:23:28 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/15 12:09:18 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,8 @@ void	run_child(t_command *cmd, t_env **env, int status)
 	cmd->in_child = 1;
 	child_signal_setup();
 	apply_redirections(cmd, env, status);
+	if (cmd->args && cmd->args[0])
+        dollar_expansion(cmd, env, status);
 	if (cmd-> outfile && cmd->next)
 		mini_tee(cmd, out_fd);
 	if (!cmd->args || !cmd->args[0])

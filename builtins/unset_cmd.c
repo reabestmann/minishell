@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:03:05 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/13 18:50:45 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/14 15:13:53 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,7 +173,6 @@ int unset_cmd(t_command *cmd, t_env **env)
 
     return ret; // 0 if all ok, 2 for invalid identifiers, 127 for syntax-like errors
 }
-
 
 /*
 int	unset_cmd(t_command *cmd, t_env **env)

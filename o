@@ -1,6 +1,5 @@
 Makefile
 builtins
-echo
 executor
 la
 libft

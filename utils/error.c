@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   error.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 19:43:10 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/25 20:07:25 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/10/15 11:44:08 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,14 @@ void	exec_error(const char *msg, int status)
 void	exec_error_custom(const char *cmd, const char *msg, int status)
 {
 	ft_putstr_fd("minishell: ", 2);
+	ft_putstr_fd((char *)cmd, 2);
+	ft_putstr_fd(": ", 2);
+	ft_putstr_fd((char *)msg, 2);
+	ft_putstr_fd("\n", 2);
+	exit(status);
+}
+void	exec_error_custom_simple(const char *cmd, const char *msg, int status)
+{
 	ft_putstr_fd((char *)cmd, 2);
 	ft_putstr_fd(": ", 2);
 	ft_putstr_fd((char *)msg, 2);
