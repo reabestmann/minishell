@@ -6,12 +6,17 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:53:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/15 12:22:50 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/16 12:13:37 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
+/* update_shlvl:
+**   Increments the SHLVL environment variable by 1 when a new shell is started.
+**   - If SHLVL is unset, defaults to 1.
+**   - Caps SHLVL at 999 and resets negative values to 0.
+**   - Updates the environment variable in-place using update_var().
+*/
 void update_shlvl(t_env **env)
 {
     char    *lvl_str;
@@ -72,6 +77,7 @@ int	handle_input(char *input, t_env **env, int status)
 	if (cmds)
 	{
 		status = run_command(cmds, env, status);
+		free_heredocs(cmds);
 		free_commands(cmds);
 	}
 	free_tokens(tokens);

@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 16:02:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/13 16:32:16 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/16 12:23:44 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,10 +160,13 @@ static void	set_redirection(t_command *cmd, t_token *token, int append_type)
 {
 	if (token && token->type == TOKEN_WORD)
 	{
+		if (cmd->outfile)
+			free(cmd->outfile);       // free old string if it exists
 		cmd->outfile = ft_strdup(token->val);
 		cmd->append = append_type;
 	}
 }
+
 
 /* set_fd_type:
 Helper for parse_redirection.
@@ -196,8 +199,14 @@ void	parse_redirection(t_command *cmd, t_token **cpy)
 	set_fd_type(cmd, *cpy);
 	if ((*cpy)->type == TOKEN_REDIR_IN)
 	{
+		/*if (next && next->type == TOKEN_WORD)
+			cmd->infile = ft_strdup(next->val);*/
 		if (next && next->type == TOKEN_WORD)
+		{
+			if (cmd->infile)          // free old string to avoid leak
+				free(cmd->infile);
 			cmd->infile = ft_strdup(next->val);
+		}
 	}
 	else if ((*cpy)->type == TOKEN_REDIR_OUT || (*cpy)->type == TOKEN_REDIR_ERR || (*cpy)->type == TOKEN_REDIR_BOTH)
 		set_redirection(cmd, next, 2);

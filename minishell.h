@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/15 11:44:54 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/16 12:14:28 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,7 @@ void		parse_redirection(t_command *cmd, t_token **cpy);
 void		apply_redirections(t_command *cmd, t_env **env, int last_status);
 void		fd_check(int fd, int std_fd, char *file);
 /* heredoc.c */
+void free_heredocs(t_command *cmd);
 int			apply_heredocs(t_command *cmd, int last_status);
 int			collect_heredocs(t_command *cmds, int status);
 /*redir_heredoc1.c */

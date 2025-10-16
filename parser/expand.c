@@ -6,17 +6,23 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/16 17:34:46 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/15 11:06:30 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/15 17:02:32 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
+/* is_ifs_char:
+**   Checks if a character is considered whitespace (space, tab, newline).
+*/
 static int is_ifs_char(char c)
 {
     return (c == ' ' || c == '\t' || c == '\n');
 }
 
+/* count_words:
+**   Counts the number of words in a string, separated by IFS characters.
+*/
 static int count_words(const char *s)
 {
     int count = 0, in_word = 0;
@@ -35,6 +41,9 @@ static int count_words(const char *s)
     return count;
 }
 
+/* dup_word:
+**   Duplicates a substring given start and end pointers.
+*/
 static char *dup_word(const char *start, const char *end)
 {
     size_t len = end - start;
@@ -46,6 +55,10 @@ static char *dup_word(const char *start, const char *end)
     return word;
 }
 
+
+/* args_len:
+**   Returns the length of a NULL-terminated argument array.
+*/
 int args_len(char **args)
 {
     int len = 0;
@@ -54,6 +67,10 @@ int args_len(char **args)
     return len;
 }
 
+/* ft_split_whitespace:
+**   Splits a string into words based on whitespace (IFS).
+**   Returns a NULL-terminated array of strings.
+*/
 char **ft_split_whitespace(const char *s)
 {
     char **result;
@@ -91,7 +108,10 @@ char **ft_split_whitespace(const char *s)
     return result;
 }
 
-
+/* replace_arg_with_splits:
+**   Replaces cmd->args[idx] with multiple parts (from ft_split_whitespace),
+**   preserving the other arguments. Frees the old argument being replaced.
+*/
 int replace_arg_with_splits(t_command *cmd, int idx, char **parts)
 {
     char **old_args = cmd->args;
@@ -237,6 +257,10 @@ char	*expand_one_arg(char *arg, int *i, t_env *head, int last_status)
 /*handle_normal_txt:
 - Copies literal characters until a special character ($, ', ")
 - Uses append_normal_text*/
+/* handle_normal_txt:
+**   Appends literal text from arg starting at *i until a special character
+**   ($, single or double quote) is found.
+*/
 char	*handle_normal_txt(int *i, char *arg, char *result)
 {
 	int		start;

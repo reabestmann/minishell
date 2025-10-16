@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/20 18:06:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 21:08:37 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/16 10:47:49 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ static int	check_pipe_syntax(t_token *token)
 	}
 	return (0);
 }
-
+/*
 static int	check_redirection_syntax(t_token *token)
 {
 	if (!token->next || token->next->type != TOKEN_WORD)
@@ -32,7 +32,31 @@ static int	check_redirection_syntax(t_token *token)
 		return (-1);
 	}
 	return (0);
+}*/
+
+static int is_redirection_token(int type)
+{
+    return (type == TOKEN_REDIR_OUT || type == TOKEN_REDIR_IN
+         || type == TOKEN_REDIR_APPEND || type == TOKEN_HEREDOC);
 }
+
+static int check_redirection_syntax(t_token *token)
+{
+    if (!token->next)
+    {
+        ft_putstr_fd("minishell: parse error near redirection\n", 2);
+        return (-1);
+    }
+
+    if (token->next->type != TOKEN_WORD && !is_redirection_token(token->next->type))
+    {
+        ft_putstr_fd("minishell: parse error near redirection\n", 2);
+        return (-1);
+    }
+
+    return (0);
+}
+
 
 static int	check_start(t_token *tokens)
 {

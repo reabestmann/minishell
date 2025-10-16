@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/15 16:48:01 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/16 11:13:44 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,12 @@
 	Joins each directory with 'cmd' and checks if it's an executable.
 	Returns the full path if found, otherwise NULL.
 */
-
+/*
+** find_path:
+**   Resolves the full executable path for a given command using PATH.
+**   If cmd contains '/', checks it directly. If PATH is unset, falls back to cwd.
+**   Returns a malloc'd path if found and executable, or NULL otherwise.
+*/
 
 char *find_path(char *cmd, char **envp)
 {
@@ -173,8 +178,9 @@ char *find_path(char *cmd, char **envp)
  * - Directory → "Is a directory" (126).
  * - No exec permission → "Permission denied" (126).
  * Frees path before exiting when needed.
+ * also returns simple error - which doesnt include mini in front for command not found
 */
-static void	check_executable(char **args, char *path)
+/*static void	check_executable(char **args, char *path)
 {
 	struct stat	sb;
 
@@ -200,7 +206,53 @@ static void	check_executable(char **args, char *path)
 		free(path);
 		exec_error(args[0], 126);
 	}
+}*/
+static void check_executable(char **args, char *path)
+{
+    struct stat sb;
+
+    // Path not resolved → 127
+    if (!path)
+        exec_error_custom(args[0], "command not found", 127);
+
+    // Stat fails → 127
+    if (stat(path, &sb) == -1)
+    {
+        free(path);
+        exec_error_custom(args[0], "command not found", 127);
+    }
+
+    // Existing directory
+    if (S_ISDIR(sb.st_mode))
+    {
+        // Special dirs / special symbols → 127
+        if (strcmp(args[0], ".") == 0 ||
+            strcmp(args[0], "..") == 0 ||
+            strcmp(args[0], "~") == 0)
+        {
+            free(path);
+            exec_error_custom(args[0], "command not found", 127);
+        }
+        else
+        {
+            // Normal directories like /bin/ → 126
+            free(path);
+            exec_error_custom(args[0], "Is a directory", 126);
+        }
+    }
+
+    // File exists but not executable → 126
+    if (access(path, X_OK) == -1)
+    {
+        free(path);
+        exec_error_custom(args[0], "Permission denied", 126);
+    }
+
+    // Otherwise, file exists and is executable → run normally
 }
+
+
+
 
 /* execute: 
   1. Return early if args empty.
@@ -261,6 +313,7 @@ static int	fork_process(t_command *cmds, t_env **env, int status)
 		run_builtin will run it in parent;
 		otherwise runs via fork/execve.
 	if cmd is not a standalone, run_pipeline runs it.
+	now also checks for empty strings and returns error via custom error function
 */int run_command(t_command *cmds, t_env **env, int status)
 {
     if (!cmds)

@@ -6,11 +6,36 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 15:58:45 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/01 15:23:07 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/16 12:19:15 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
+
+void	free_heredocs(t_command *cmds)
+{
+	int i;
+
+	while (cmds)
+	{
+		if (cmds->heredoc_count > 0 && cmds->heredoc_delim)
+		{
+			for (i = 0; i < cmds->heredoc_count; i++)
+			{
+				free(cmds->heredoc_delim[i]);
+				cmds->heredoc_delim[i] = NULL;
+			}
+			free(cmds->heredoc_delim);
+			cmds->heredoc_delim = NULL;
+		}
+		if (cmds->heredoc_fds)
+		{
+			free(cmds->heredoc_fds);
+			cmds->heredoc_fds = NULL;
+		}
+		cmds = cmds->next;
+	}
+}
 
 /* check_expand_line:
    Prepares a line before writing it to heredoc file.
