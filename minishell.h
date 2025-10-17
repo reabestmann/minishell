@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/02 13:47:49 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/16 12:14:28 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,9 @@ char		*set_state(char *arg, int *i, char *result, char *state);
 /* syntax.c */
 int			syntax_valid(t_token *tokens);
 /* expand.c */
-char	*expand_arg_keep_quotes(char *arg, t_env *head, int last_status);
+char	*expand_one_arg(char *arg, int *i, t_env *head, int last_status);
+char	*handle_normal_txt(int *i, char *arg, char *result);
+char *expand_arg_keep_quotes(char *arg, t_env *head, int last_status, int *had_unquoted);
 void		dollar_expansion(t_command *cmd, t_env **head, int last_status);
 /* expand_utils.c */
 char		*append_key_value(t_env *head, char *arg, int *i, char *result);
@@ -87,6 +89,7 @@ void		parse_redirection(t_command *cmd, t_token **cpy);
 void		apply_redirections(t_command *cmd, t_env **env, int last_status);
 void		fd_check(int fd, int std_fd, char *file);
 /* heredoc.c */
+void free_heredocs(t_command *cmd);
 int			apply_heredocs(t_command *cmd, int last_status);
 int			collect_heredocs(t_command *cmds, int status);
 /*redir_heredoc1.c */
@@ -104,6 +107,7 @@ t_env		*envp_to_struct(char **envp);
 char		**struct_to_envp(t_env *head, int export_only);
 /* builtins/
  * cd_cmd.c */
+char	*get_env_value(t_env **env, const char *key);
 int	is_quoted(char *arg);
 int			too_many_args(t_command *cmd);
 int			cd_cmd(t_command *cmd, t_env **env);
@@ -122,13 +126,14 @@ int			env_cmd(t_command *cmd, t_env **env);
 /* exit_cmd.c */
 int			exit_cmd(t_command *cmd, t_env **env, int last_status);
 /* export_cmd.c */
+int update_var(char *path, t_env **env);
 int			export_cmd(t_command *cmd, t_env **env);
 /*export utils*/
 int			setting_value(char **equals, t_env **new_node);
 void		free_keys(char *key_one, char *key_two);
 void		setting_vars(char **path, char **equals, t_env **new_node);
 /*export_cmd_keys.c*/
-int			is_valid_export_key(char *arg, int *len);
+int is_valid_export_key(char *arg, int *len);
 int			setting_key(char **path, char **equals, t_env **new_node);
 char		*find_key(char *path, int *key_len);
 int			validate_and_get_key(char *path, int *key_len, char **key);
@@ -152,6 +157,7 @@ void		*handle_malloc(size_t bytes);
 /* error.c */
 void		error(const char *msg);
 void		exec_error_custom(const char *cmd, const char *msg, int status);
+void		exec_error_custom_simple(const char *cmd, const char *msg, int status);
 void		exec_error(const char *msg, int status);
 /* trim_quotes */
 void		trim_quotes_for_execution(char **args);

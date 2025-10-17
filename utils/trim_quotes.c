@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/18 15:46:22 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/01 14:44:04 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/13 16:26:03 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,6 +120,7 @@ void	arg_loop(char *arg, int *i, int *j, char *clean)
  *      Returns a newly allocated string with quotes removed
  *      Caller is responsible for freeing the returned string
  */
+
 char	*remove_quotes(char *arg)
 {
 	int		i;
@@ -160,6 +161,7 @@ void	trim_quotes_for_execution(char **args)
 	i = 0;
 	while (args[i])
 	{
+		//printf("arg[i] is: %s \n", args[i]);
 		cleaned = remove_quotes(args[i]);
 		free(args[i]);
 		args[i] = cleaned;

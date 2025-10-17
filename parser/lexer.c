@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 15:26:43 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 17:12:43 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/16 11:22:52 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,7 +154,7 @@ static int	handle_stype(t_token **tokens, const char *str)
 	Keeps quotes inside the token text so later logic can trim if needed.
 	Returns number of characters consumed.
 */
-static int	handle_wtype(t_token **tokens, const char *str)
+/*static int	handle_wtype(t_token **tokens, const char *str)
 {
 	int		len;
 	int		in_squote;
@@ -175,7 +175,41 @@ static int	handle_wtype(t_token **tokens, const char *str)
 	append_token(tokens, create_token(tmp, TOKEN_WORD));
 	free(tmp);
 	return (len);
+}*/
+static int	handle_wtype(t_token **tokens, const char *str)
+{
+	int		len;
+	int		in_squote;
+	int		in_dquote;
+	char	*tmp;
+
+	len = 0;
+	in_squote = 0;
+	in_dquote = 0;
+
+	while (str[len])
+	{
+		// If unquoted, break on space, tab, pipe, redir, or newline
+		if (!in_squote && !in_dquote && ft_strchr(" \t<>|\n", str[len]))
+			break;
+		
+		// Keep track of quotes
+		if (str[len] == '\'' && !in_dquote)
+			in_squote = !in_squote;
+		else if (str[len] == '\"' && !in_squote)
+			in_dquote = !in_dquote;
+
+		len++;
+	}
+
+	// Copy the token as-is (quotes still included for trimming later)
+	tmp = ft_substr(str, 0, len);
+	append_token(tokens, create_token(tmp, TOKEN_WORD));
+	free(tmp);
+
+	return (len);
 }
+
 
 /*	lexer
 	Converts the raw input string into a linked list of tokens.

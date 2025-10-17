@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 15:10:03 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 21:28:20 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/16 12:18:11 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ void	free_tokens(t_token *tokens)
 	iterating through components of each member
 	of the linked list.
 */
-void	free_commands(t_command *cmds)
+/*void	free_commands(t_command *cmds)
 {
 	t_command	*tmp;
 
@@ -77,6 +77,22 @@ void	free_commands(t_command *cmds)
 		free_array(cmds->heredoc_delim);
 		free(cmds->infile);
 		free(cmds->outfile);
+		free(cmds);
+		cmds = tmp;
+	}
+}*/
+void	free_commands(t_command *cmds)
+{
+	t_command	*tmp;
+
+	while (cmds)
+	{
+		tmp = cmds->next;
+		free_array(cmds->args);
+		// free_array(cmds->heredoc_delim);  <-- REMOVE this line
+		free(cmds->infile);
+		free(cmds->outfile);
+		free(cmds->heredoc_fds); // also free the fds array if you allocated it
 		free(cmds);
 		cmds = tmp;
 	}

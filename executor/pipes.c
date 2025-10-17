@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/11 16:13:11 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/30 19:23:28 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/16 10:22:18 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,8 @@ static void	mini_tee(t_command *cmd, int out_fd)
 	exit(0);
 }
 
-void	run_child(t_command *cmd, t_env **env, int status)
+/*runs child - signal set up, apply redirections, etc - now also does dollar_expansion*/
+/*void	run_child(t_command *cmd, t_env **env, int status)
 {
 	int		out_fd;
 	char	**envp;
@@ -57,6 +58,8 @@ void	run_child(t_command *cmd, t_env **env, int status)
 	cmd->in_child = 1;
 	child_signal_setup();
 	apply_redirections(cmd, env, status);
+	if (cmd->args && cmd->args[0])
+        dollar_expansion(cmd, env, status);
 	if (cmd-> outfile && cmd->next)
 		mini_tee(cmd, out_fd);
 	if (!cmd->args || !cmd->args[0])
@@ -67,7 +70,40 @@ void	run_child(t_command *cmd, t_env **env, int status)
 		execute(cmd->args, envp);
 	}
 	exit(0);
+}*/
+
+void run_child(t_command *cmd, t_env **env, int status)
+{
+    char **envp;
+
+    cmd->in_child = 1;
+    child_signal_setup();
+
+    // Apply redirections first
+    apply_redirections(cmd, env, status);
+
+    // Redirection-only command (no args)
+    if (!cmd->args || !cmd->args[0])
+        exit(EXIT_SUCCESS);  // <-- crucial fix
+
+    // Dollar expansion
+    if (cmd->args && cmd->args[0])
+        dollar_expansion(cmd, env, status);
+
+    // Mini tee for pipelines
+    if (cmd->outfile && cmd->next)
+        mini_tee(cmd, -1);  // keep out_fd as before
+
+    // Builtins
+    if (run_builtin(cmd, env, status) == -1)
+    {
+        envp = struct_to_envp(*env, 1); // export_only = 1
+        execute(cmd->args, envp);
+    }
+
+    exit(EXIT_SUCCESS);
 }
+
 
 /* parent_process:
 Executed in the parent after forking a child.

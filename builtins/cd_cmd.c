@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:25 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/02 14:27:03 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/13 17:12:59 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,8 +236,8 @@ int cd_OLDPWD_check(char *target_dir, t_env **env)
 
 
 
-
-int	cd_cmd(t_command *cmd, t_env **env)
+/*woring one*/
+/*int	cd_cmd(t_command *cmd, t_env **env)
 {
 	char	*target_dir;
 
@@ -258,4 +258,39 @@ int	cd_cmd(t_command *cmd, t_env **env)
 
 	return cd_core(target_dir, env);
 }
+*/
+#include "../minishell.h"
 
+int cd_cmd(t_command *cmd, t_env **env)
+{
+    char *target_dir;
+
+    target_dir = cmd->args[1]; // already preprocessed (~ expanded, quotes trimmed)
+
+    // check for too many arguments
+    if (too_many_args(cmd))
+        return 1;
+
+    // handle `cd -` (previous directory)
+    if (target_dir && strncmp(target_dir, "-", 2) == 0)
+        return cd_OLDPWD_check(target_dir, env);
+
+    // handle `cd --` (explicit home)
+    if (target_dir && strncmp(target_dir, "--", 3) == 0)
+        return cd_core(get_env_value(env, "HOME"), env);
+
+    // if no target_dir, default to HOME
+    if (!target_dir)
+    {
+        char *home = get_env_value(env, "HOME");
+        if (!home)
+        {
+            ft_putendl_fd("minishell: cd: HOME not set", 2);
+            return 1;
+        }
+        return cd_core(home, env);
+    }
+
+    // default: cd to target_dir
+    return cd_core(target_dir, env);
+}

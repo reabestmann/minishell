@@ -6,11 +6,47 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:53:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/29 15:50:00 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/10/16 12:13:37 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+/* update_shlvl:
+**   Increments the SHLVL environment variable by 1 when a new shell is started.
+**   - If SHLVL is unset, defaults to 1.
+**   - Caps SHLVL at 999 and resets negative values to 0.
+**   - Updates the environment variable in-place using update_var().
+*/
+void update_shlvl(t_env **env)
+{
+    char    *lvl_str;
+    int     lvl;
+    char    *new_lvl;
+    char    *to_set;
+
+    lvl_str = get_env_value(env, "SHLVL");
+    lvl = 1;
+    if (lvl_str)
+        lvl = ft_atoi(lvl_str) + 1;
+
+    if (lvl < 0)
+        lvl = 0;
+    else if (lvl >= 1000)
+        lvl = 1; // silently reset, no printf
+
+    new_lvl = ft_itoa(lvl);
+    if (!new_lvl)
+        return; // malloc fail, nothing we can do
+
+    to_set = ft_strjoin("SHLVL=", new_lvl);
+    free(new_lvl);
+    if (!to_set)
+        return;
+
+    update_var(to_set, env); // your existing update function
+    free(to_set);
+}
+
 
 /* handle_input:
    Parses a full command line input.
@@ -41,6 +77,7 @@ int	handle_input(char *input, t_env **env, int status)
 	if (cmds)
 	{
 		status = run_command(cmds, env, status);
+		free_heredocs(cmds);
 		free_commands(cmds);
 	}
 	free_tokens(tokens);
@@ -55,6 +92,7 @@ void	init_main_vars(int *params, char **argv, t_env **env, char **envp)
 	*env = envp_to_struct(envp);
 	if (!env)
 		error("environment: struct not built.");
+	update_shlvl(env);
 	init_signals();
 	disable_ctrl_echo();
 }

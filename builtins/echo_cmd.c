@@ -6,13 +6,35 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:37 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/02 13:21:11 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/13 16:39:31 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
 int is_n_flag(const char *arg)
+{
+    int i;
+
+    if (!arg || arg[0] != '-')
+        return 0;
+
+    // If first character is a quote, don't treat as a flag
+    if (arg[0] == '\'' || arg[0] == '"')
+        return 0;
+
+    i = 1;
+    if (arg[i] != 'n')
+        return 0;
+
+    while (arg[i] == 'n')
+        i++;
+
+    // Make sure nothing else is present after the n's
+    return arg[i] == '\0';
+}
+
+/* OG int is_n_flag(const char *arg)
 {
     int i;
 
@@ -33,7 +55,7 @@ int is_n_flag(const char *arg)
 
     // if we reached the end of string, it's a valid -n* flag
     return arg[i] == '\0';
-}
+}*/
 /* BUILTIN_LIST
  	/echo with option -n 
 	/cd with only a relative or absolute path
