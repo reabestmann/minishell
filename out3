@@ -1,4 +1,0 @@
-ls > out >> out1 >out3 | cat out1
-/bin/rm -f out
-/bin/rm -f out1
-/bin/rm -f out3

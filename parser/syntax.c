@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/20 18:06:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/16 10:47:49 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/18 12:09:24 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,19 @@ static int	check_start(t_token *tokens)
 	return (0);
 }
 
+#include <stdbool.h>
+
+/*static int work_contains_redir_chars(const char *word)
+{
+    while (*word)
+    {
+        if (*word == '<' || *word == '>')
+            return 1; // found
+        word++;
+    }
+    return 0; // not found
+}
+*/
 int	syntax_valid(t_token *tokens)
 {
 	t_token	*cpy;
@@ -92,6 +105,14 @@ int	syntax_valid(t_token *tokens)
 			if (check_redirection_syntax(cpy) == -1)
 				return (2);
 		}
+		if (is_redirection_token(cpy->type) && cpy->next)
+        {
+            if (cpy->next->type == TOKEN_PIPE || is_redirection_token(cpy->next->type))
+            {
+                ft_putstr_fd("minishell: parse error near redirection\n", 2);
+                return (2);
+            }
+        }
 		// todo: add more syntax checks that might be missing
 		cpy = cpy->next;
 	}
