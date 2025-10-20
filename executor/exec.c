@@ -339,7 +339,24 @@ static int	fork_process(t_command *cmds, t_env **env, int status)
         {
             // Builtins first
             if (cmds->modifies_shell && cmds->args && cmds->args[0])
-                return run_builtin(cmds, env, status);
+            {
+                int saved_stdout = dup(STDOUT_FILENO);
+                int saved_stderr = dup(STDERR_FILENO);
+
+                // Apply redirections
+                apply_redirections(cmds, env, status);
+
+                // Run the built-in
+                int ret = run_builtin(cmds, env, status);
+
+                // Restore original FDs so shell prompt works normally
+                dup2(saved_stdout, STDOUT_FILENO);
+                dup2(saved_stderr, STDERR_FILENO);
+                close(saved_stdout);
+                close(saved_stderr);
+
+                return ret;
+            }
 
             // Special case: literal "" or '' as the command
             if (cmds->args && ft_strlen(cmds->args[0]) == 2 &&

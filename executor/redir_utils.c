@@ -26,20 +26,15 @@ void	fd_check(int fd, int std_fd, char *file)
 		error(file);
 	if (std_fd == 3)
 	{
-		if (dup2(fd, STDOUT_FILENO) < 0 || dup2(fd, STDERR_FILENO) < 0)
-		{
-			close(fd);
-			error("dup2");
-		}
-		close(fd);
-		return ;
-	}
+        if (dup2(fd, STDOUT_FILENO) < 0 || dup2(fd, STDERR_FILENO) < 0)
+            error("dup2");
+        return;
+    }
 	if (dup2(fd, std_fd) < 0)
 	{
 		close(fd);
 		error("dup2");
 	}
-	close(fd);
 }
 
 void	tee_pipe(int pipe_fd, const char *outfile, int append)

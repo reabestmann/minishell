@@ -39,10 +39,12 @@ typedef struct s_command
 	char				**args;
 	char				*infile;
 	char				*outfile;
+	char				*errfile;
 	char				**heredoc_delim;
 	int					heredoc_count;
 	int					*heredoc_fds;
 	int					append;
+	int					append_err;
 	int					modifies_shell;
 	int					in_child;
 	int					fd_type;

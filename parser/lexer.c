@@ -148,34 +148,6 @@ static int	handle_stype(t_token **tokens, const char *str)
 	return (len);
 }
 
-/* handle_wtype
-	Handles word tokens(command names, arguments, filenames).
-	Consumes until a delimiter (space, tab, <, >, |) is found.
-	Keeps quotes inside the token text so later logic can trim if needed.
-	Returns number of characters consumed.
-*/
-/*static int	handle_wtype(t_token **tokens, const char *str)
-{
-	int		len;
-	int		in_squote;
-	int		in_dquote;
-	char	*tmp;
-
-	len = 0;
-	in_squote = 0;
-	in_dquote = 0;
-	while (str[len])
-	{
-		if (!in_squote && !in_dquote && ft_strchr(" \t<>|", str[len]))
-			break ;
-		update_quotes(str[len], &in_squote, &in_dquote);
-		len++;
-	}
-	tmp = ft_substr(str, 0, len);
-	append_token(tokens, create_token(tmp, TOKEN_WORD));
-	free(tmp);
-	return (len);
-}*/
 static int	handle_wtype(t_token **tokens, const char *str)
 {
 	int		len;

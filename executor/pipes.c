@@ -70,7 +70,7 @@ static void	mini_tee(t_command *cmd, int out_fd)
 		execute(cmd->args, envp);
 	}
 	exit(0);
-}*/
+}
 
 void run_child(t_command *cmd, t_env **env, int status)
 {
@@ -100,6 +100,54 @@ void run_child(t_command *cmd, t_env **env, int status)
         envp = struct_to_envp(*env, 1); // export_only = 1
         execute(cmd->args, envp);
     }
+
+    exit(EXIT_SUCCESS);
+}*/
+
+void run_child(t_command *cmd, t_env **env, int status)
+{
+    char **envp;
+    int saved_stdout = -1;
+    int saved_stderr = -1;
+
+    cmd->in_child = 1;
+    child_signal_setup();
+
+    // Save original stdout/stderr
+    saved_stdout = dup(STDOUT_FILENO);
+    saved_stderr = dup(STDERR_FILENO);
+    if (saved_stdout < 0 || saved_stderr < 0)
+        error("dup");
+
+    // Apply redirections first
+    apply_redirections(cmd, env, status);
+
+    // Redirection-only command (no args)
+    if (!cmd->args || !cmd->args[0])
+        exit(EXIT_SUCCESS);
+
+    // Dollar expansion
+    dollar_expansion(cmd, env, status);
+
+    // Mini tee for pipelines (if outfile + next command)
+    if (cmd->outfile && cmd->next)
+        mini_tee(cmd, -1);
+
+    // Builtins or external commands
+    if (cmd->args && cmd->args[0])
+    {
+        if (run_builtin(cmd, env, status) == -1)
+        {
+            envp = struct_to_envp(*env, 1); // export_only = 1
+            execute(cmd->args, envp);
+        }
+    }
+
+    // Restore original stdout/stderr
+    dup2(saved_stdout, STDOUT_FILENO);
+    dup2(saved_stderr, STDERR_FILENO);
+    close(saved_stdout);
+    close(saved_stderr);
 
     exit(EXIT_SUCCESS);
 }

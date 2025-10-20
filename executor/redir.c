@@ -131,6 +131,24 @@ void	handle_heredocs(t_command *cmd)
 	fd_check(merged_pipe[0], STDIN_FILENO, "heredoc");
 }
 
+static void	handle_errfile(t_command *cmd, t_env **env, int last_status)
+{
+	char	*clean;
+	char	*file;
+	int		fd;
+
+	file = expand_arg_keep_quotes_simple(cmd->errfile, *env, last_status);
+	free(cmd->errfile);
+	clean = remove_quotes(file);
+	file = clean;
+	fd = -1;
+	if (cmd->append_err == 1)
+		fd = open(file, O_WRONLY | O_CREAT | O_APPEND, 0664);
+	else if (cmd->append_err == 2)
+		fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	fd_check(fd, STDERR_FILENO, file);
+}
+
 /* apply_redirections:
 Sets up all input/output redirections for a command before execution.
 Input priority: heredoc > infile > pipe from previous command
@@ -148,25 +166,60 @@ void	apply_redirections(t_command *cmd, t_env **env, int last_status)
 		handle_heredocs(cmd);
 	if (cmd->infile)
 		handle_infile(&cmd->infile);
-	if (cmd->outfile && !cmd->next)
+	if (cmd->outfile)
 		handle_outfile(cmd, env, last_status);
+	if (cmd->errfile)
+		handle_errfile(cmd, env, last_status);
 }
 
 /* set_redirection:
 Helper for parse_redirection.
 Sets cmd->outfile and cmd->append type based on the token.
-*/
+
 static void	set_redirection(t_command *cmd, t_token *token, int append_type)
 {
 	if (token && token->type == TOKEN_WORD)
 	{
-		if (cmd->outfile)
-			free(cmd->outfile);       // free old string if it exists
-		cmd->outfile = ft_strdup(token->val);
-		cmd->append = append_type;
+		if (cmd->fd_type == STDOUT_FILENO || cmd->fd_type == 3)
+		{
+			if (cmd->outfile)
+				free(cmd->outfile);
+			cmd->outfile = ft_strdup(token->val);
+			cmd->append = append_type;
+		}
+		if (cmd->fd_type == STDERR_FILENO || cmd->fd_type == 3)
+		{
+			if (cmd->errfile)
+				free(cmd->errfile);
+			cmd->errfile = ft_strdup(token->val);
+			cmd->append_err = append_type;
+		}
 	}
-}
+}*/
 
+static void set_redirection(t_command *cmd, t_token *token, int append_type)
+{
+    if (!token || token->type != TOKEN_WORD)
+        return;
+
+    // STDOUT or BOTH
+    if (cmd->fd_type == STDOUT_FILENO || cmd->fd_type == 3)
+    {
+        if (cmd->outfile)
+            free(cmd->outfile);
+        cmd->outfile = ft_strdup(token->val);
+        cmd->append = append_type;
+    }
+
+    // STDERR or BOTH
+    if (cmd->fd_type == STDERR_FILENO || cmd->fd_type == 3)
+    {
+        if (cmd->errfile)
+            free(cmd->errfile);
+        cmd->errfile = ft_strdup(token->val);
+        cmd->append_err = append_type;
+    }
+}
 
 /* set_fd_type:
 Helper for parse_redirection.
@@ -188,30 +241,42 @@ Parses a token and updates the command struct with redirection info.
 - >>: output append → cmd->outfile, append=1
 - <<: heredoc → cmd->heredoc = heredoc_fd(delimiter)
 - Advances token pointer to the filename/delimiter
-*/
+
 void	parse_redirection(t_command *cmd, t_token **cpy)
 {
 	t_token	*next;
+	int		append_type;
 
 	if (!*cpy)
 		return ;
+
 	next = (*cpy)->next;
 	set_fd_type(cmd, *cpy);
+
+	append_type = 2;
+	if ((*cpy)->type == TOKEN_REDIR_APPEND
+		|| (*cpy)->type == TOKEN_REDIR_ERR_APPEND
+		|| (*cpy)->type == TOKEN_REDIR_BOTH_APPEND)
+		append_type = 1;
+
 	if ((*cpy)->type == TOKEN_REDIR_IN)
 	{
-		/*if (next && next->type == TOKEN_WORD)
-			cmd->infile = ft_strdup(next->val);*/
 		if (next && next->type == TOKEN_WORD)
 		{
-			if (cmd->infile)          // free old string to avoid leak
+			if (cmd->infile)
 				free(cmd->infile);
 			cmd->infile = ft_strdup(next->val);
 		}
 	}
-	else if ((*cpy)->type == TOKEN_REDIR_OUT || (*cpy)->type == TOKEN_REDIR_ERR || (*cpy)->type == TOKEN_REDIR_BOTH)
-		set_redirection(cmd, next, 2);
-	else if ((*cpy)->type == TOKEN_REDIR_APPEND || (*cpy)->type == TOKEN_REDIR_ERR_APPEND || (*cpy)->type == TOKEN_REDIR_BOTH_APPEND)
-		set_redirection(cmd, next, 1);
+	else if ((*cpy)->type == TOKEN_REDIR_OUT
+		|| (*cpy)->type == TOKEN_REDIR_ERR
+		|| (*cpy)->type == TOKEN_REDIR_BOTH
+		|| (*cpy)->type == TOKEN_REDIR_APPEND
+		|| (*cpy)->type == TOKEN_REDIR_ERR_APPEND
+		|| (*cpy)->type == TOKEN_REDIR_BOTH_APPEND)
+	{
+		set_redirection(cmd, next, append_type);
+	}
 	else if ((*cpy)->type == TOKEN_HEREDOC)
 	{
 		if (next && next->type == TOKEN_WORD)
@@ -219,4 +284,57 @@ void	parse_redirection(t_command *cmd, t_token **cpy)
 	}
 	if (next)
 		*cpy = next;
+}
+*/
+
+void parse_redirection(t_command *cmd, t_token **cpy)
+{
+    t_token *next;
+    int append_type;
+
+    if (!*cpy)
+        return;
+
+    next = (*cpy)->next;
+
+    // 1 = append (>>), 2 = truncate (>)
+    append_type = 2;
+    if ((*cpy)->type == TOKEN_REDIR_APPEND
+        || (*cpy)->type == TOKEN_REDIR_ERR_APPEND
+        || (*cpy)->type == TOKEN_REDIR_BOTH_APPEND)
+        append_type = 1;
+
+    // Set which FD we are writing to
+    set_fd_type(cmd, *cpy);
+
+    // Handle infile
+    if ((*cpy)->type == TOKEN_REDIR_IN)
+    {
+        if (next && next->type == TOKEN_WORD)
+        {
+            if (cmd->infile)
+                free(cmd->infile);
+            cmd->infile = ft_strdup(next->val);
+        }
+    }
+    // Handle stdout/stderr/both
+    else if ((*cpy)->type == TOKEN_REDIR_OUT
+        || (*cpy)->type == TOKEN_REDIR_ERR
+        || (*cpy)->type == TOKEN_REDIR_BOTH
+        || (*cpy)->type == TOKEN_REDIR_APPEND
+        || (*cpy)->type == TOKEN_REDIR_ERR_APPEND
+        || (*cpy)->type == TOKEN_REDIR_BOTH_APPEND)
+    {
+        set_redirection(cmd, next, append_type);
+    }
+    // Handle heredoc
+    else if ((*cpy)->type == TOKEN_HEREDOC)
+    {
+        if (next && next->type == TOKEN_WORD)
+            add_heredoc(cmd, next->val);
+    }
+
+    // Advance to filename/delimiter
+    if (next)
+        *cpy = next;
 }

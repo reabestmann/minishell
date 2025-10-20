@@ -38,7 +38,9 @@ static t_command	*create_cmd(void)
 	cmd->args = NULL;
 	cmd->infile = NULL;
 	cmd->outfile = NULL;
+	cmd->errfile = NULL;
 	cmd->append = 0;
+	cmd->append_err = 0;
 	cmd->in_child = 0;
 	cmd->next = NULL;
 	cmd->heredoc_count = 0;
