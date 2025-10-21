@@ -49,61 +49,28 @@ static void	mini_tee(t_command *cmd, int out_fd)
 }
 
 /*runs child - signal set up, apply redirections, etc - now also does dollar_expansion*/
-/*void	run_child(t_command *cmd, t_env **env, int status)
-{
-	int		out_fd;
-	char	**envp;
-
-	out_fd = -1;
-	cmd->in_child = 1;
-	child_signal_setup();
-	apply_redirections(cmd, env, status);
-	if (cmd->args && cmd->args[0])
-        dollar_expansion(cmd, env, status);
-	if (cmd-> outfile && cmd->next)
-		mini_tee(cmd, out_fd);
-	if (!cmd->args || !cmd->args[0])
-		exit(0);
-	if (run_builtin(cmd, env, status) == -1)
-	{
-		envp = struct_to_envp(*env, 1); // export_only = 1
-		execute(cmd->args, envp);
-	}
-	exit(0);
-}
-
 void run_child(t_command *cmd, t_env **env, int status)
 {
     char **envp;
 
     cmd->in_child = 1;
     child_signal_setup();
-
-    // Apply redirections first
     apply_redirections(cmd, env, status);
-
-    // Redirection-only command (no args)
     if (!cmd->args || !cmd->args[0])
-        exit(EXIT_SUCCESS);  // <-- crucial fix
-
-    // Dollar expansion
+        exit(EXIT_SUCCESS);
     if (cmd->args && cmd->args[0])
         dollar_expansion(cmd, env, status);
-
-    // Mini tee for pipelines
     if (cmd->outfile && cmd->next)
-        mini_tee(cmd, -1);  // keep out_fd as before
-
-    // Builtins
+        mini_tee(cmd, -1);
     if (run_builtin(cmd, env, status) == -1)
     {
-        envp = struct_to_envp(*env, 1); // export_only = 1
+        envp = struct_to_envp(*env, 1);
         execute(cmd->args, envp);
     }
-
     exit(EXIT_SUCCESS);
-}*/
+}
 
+/*
 void run_child(t_command *cmd, t_env **env, int status)
 {
     char **envp;
@@ -150,7 +117,7 @@ void run_child(t_command *cmd, t_env **env, int status)
     close(saved_stderr);
 
     exit(EXIT_SUCCESS);
-}
+}*/
 
 
 /* parent_process:

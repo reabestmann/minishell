@@ -161,20 +161,14 @@ static int	handle_wtype(t_token **tokens, const char *str)
 
 	while (str[len])
 	{
-		// If unquoted, break on space, tab, pipe, redir, or newline
 		if (!in_squote && !in_dquote && ft_strchr(" \t<>|\n", str[len]))
 			break;
-		
-		// Keep track of quotes
 		if (str[len] == '\'' && !in_dquote)
 			in_squote = !in_squote;
 		else if (str[len] == '\"' && !in_squote)
 			in_dquote = !in_dquote;
-
 		len++;
 	}
-
-	// Copy the token as-is (quotes still included for trimming later)
 	tmp = ft_substr(str, 0, len);
 	append_token(tokens, create_token(tmp, TOKEN_WORD));
 	free(tmp);

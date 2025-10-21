@@ -30,6 +30,7 @@ $(EXECUTER_DIR)/redir_utils.c \
 $(EXECUTER_DIR)/redir.c \
 $(EXECUTER_DIR)/pipes.c \
 $(EXECUTER_DIR)/exec_utils.c \
+$(EXECUTER_DIR)/path.c \
 $(SIGNALS_DIR)/signal_handler.c \
 $(SIGNALS_DIR)/parent_child_setup.c \
 $(UTILS_DIR)/utils.c \

@@ -35,6 +35,7 @@ void	fd_check(int fd, int std_fd, char *file)
 		close(fd);
 		error("dup2");
 	}
+	close(fd);
 }
 
 void	tee_pipe(int pipe_fd, const char *outfile, int append)

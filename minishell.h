@@ -78,9 +78,13 @@ char		*append_normal_text(char *text, char *result);
  * exec.c */
 void		execute(char **args, char **envp);
 int			run_command(t_command *cmds, t_env **env, int status);
-int			run_builtin(t_command *cmd, t_env **env, int status);
-void		trim_empty_args(char **args);
+/* path.c */
 char		*find_path(char *cmd, char **envp);
+void		check_executable(char **args, char *path);
+/* exec_utils.c */
+int			run_builtin(t_command *cmd, t_env **env, int status);
+int			prepare_builtin_exec(t_command *cmds, t_env **env, int status);
+void		trim_empty_args(char **args);
 /* pipes.c */
 void		run_child(t_command *cmd, t_env **env, int status);
 int			run_pipeline(t_command *cmds, t_env **env, int status);
