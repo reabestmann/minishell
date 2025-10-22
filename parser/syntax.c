@@ -12,123 +12,110 @@
 
 #include "../minishell.h"
 
-/* ================= Helpers ================= */
 
-// Determine if token type is a redirection
+static int	check_pipe_syntax(t_token *token)
+{
+	if (!token || token->type != TOKEN_PIPE)
+		return (0);
+	if (!token->next || token->next->type == TOKEN_PIPE)
+	{
+		ft_putstr_fd("minishell: parse error near pipe.\n", 2);
+		return (-1);
+	}
+	return (0);
+}
+/*
+static int	check_redirection_syntax(t_token *token)
+{
+	if (!token->next || token->next->type != TOKEN_WORD)
+	{
+		ft_putstr_fd("minishell: parse error near redirection\n", 2);
+		return (-1);
+	}
+	return (0);
+}*/
+
 static int is_redirection_token(int type)
 {
     return (type == TOKEN_REDIR_OUT || type == TOKEN_REDIR_IN
-         || type == TOKEN_REDIR_APPEND || type == TOKEN_REDIR_ERR
-         || type == TOKEN_REDIR_ERR_APPEND || type == TOKEN_REDIR_BOTH
-         || type == TOKEN_REDIR_BOTH_APPEND || type == TOKEN_HEREDOC);
+         || type == TOKEN_REDIR_APPEND || type == TOKEN_HEREDOC);
 }
 
-// Create the file and immediately close it
-static void create_empty_file(const char *file, int append_mode)
-{
-    int fd;
-
-    if (!file)
-        return;
-
-    if (append_mode == 1)
-        fd = open(file, O_WRONLY | O_CREAT | O_APPEND, 0664);
-    else
-        fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-
-    if (fd >= 0)
-        close(fd);
-}
-
-// Return 1 for append, 2 for truncate
-static int get_append_mode(t_token_type type)
-{
-    if (type == TOKEN_REDIR_APPEND
-        || type == TOKEN_REDIR_ERR_APPEND
-        || type == TOKEN_REDIR_BOTH_APPEND)
-        return 1; // append
-    return 2;     // truncate/create
-}
-
-/* ================= Syntax Checks ================= */
-
-// Check pipe syntax
-static int check_pipe_syntax(t_token *token)
-{
-    if (!token || token->type != TOKEN_PIPE)
-        return 0;
-
-    if (!token->next || token->next->type == TOKEN_PIPE)
-    {
-        ft_putstr_fd("minishell: parse error near pipe.\n", 2);
-        return -1;
-    }
-    return 0;
-}
-
-// Check redirection syntax
 static int check_redirection_syntax(t_token *token)
 {
-    int append_mode;
-
     if (!token->next)
     {
         ft_putstr_fd("minishell: parse error near redirection\n", 2);
-        return -1;
+        return (-1);
     }
 
-    if (token->next->type == TOKEN_PIPE || is_redirection_token(token->next->type))
+    if (token->next->type != TOKEN_WORD && !is_redirection_token(token->next->type))
     {
         ft_putstr_fd("minishell: parse error near redirection\n", 2);
-        return -1;
+        return (-1);
     }
-    append_mode = get_append_mode(token->type);
-    create_empty_file(token->next->val, append_mode);
 
-    return 0;
+    return (0);
 }
 
-// Check if the first token is invalid (pipe at start)
-static int check_start(t_token *tokens)
+
+static int	check_start(t_token *tokens)
 {
-    if (tokens && tokens->type != TOKEN_WORD)
+	if (tokens && tokens->type != TOKEN_WORD)
+	{
+		if (tokens->type == TOKEN_PIPE)
+		{
+			ft_putstr_fd("minishell: parse error near start of command\n", 2);
+			return (-1);
+		}
+		else
+			return (0);
+	}
+	return (0);
+}
+
+#include <stdbool.h>
+
+/*static int work_contains_redir_chars(const char *word)
+{
+    while (*word)
     {
-        if (tokens->type == TOKEN_PIPE)
-        {
-            ft_putstr_fd("minishell: parse error near start of command\n", 2);
-            return -1;
-        }
+        if (*word == '<' || *word == '>')
+            return 1; // found
+        word++;
     }
-    return 0;
+    return 0; // not found
 }
-
-/* ================= Main Syntax Validator ================= */
-
-int syntax_valid(t_token *tokens)
+*/
+int	syntax_valid(t_token *tokens)
 {
-    t_token	*cpy;
-    char	state;
+	t_token	*cpy;
+	char	state;
 
-    if (!tokens)
-        return 0;
 	state = 0;
-    if (check_start(tokens) == -1)
-        return 2;
+	if (check_start(tokens) == -1)
+		return (2);
 	cpy = tokens;
-    while (cpy)
-    {
-        set_state_str(cpy->val, &state);
-        if (cpy->type != TOKEN_WORD && state == 0)
+	while (cpy)
+	{
+		set_state_str(cpy->val, &state);
+		if (cpy->type != TOKEN_WORD && state == 0)
+		{
+			if (check_pipe_syntax(cpy) == -1)
+				return (2);
+			if (check_redirection_syntax(cpy) == -1)
+				return (2);
+		}
+		if (is_redirection_token(cpy->type) && cpy->next)
         {
-            if (check_pipe_syntax(cpy) == -1)
-                return 2;
-            if (is_redirection_token(cpy->type))
+            if (cpy->next->type == TOKEN_PIPE || is_redirection_token(cpy->next->type))
             {
-                if (check_redirection_syntax(cpy) == -1)
-                    return 2;
+                ft_putstr_fd("minishell: parse error near redirection\n", 2);
+                return (2);
             }
         }
-        cpy = cpy->next;
-    }
-    return 0;
+		// todo: add more syntax checks that might be missing
+		cpy = cpy->next;
+	}
+	return (0);
 }
