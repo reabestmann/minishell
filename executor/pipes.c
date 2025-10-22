@@ -70,56 +70,6 @@ void run_child(t_command *cmd, t_env **env, int status)
     exit(EXIT_SUCCESS);
 }
 
-/*
-void run_child(t_command *cmd, t_env **env, int status)
-{
-    char **envp;
-    int saved_stdout = -1;
-    int saved_stderr = -1;
-
-    cmd->in_child = 1;
-    child_signal_setup();
-
-    // Save original stdout/stderr
-    saved_stdout = dup(STDOUT_FILENO);
-    saved_stderr = dup(STDERR_FILENO);
-    if (saved_stdout < 0 || saved_stderr < 0)
-        error("dup");
-
-    // Apply redirections first
-    apply_redirections(cmd, env, status);
-
-    // Redirection-only command (no args)
-    if (!cmd->args || !cmd->args[0])
-        exit(EXIT_SUCCESS);
-
-    // Dollar expansion
-    dollar_expansion(cmd, env, status);
-
-    // Mini tee for pipelines (if outfile + next command)
-    if (cmd->outfile && cmd->next)
-        mini_tee(cmd, -1);
-
-    // Builtins or external commands
-    if (cmd->args && cmd->args[0])
-    {
-        if (run_builtin(cmd, env, status) == -1)
-        {
-            envp = struct_to_envp(*env, 1); // export_only = 1
-            execute(cmd->args, envp);
-        }
-    }
-
-    // Restore original stdout/stderr
-    dup2(saved_stdout, STDOUT_FILENO);
-    dup2(saved_stderr, STDERR_FILENO);
-    close(saved_stdout);
-    close(saved_stderr);
-
-    exit(EXIT_SUCCESS);
-}*/
-
-
 /* parent_process:
 Executed in the parent after forking a child.
 - Closes old pipe ends no longer needed
@@ -172,6 +122,28 @@ static pid_t	init_pipes(int pipe_fd[2], t_command *cmd)
 	return (pid);
 }
 
+/* wait_for_last:
+	Tracks the PID of the last command in the pipeline.
+	Waits for all children to finish (avoiding zombie processes)
+	sets last_status only for the last command,
+	returns it, becoming the pipelines final exit code.
+*/
+static int	wait_for_last(pid_t last_pid)
+{
+	int		wstatus;
+	pid_t	wpid;
+	int		last_status;
+
+	last_status = 0;
+	wpid = wait(&wstatus);
+	while (wpid > 0)
+	{
+		if (wpid == last_pid)
+			last_status = get_exit_status(wstatus);
+		wpid = wait(&wstatus);
+	}
+	return (last_status);
+}
 /* run_pipeline:
 Executes a linked list of commands connected by pipes.
 - Forks each command in a child process
@@ -186,9 +158,11 @@ int	run_pipeline(t_command *cmds, t_env **env, int status)
 	int			pipe_fd[2];
 	int			prev_fd;
 	pid_t		pid;
+	pid_t		last_pid;
 
 	cmd = cmds;
 	prev_fd = -1;
+	last_pid = 0;
 	while (cmd)
 	{
 		pid = init_pipes(pipe_fd, cmd);
@@ -198,12 +172,14 @@ int	run_pipeline(t_command *cmds, t_env **env, int status)
 			run_child(cmd, env, status);
 		}
 		else
+		{
 			prev_fd = parent_process(cmd, prev_fd, pipe_fd);
+			last_pid = pid;
+		}
 		cmd = cmd->next;
 	}
 	if (prev_fd != -1)
 		close(prev_fd);
-	while (wait(&status) > 0)
-		status = get_exit_status(status);
+	status = wait_for_last(last_pid);
 	return (status);
 }
