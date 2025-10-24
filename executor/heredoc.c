@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 15:58:45 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/16 12:19:15 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/23 16:51:03 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,18 @@
 
 void	free_heredocs(t_command *cmds)
 {
-	int i;
+	int	i;
 
 	while (cmds)
 	{
 		if (cmds->heredoc_count > 0 && cmds->heredoc_delim)
 		{
-			for (i = 0; i < cmds->heredoc_count; i++)
+			i = 0;
+			while (i < cmds->heredoc_count)
 			{
 				free(cmds->heredoc_delim[i]);
 				cmds->heredoc_delim[i] = NULL;
+				i++;
 			}
 			free(cmds->heredoc_delim);
 			cmds->heredoc_delim = NULL;
@@ -67,14 +69,14 @@ static int	write_heredoc(char *delim, int write_fd, int status)
 	char	*trimmed_line;
 	int		expand;
 	int		tty_fd;
-	
+
 	trimmed_delim = remove_quotes(delim);
 	expand = !delimiter_was_quoted(delim);
 	g_sigint_received = 0;
 	while (1)
 	{
 		tty_fd = open("/dev/tty", O_WRONLY);
-		if(tty_fd >= 0)
+		if (tty_fd >= 0)
 		{
 			ft_putstr_fd("> ", tty_fd);
 			close(tty_fd);

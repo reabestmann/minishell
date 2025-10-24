@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:53:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/16 12:13:37 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/23 20:42:22 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,36 +17,31 @@
 **   - Caps SHLVL at 999 and resets negative values to 0.
 **   - Updates the environment variable in-place using update_var().
 */
-void update_shlvl(t_env **env)
+void	update_shlvl(t_env **env)
 {
-    char    *lvl_str;
-    int     lvl;
-    char    *new_lvl;
-    char    *to_set;
+	char	*lvl_str;
+	int		lvl;
+	char	*new_lvl;
+	char	*to_set;
 
-    lvl_str = get_env_value(env, "SHLVL");
-    lvl = 1;
-    if (lvl_str)
-        lvl = ft_atoi(lvl_str) + 1;
-
-    if (lvl < 0)
-        lvl = 0;
-    else if (lvl >= 1000)
-        lvl = 1; // silently reset, no printf
-
-    new_lvl = ft_itoa(lvl);
-    if (!new_lvl)
-        return; // malloc fail, nothing we can do
-
-    to_set = ft_strjoin("SHLVL=", new_lvl);
-    free(new_lvl);
-    if (!to_set)
-        return;
-
-    update_var(to_set, env); // your existing update function
-    free(to_set);
+	lvl_str = get_env_value(env, "SHLVL");
+	lvl = 1;
+	if (lvl_str)
+		lvl = ft_atoi(lvl_str) + 1;
+	if (lvl < 0)
+		lvl = 0;
+	else if (lvl >= 1000)
+		lvl = 1;
+	new_lvl = ft_itoa(lvl);
+	if (!new_lvl)
+		return ;
+	to_set = ft_strjoin("SHLVL=", new_lvl);
+	free(new_lvl);
+	if (!to_set)
+		return ;
+	update_var(to_set, env);
+	free(to_set);
 }
-
 
 /* handle_input:
    Parses a full command line input.
