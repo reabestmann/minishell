@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/26 17:47:56 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/13 17:43:51 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/23 16:14:02 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,33 +42,28 @@ int	is_valid_export_key(char *arg, int *len)
 	*len = i;
 	return (1);
 }*/
-int is_valid_export_key(char *arg, int *len)
+
+int	is_valid_export_key(char *arg, int *len)
 {
-    int i = 0;
+	int	i;
 
-    if (!arg || arg[0] == '\0')
-        return 0;
-
-    if (!ft_isalpha(arg[i]) && arg[i] != '_')
-        return 0;
-    i++;
-
-    while (arg[i] != '\0' && arg[i] != '=')
-    {
-        // allow + only immediately before '='
-        if (arg[i] == '+' && arg[i+1] == '=')
-            break;
-
-        if (!ft_isalnum(arg[i]) && arg[i] != '_')
-            return 0;
-
-        i++;
-    }
-
-    *len = i;  // length of the key, excluding + and =
-    return 1;
+	i = 0;
+	if (!arg || arg[0] == '\0')
+		return (0);
+	if (!ft_isalpha(arg[i]) && arg[i] != '_')
+		return (0);
+	i++;
+	while (arg[i] != '\0' && arg[i] != '=')
+	{
+		if (arg[i] == '+' && arg[i + 1] == '=')
+			break ;
+		if (!ft_isalnum(arg[i]) && arg[i] != '_')
+			return (0);
+		i++;
+	}
+	*len = i;
+	return (1);
 }
-
 
 /* setting_key(path, equals, new_node)
    - Purpose: Extracts the key from a "KEY=VALUE" string and stores it in a 
@@ -132,24 +127,24 @@ char	*find_key(char *path, int *key_len)
        * Allocates memory for the key using find_key; caller must free it.
        * Prints an error message to stderr if the key is invalid.
 */
-int validate_and_get_key(char *path, int *key_len, char **key)
-{
-    if (!is_valid_export_key(path, key_len))
-    {
-        ft_putstr_fd("mini: export: `", 2);
-        ft_putstr_fd(path, 2);
-        ft_putendl_fd("': not a valid identifier", 2);
 
-        // if starts with '-', exit code = 2
-        if (path[0] == '-')
-            return 2;
-        return 1;
-    }
-    *key = find_key(path, key_len);
-    if (!*key)
-        return 1;
-    return 0;
+int	validate_and_get_key(char *path, int *key_len, char **key)
+{
+	if (!is_valid_export_key(path, key_len))
+	{
+		ft_putstr_fd("mini: export: `", 2);
+		ft_putstr_fd(path, 2);
+		ft_putendl_fd("': not a valid identifier", 2);
+		if (path[0] == '-')
+			return (2);
+		return (1);
+	}
+	*key = find_key(path, key_len);
+	if (!*key)
+		return (1);
+	return (0);
 }
+
 /*OG*/
 /*int	validate_and_get_key(char *path, int *key_len, char **key)
 {

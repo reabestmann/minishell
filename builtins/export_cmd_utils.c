@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/26 17:51:17 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/02 15:56:02 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/23 16:14:29 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int	setting_value(char **equals, t_env **new_node)
 		return (1);
 	if (*equals)
 	{
-		(*new_node)->value = ft_strdup(*equals + 1); // one string - does it need to be multiple
+		(*new_node)->value = ft_strdup(*equals + 1);
 		if (!(*new_node)->value)
 		{
 			free((*new_node)->key);

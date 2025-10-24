@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/16 11:13:44 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/23 16:49:05 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,34 +82,35 @@ static int	fork_process(t_command *cmds, t_env **env, int status)
 		run_builtin will run it in parent;
 		otherwise runs via fork/execve.
 	if cmd is not a standalone, run_pipeline runs it.
-	now also checks for empty strings and returns error via custom error function
+	now also checks for empty strings and returns error 
+		via custom error function
 */
-int run_command(t_command *cmds, t_env **env, int status)
+int	run_command(t_command *cmds, t_env **env, int status)
 {
-    if (!cmds)
-        return (0);
-    if (has_dollar(cmds->args))
-        dollar_expansion(cmds, env, status);
-    if (collect_heredocs(cmds, status) < 0)
-        return 1;
-    if (!cmds->in_child)
-    {
-        if (cmds->next)
-            return run_pipeline(cmds, env, status);
-        if ((cmds->args && cmds->args[0]) || cmds->infile ||
-            cmds->outfile || cmds->errfile || cmds->heredoc_delim)
-        {
-            if (cmds->modifies_shell && cmds->args && cmds->args[0])
-                return (prepare_builtin_exec(cmds, env, status));
-            if (cmds->args && ft_strlen(cmds->args[0]) == 2 &&
-                ((cmds->args[0][0] == '"' && cmds->args[0][1] == '"') ||
-                 (cmds->args[0][0] == '\'' && cmds->args[0][1] == '\'')))
-                exec_error_custom("", "command not found", 127);
-            return (fork_process(cmds, env, status));
-        }
-        else
-            return (0);
-    }
-    else
-        return run_pipeline(cmds, env, status);
+	if (!cmds)
+		return (0);
+	if (has_dollar(cmds->args))
+		dollar_expansion(cmds, env, status);
+	if (collect_heredocs(cmds, status) < 0)
+		return (1);
+	if (!cmds->in_child)
+	{
+		if (cmds->next)
+			return (run_pipeline(cmds, env, status));
+		if ((cmds->args && cmds->args[0]) || cmds->infile
+			|| cmds->outfile || cmds->errfile || cmds->heredoc_delim)
+		{
+			if (cmds->modifies_shell && cmds->args && cmds->args[0])
+				return (prepare_builtin_exec(cmds, env, status));
+			if (cmds->args && ft_strlen(cmds->args[0]) == 2
+				&& ((cmds->args[0][0] == '"' && cmds->args[0][1] == '"') ||
+				(cmds->args[0][0] == '\'' && cmds->args[0][1] == '\'')))
+				exec_error_custom("", "command not found", 127);
+			return (fork_process(cmds, env, status));
+		}
+		else
+			return (0);
+	}
+	else
+		return (run_pipeline(cmds, env, status));
 }

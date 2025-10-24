@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/26 21:29:48 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/26 21:42:17 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/23 16:46:50 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ void	add_heredoc(t_command *cmd, const char *delimiter)
 	int		j;
 
 	i = 0;
-	while(cmd->heredoc_delim && cmd->heredoc_delim[i])
+	while (cmd->heredoc_delim && cmd->heredoc_delim[i])
 		i++;
 	arr = handle_malloc(sizeof(char *) * (i + 2));
 	j = 0;

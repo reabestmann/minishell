@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:03:05 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/14 15:13:53 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/23 16:29:56 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,71 +109,74 @@ t_env	*find_and_delete_node(t_env **env, t_env *crnt, t_env **prev, char *key)
 	}
 	return (ret);
 }*/
-int is_valid_unset_key(char *key)
+int	is_valid_unset_key(char *key)
 {
-    int i;
+	int	i;
 
-    if (!key || key[0] == '\0') 
-        return 0; // empty string is ignored, treated as valid for exit 0
-
-    if (key[0] == '-') 
-        return 0; // leading dash is invalid
-
-    i = 0;
-    while (key[i])
-    {
-        if (key[i] == ';' || key[i] == '|' || key[i] == '&' ||
-            key[i] == '>' || key[i] == '<')
-            return -1; // syntax/command-like error
-        i++;
-    }
-
-    return 1; // valid identifier
+	if (!key || key[0] == '\0')
+		return (0);
+	if (key[0] == '-')
+		return (0);
+	i = 0;
+	while (key[i])
+	{
+		if (key[i] == ';' || key[i] == '|' || key[i] == '&'
+			|| key[i] == '>' || key[i] == '<')
+			return (-1);
+		i++;
+	}
+	return (1);
 }
 
-int unset_cmd(t_command *cmd, t_env **env)
+// 0 if all ok, 2 for invalid identifiers, 127 for syntax-like errors
+int	unset_cmd(t_command *cmd, t_env **env)
 {
-    t_env *current;
-    t_env *previous;
-    int i;
-    int ret = 0;
+	t_env	*current;
+	t_env	*previous;
+	int		i;
+	int		ret;
+	int		valid;
 
-    if (!cmd || !env)
-        return 1;
-
-    for (i = 1; cmd->args[i]; i++)
-    {
-        if (cmd->args[i][0] == '\0') // empty string → ignore
-            continue;
-
-        int valid = is_valid_unset_key(cmd->args[i]);
-
-        if (valid == -1) // syntax-like error
-        {
-            ft_putstr_fd("mini: unset: `", 2);
-            ft_putstr_fd(cmd->args[i], 2);
-            ft_putendl_fd("': command not found", 2);
-            ret = 127;
-            continue;
-        }
-        else if (!valid) // invalid identifier
-        {
-            ft_putstr_fd("mini: unset: `", 2);
-            ft_putstr_fd(cmd->args[i], 2);
-            ft_putendl_fd("': not a valid identifier", 2);
-            if (ret < 2) ret = 2; // keep the highest relevant exit code
-            continue;
-        }
-
-        current = *env;
-        previous = NULL;
-        while (current)
-            current = find_and_delete_node(env, current, &previous, cmd->args[i]);
-    }
-
-    return ret; // 0 if all ok, 2 for invalid identifiers, 127 for syntax-like errors
+	ret = 0;
+	if (!cmd || !env)
+		return (1);
+	i = 1;
+	while (cmd->args[i])
+	{
+		if (cmd->args[i][0] == '\0')
+		{
+			i++;
+			continue ;
+		}
+		valid = is_valid_unset_key(cmd->args[i]);
+		if (valid == -1)
+		{
+			ft_putstr_fd("mini: unset: `", 2);
+			ft_putstr_fd(cmd->args[i], 2);
+			ft_putendl_fd("': command not found", 2);
+			ret = 127;
+			i++;
+			continue ;
+		}
+		else if (!valid)
+		{
+			ft_putstr_fd("mini: unset: `", 2);
+			ft_putstr_fd(cmd->args[i], 2);
+			ft_putendl_fd("': not a valid identifier", 2);
+			if (ret < 2)
+				ret = 2;
+			i++;
+			continue ;
+		}
+		current = *env;
+		previous = NULL;
+		while (current)
+			current = find_and_delete_node(env, current,
+					&previous, cmd->args[i]);
+		i++;
+	}
+	return (ret);
 }
-
 /*
 int	unset_cmd(t_command *cmd, t_env **env)
 {
@@ -209,7 +212,8 @@ int	unset_cmd(t_command *cmd, t_env **env)
 			current = *env;
 			previous = NULL;
 			while (current != NULL)
-				current = find_and_delete_node(env, current, &previous, cmd->args[i]);
+				current = find_and_delete_node(env, current,
+				 &previous, cmd->args[i]);
 		}
 		i++;
 	}

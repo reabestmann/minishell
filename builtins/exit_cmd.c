@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:49 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/30 19:05:16 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/23 16:06:22 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,6 @@ int	exit_cmd(t_command *cmd, t_env **env, int last_status)
 {
 	int	exit_status;
 
-	//ft_putendl_fd("exit", 1);
 	if (!cmd || !cmd->args || !cmd->args[1])
 	{
 		exit_cleanup(cmd, env);

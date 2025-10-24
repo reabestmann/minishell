@@ -6,12 +6,11 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/20 18:06:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/18 12:09:24 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/23 20:48:46 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
 
 static int	check_pipe_syntax(t_token *token)
 {
@@ -35,29 +34,27 @@ static int	check_redirection_syntax(t_token *token)
 	return (0);
 }*/
 
-static int is_redirection_token(int type)
+static int	is_redirection_token(int type)
 {
-    return (type == TOKEN_REDIR_OUT || type == TOKEN_REDIR_IN
-         || type == TOKEN_REDIR_APPEND || type == TOKEN_HEREDOC);
+	return (type == TOKEN_REDIR_OUT || type == TOKEN_REDIR_IN
+		|| type == TOKEN_REDIR_APPEND || type == TOKEN_HEREDOC);
 }
 
-static int check_redirection_syntax(t_token *token)
+static int	check_redirection_syntax(t_token *token)
 {
-    if (!token->next)
-    {
-        ft_putstr_fd("minishell: parse error near redirection\n", 2);
-        return (-1);
-    }
-
-    if (token->next->type != TOKEN_WORD && !is_redirection_token(token->next->type))
-    {
-        ft_putstr_fd("minishell: parse error near redirection\n", 2);
-        return (-1);
-    }
-
-    return (0);
+	if (!token->next)
+	{
+		ft_putstr_fd("minishell: parse error near redirection\n", 2);
+		return (-1);
+	}
+	if (token->next->type != TOKEN_WORD
+		&& !is_redirection_token(token->next->type))
+	{
+		ft_putstr_fd("minishell: parse error near redirection\n", 2);
+		return (-1);
+	}
+	return (0);
 }
-
 
 static int	check_start(t_token *tokens)
 {
@@ -74,17 +71,15 @@ static int	check_start(t_token *tokens)
 	return (0);
 }
 
-#include <stdbool.h>
-
 /*static int work_contains_redir_chars(const char *word)
 {
-    while (*word)
-    {
-        if (*word == '<' || *word == '>')
-            return 1; // found
-        word++;
-    }
-    return 0; // not found
+	while (*word)
+	{
+		if (*word == '<' || *word == '>')
+			return 1; // found
+		word++;
+	}
+	return 0; // not found
 }
 */
 int	syntax_valid(t_token *tokens)
@@ -107,13 +102,14 @@ int	syntax_valid(t_token *tokens)
 				return (2);
 		}
 		if (is_redirection_token(cpy->type) && cpy->next)
-        {
-            if (cpy->next->type == TOKEN_PIPE || is_redirection_token(cpy->next->type))
-            {
-                ft_putstr_fd("minishell: parse error near redirection\n", 2);
-                return (2);
-            }
-        }
+		{
+			if (cpy->next->type == TOKEN_PIPE
+				|| is_redirection_token(cpy->next->type))
+			{
+				ft_putstr_fd("minishell: parse error near redirection\n", 2);
+				return (2);
+			}
+		}
 		// todo: add more syntax checks that might be missing
 		cpy = cpy->next;
 	}

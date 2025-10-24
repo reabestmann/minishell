@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:25 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/13 17:12:59 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/23 16:05:46 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,9 +152,10 @@ static int	cd_core(char **target_dir, char **temp, t_env **env)
 }*/
 
 /*checks if extra args following cmd*/
-int too_many_args(t_command *cmd)
+
+int	too_many_args(t_command *cmd)
 {
-	if (cmd->args[2] != NULL) // extra arguments exist
+	if (cmd->args[2] != NULL)
 	{
 		ft_putendl_fd("minishell: cd: too many arguments", 2);
 		return (1);
@@ -192,56 +193,47 @@ int	cd_cmd(t_command *cmd, t_env **env)
 	;
 }*/
 
-int cd_OLDPWD_check(char *target_dir, t_env **env)
+int	cd_oldpwd_check(char *target_dir, t_env **env)
 {
-    char *oldpwd_val;
-    char *pwd_before;
-    char *pwd_after;
+	char	*oldpwd_val;
+	char	*pwd_before;
+	char	*pwd_after;
 
-    if (ft_strncmp(target_dir, "-", 1) == 0 && target_dir[1] == '\0')
-    {
-        oldpwd_val = get_env_value(env, "OLDPWD");
-        if (!oldpwd_val)
-        {
-            ft_putendl_fd("cd: OLDPWD not set", 2);
-            return 1;
-        }
-
-        pwd_before = getcwd(NULL, 0);    // current PWD
-        if (!pwd_before)
-            return 1;
-
-        if (chdir(oldpwd_val) == -1)
-        {
-            perror(oldpwd_val);
-            free(pwd_before);
-            return 1;
-        }
-
-        // swap PWD and OLDPWD
-        update_oldpwd(env, pwd_before);
-
-        pwd_after = getcwd(NULL, 0);     // new PWD after chdir
-        update_newpwd(env, pwd_after);
-
-        ft_putendl_fd(pwd_after, 1);     // print new PWD
-
-        free(pwd_before);
-        free(pwd_after);
-
-        return 0;
-    }
-    return 0;
+	if (ft_strncmp(target_dir, "-", 1) == 0 && target_dir[1] == '\0')
+	{
+		oldpwd_val = get_env_value(env, "OLDPWD");
+		if (!oldpwd_val)
+		{
+			ft_putendl_fd("cd: OLDPWD not set", 2);
+			return (1);
+		}
+		pwd_before = getcwd(NULL, 0);
+		if (!pwd_before)
+			return (1);
+		if (chdir(oldpwd_val) == -1)
+		{
+			perror(oldpwd_val);
+			free(pwd_before);
+			return (1);
+		}
+		update_oldpwd(env, pwd_before);
+		pwd_after = getcwd(NULL, 0);
+		update_newpwd(env, pwd_after);
+		ft_putendl_fd(pwd_after, 1);
+		free(pwd_before);
+		free(pwd_after);
+		return (0);
+	}
+	return (0);
 }
-
-
 
 /*woring one*/
 /*int	cd_cmd(t_command *cmd, t_env **env)
 {
 	char	*target_dir;
 
-	target_dir = cmd->args[1]; // already preprocessed (~ expanded, quotes trimmed)
+	target_dir = cmd->args[1]; // already preprocessed (~ expanded,
+	 quotes trimmed)
 	if (too_many_args(cmd))
 		return (1);
 
@@ -249,7 +241,8 @@ int cd_OLDPWD_check(char *target_dir, t_env **env)
 	if (target_dir && ft_strncmp(target_dir, "-", 2) == 0)
 		return cd_OLDPWD_check(target_dir, env); // instead of display_old...
 
-	// if no target_dir, default to HOME (should already be handled in preprocess)
+	// if no target_dir, default to HOME (should already be handled 
+	in preprocess)
 	if (!target_dir)
 	{
 		ft_putendl_fd("minishell: cd: HOME not set", 2);
@@ -259,38 +252,28 @@ int cd_OLDPWD_check(char *target_dir, t_env **env)
 	return cd_core(target_dir, env);
 }
 */
-#include "../minishell.h"
 
-int cd_cmd(t_command *cmd, t_env **env)
+int	cd_cmd(t_command *cmd, t_env **env)
 {
-    char *target_dir;
+	char	*target_dir;
+	char	*home;
 
-    target_dir = cmd->args[1]; // already preprocessed (~ expanded, quotes trimmed)
-
-    // check for too many arguments
-    if (too_many_args(cmd))
-        return 1;
-
-    // handle `cd -` (previous directory)
-    if (target_dir && strncmp(target_dir, "-", 2) == 0)
-        return cd_OLDPWD_check(target_dir, env);
-
-    // handle `cd --` (explicit home)
-    if (target_dir && strncmp(target_dir, "--", 3) == 0)
-        return cd_core(get_env_value(env, "HOME"), env);
-
-    // if no target_dir, default to HOME
-    if (!target_dir)
-    {
-        char *home = get_env_value(env, "HOME");
-        if (!home)
-        {
-            ft_putendl_fd("minishell: cd: HOME not set", 2);
-            return 1;
-        }
-        return cd_core(home, env);
-    }
-
-    // default: cd to target_dir
-    return cd_core(target_dir, env);
+	target_dir = cmd->args[1];
+	if (too_many_args(cmd))
+		return (1);
+	if (target_dir && ft_strncmp(target_dir, "-", 2) == 0)
+		return (cd_oldpwd_check(target_dir, env));
+	if (target_dir && ft_strncmp(target_dir, "--", 3) == 0)
+		return (cd_core(get_env_value(env, "HOME"), env));
+	if (!target_dir)
+	{
+		home = get_env_value(env, "HOME");
+		if (!home)
+		{
+			ft_putendl_fd("minishell: cd: HOME not set", 2);
+			return (1);
+		}
+		return (cd_core(home, env));
+	}
+	return (cd_core(target_dir, env));
 }

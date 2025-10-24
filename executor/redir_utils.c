@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/26 21:37:03 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/26 21:37:47 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/23 21:53:00 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,10 @@ void	fd_check(int fd, int std_fd, char *file)
 		error(file);
 	if (std_fd == 3)
 	{
-        if (dup2(fd, STDOUT_FILENO) < 0 || dup2(fd, STDERR_FILENO) < 0)
-            error("dup2");
-        return;
-    }
+		if (dup2(fd, STDOUT_FILENO) < 0 || dup2(fd, STDERR_FILENO) < 0)
+			error("dup2");
+		return ;
+	}
 	if (dup2(fd, std_fd) < 0)
 	{
 		close(fd);

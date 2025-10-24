@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 14:17:57 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 16:43:03 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/23 21:29:57 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,5 +58,16 @@ typedef struct s_env
 	struct s_env	*next;
 	int				exported;
 }	t_env;
+
+typedef struct s_split_replace
+{
+	char	**old_args;
+	int		old_len;
+	int		parts_len;
+	int		new_len;
+	char	**new_args;
+	int		i;
+	int		dst;
+}	t_split_replace;
 
 #endif

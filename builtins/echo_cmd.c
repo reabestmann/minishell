@@ -6,89 +6,50 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:37 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/13 16:39:31 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/23 16:02:56 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int is_n_flag(const char *arg)
+int	is_n_flag(const char *arg)
 {
-    int i;
+	int	i;
 
-    if (!arg || arg[0] != '-')
-        return 0;
-
-    // If first character is a quote, don't treat as a flag
-    if (arg[0] == '\'' || arg[0] == '"')
-        return 0;
-
-    i = 1;
-    if (arg[i] != 'n')
-        return 0;
-
-    while (arg[i] == 'n')
-        i++;
-
-    // Make sure nothing else is present after the n's
-    return arg[i] == '\0';
+	if (!arg || arg[0] != '-')
+		return (0);
+	if (arg[0] == '\'' || arg[0] == '"')
+		return (0);
+	i = 1;
+	if (arg[i] != 'n')
+		return (0);
+	while (arg[i] == 'n')
+		i++;
+	return (arg[i] == '\0');
 }
 
-/* OG int is_n_flag(const char *arg)
+void	print_args(t_command *cmd)
 {
-    int i;
+	int	i;
 
-    if (!arg || arg[0] != '-')
-        return 0;
-
-    i = 1;
-    if (arg[i] != 'n')
-        return 0;
-
-    // consume all consecutive n's
-    while (arg[i] == 'n')
-        i++;
-
-    // skip any trailing spaces or tabs
-    while (arg[i] && isspace((unsigned char)arg[i]))
-        i++;
-
-    // if we reached the end of string, it's a valid -n* flag
-    return arg[i] == '\0';
-}*/
-/* BUILTIN_LIST
- 	/echo with option -n 
-	/cd with only a relative or absolute path
-	/pwd with no optios
-	export with no options
-	/unset with no options
-	/env with no options
-	exit with no options
-*/
-
-#include <stdio.h>
-
-void print_args(t_command *cmd)
-{
-    int i;
-
-    if (!cmd || !cmd->args)
-    {
-        printf("No arguments\n");
-        return;
-    }
-
-    for (i = 0; cmd->args[i]; i++)
-        printf("args[%d]: [%s]\n", i, cmd->args[i]);
+	if (!cmd || !cmd->args)
+	{
+		printf("No arguments\n");
+		return ;
+	}
+	i = 0;
+	while (cmd->args[i])
+	{
+		printf("args[%d]: [%s]\n", i, cmd->args[i]);
+		i++;
+	}
 }
 
 int	echo_cmd(t_command *cmd)
 {
-	//print_args(cmd);
-	int	i;
-	int	new_line;
+	int		i;
+	int		new_line;
 
-	//trim_quotes_for_execution(cmd->args);
 	i = 1;
 	new_line = 1;
 	while (cmd->args[i] && is_n_flag(cmd->args[i]))
