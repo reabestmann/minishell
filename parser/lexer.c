@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 15:26:43 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/23 22:04:38 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/27 21:02:57 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ typedef enum e_token_type
 
 */
 
-static int	handle_else(const char *str, t_token_type	*type)
+/*static int	handle_else(const char *str, t_token_type	*type)
 {
 	if (str[0] == '2' && str[1] == '>')
 	{
@@ -117,6 +117,49 @@ static int	handle_else(const char *str, t_token_type	*type)
 		*type = TOKEN_REDIR_OUT;
 		return (2);
 	}
+	return (1);
+}*/
+static int	handle_redir_err(const char *str, t_token_type *type)
+{
+	if (str[2] == '>')
+	{
+		*type = TOKEN_REDIR_ERR_APPEND;
+		return (3);
+	}
+	*type = TOKEN_REDIR_ERR;
+	return (2);
+}
+
+static int	handle_redir_both(const char *str, t_token_type *type)
+{
+	if (str[2] == '>')
+	{
+		*type = TOKEN_REDIR_BOTH_APPEND;
+		return (3);
+	}
+	*type = TOKEN_REDIR_BOTH;
+	return (2);
+}
+
+static int	handle_redir_out(const char *str, t_token_type *type)
+{
+	if (str[2] == '>')
+	{
+		*type = TOKEN_REDIR_APPEND;
+		return (3);
+	}
+	*type = TOKEN_REDIR_OUT;
+	return (2);
+}
+
+static int	handle_else(const char *str, t_token_type *type)
+{
+	if (str[0] == '2' && str[1] == '>')
+		return (handle_redir_err(str, type));
+	else if (str[0] == '&' && str[1] == '>')
+		return (handle_redir_both(str, type));
+	else if (str[0] == '1' && str[1] == '>')
+		return (handle_redir_out(str, type));
 	return (1);
 }
 

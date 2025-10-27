@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:54 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/23 16:21:50 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/27 23:22:42 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,7 @@ static int	found_match(char *key, t_env *temp, int key_len, char *path)
    - Notes: Calls find_key to get key, found_match to update existing nodes, 
    and add_nodes to create new nodes.
 */
+
 /*OG*/
 /*static int	update_var(char *path, t_env **env)
 {
@@ -127,6 +128,37 @@ static int	found_match(char *key, t_env *temp, int key_len, char *path)
 	return (0);
 }*/
 /* // <-- propagate 2 for invalid key, 1 for malloc failure*/
+//I am checking and freeing key here
+static int	check_match_and_free(int match, char *key)
+{
+	if (match == 1)
+	{
+		free(key);
+		return (1);
+	}
+	if (match == 2)
+	{
+		free(key);
+		return (0);
+	}
+	return (-1);
+}
+
+//here I only check match so I know what to return
+static int	check_match(int match)
+{
+	if (match == 1)
+	{
+		return (1);
+	}
+	if (match == 2)
+	{
+		return (0);
+	}
+	return (-1);
+}
+
+//here is the function those two are called from
 int	update_var(char *path, t_env **env)
 {
 	t_env	*temp;
@@ -142,16 +174,8 @@ int	update_var(char *path, t_env **env)
 	while (temp)
 	{
 		match = found_match(key, temp, key_len, path);
-		if (match == 1)
-		{
-			free(key);
-			return (1);
-		}
-		if (match == 2)
-		{
-			free(key);
-			return (0);
-		}
+		if (check_match_and_free(match, key) != -1)
+			return (check_match(match));
 		temp = temp->next;
 	}
 	free(key);

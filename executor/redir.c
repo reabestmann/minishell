@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 16:02:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/23 22:03:30 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/27 22:56:21 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,7 +161,7 @@ Sets cmd->outfile and cmd->append type based on the token.
 static void	set_redirection(t_command *cmd, t_token *token, int append_type)
 {
 	int	fd;
-	
+
 	if (!token || token->type != TOKEN_WORD)
 		return ;
 	if (cmd->fd_type == STDOUT_FILENO || cmd->fd_type == 3)
@@ -200,6 +200,33 @@ static void	set_fd_type(t_command *cmd, t_token *cpy)
 		cmd->fd_type = 3;
 }
 
+static int	is_append_type(int type)
+{
+	return (type == TOKEN_REDIR_APPEND
+		|| type == TOKEN_REDIR_ERR_APPEND
+		|| type == TOKEN_REDIR_BOTH_APPEND);
+}
+
+static int	is_output_redir(int type)
+{
+	return (type == TOKEN_REDIR_OUT
+		|| type == TOKEN_REDIR_ERR
+		|| type == TOKEN_REDIR_BOTH
+		|| type == TOKEN_REDIR_APPEND
+		|| type == TOKEN_REDIR_ERR_APPEND
+		|| type == TOKEN_REDIR_BOTH_APPEND);
+}
+
+static void	handle_input_redir(t_command *cmd, t_token *next)
+{
+	if (next && next->type == TOKEN_WORD)
+	{
+		if (cmd->infile)
+			free(cmd->infile);
+		cmd->infile = ft_strdup(next->val);
+	}
+}
+
 void	parse_redirection(t_command *cmd, t_token **cpy)
 {
 	t_token	*next;
@@ -209,29 +236,13 @@ void	parse_redirection(t_command *cmd, t_token **cpy)
 		return ;
 	next = (*cpy)->next;
 	append_type = 2;
-	if ((*cpy)->type == TOKEN_REDIR_APPEND
-		|| (*cpy)->type == TOKEN_REDIR_ERR_APPEND
-		|| (*cpy)->type == TOKEN_REDIR_BOTH_APPEND)
+	if (is_append_type((*cpy)->type))
 		append_type = 1;
 	set_fd_type(cmd, *cpy);
 	if ((*cpy)->type == TOKEN_REDIR_IN)
-	{
-		if (next && next->type == TOKEN_WORD)
-		{
-			if (cmd->infile)
-				free(cmd->infile);
-			cmd->infile = ft_strdup(next->val);
-		}
-	}
-	else if ((*cpy)->type == TOKEN_REDIR_OUT
-		|| (*cpy)->type == TOKEN_REDIR_ERR
-		|| (*cpy)->type == TOKEN_REDIR_BOTH
-		|| (*cpy)->type == TOKEN_REDIR_APPEND
-		|| (*cpy)->type == TOKEN_REDIR_ERR_APPEND
-		|| (*cpy)->type == TOKEN_REDIR_BOTH_APPEND)
-	{
+		handle_input_redir(cmd, next);
+	else if (is_output_redir((*cpy)->type))
 		set_redirection(cmd, next, append_type);
-	}
 	else if ((*cpy)->type == TOKEN_HEREDOC)
 	{
 		if (next && next->type == TOKEN_WORD)
