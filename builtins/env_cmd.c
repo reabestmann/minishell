@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:43 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/01 16:05:29 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/23 16:03:36 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,10 @@ int	env_cmd(t_command *cmd, t_env **env)
 {
 	int		i;
 	char	**envp;
-	//char	*path;
+
 	i = 0;
 	envp = struct_to_envp(*env, 1);
-	if(cmd->args[1])
+	if (cmd->args[1])
 	{
 		if (chdir(cmd->args[1]) == -1)
 		{

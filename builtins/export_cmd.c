@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:54 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/14 16:00:50 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/23 16:21:50 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,44 +126,39 @@ static int	found_match(char *key, t_env *temp, int key_len, char *path)
 		return (1);
 	return (0);
 }*/
-int update_var(char *path, t_env **env)
+/* // <-- propagate 2 for invalid key, 1 for malloc failure*/
+int	update_var(char *path, t_env **env)
 {
-    t_env *temp;
-    char *key;
-    int match;
-    int key_len;
+	t_env	*temp;
+	char	*key;
+	int		match;
+	int		key_len;
+	int		val;
 
-    // validate key
-    int val = validate_and_get_key(path, &key_len, &key);
-    if (val != 0)
-        return val; // <-- propagate 2 for invalid key, 1 for malloc failure
-
-    // check existing nodes
-    temp = *env;
-    while (temp)
-    {
-        match = found_match(key, temp, key_len, path);
-        if (match == 1) // allocation failure
-        {
-            free(key);
-            return 1;
-        }
-        if (match == 2) // successfully updated
-        {
-            free(key);
-            return 0;
-        }
-        temp = temp->next;
-    }
-
-    // add new node
-    free(key);
-    if (!add_nodes(env, path))
-        return 1; // allocation failure
-
-    return 0; // success
+	val = validate_and_get_key(path, &key_len, &key);
+	if (val != 0)
+		return (val);
+	temp = *env;
+	while (temp)
+	{
+		match = found_match(key, temp, key_len, path);
+		if (match == 1)
+		{
+			free(key);
+			return (1);
+		}
+		if (match == 2)
+		{
+			free(key);
+			return (0);
+		}
+		temp = temp->next;
+	}
+	free(key);
+	if (!add_nodes(env, path))
+		return (1);
+	return (0);
 }
-
 
 /* list_exported(env)
    - Purpose: Prints all exported environment variables in alphabetical order.
@@ -190,7 +185,7 @@ static int	list_exported(t_env **env)
 	while (envp[i])
 	{
 		eq = ft_strchr(envp[i], '=');
-		if(eq)
+		if (eq)
 		{
 			printf("declare -x %.*s", (int)(eq - envp[i]), envp[i]);
 			printf("=\"%s\"\n", eq +1);
@@ -235,29 +230,30 @@ static int	list_exported(t_env **env)
 	}
 	return (ret);
 }*/
-int export_cmd(t_command *cmd, t_env **env)
-{
-    int i;
-    int ret;
-
-    i = 1;
-    ret = 0;
-
-    if (!cmd || !env)
-        return 1;
-
-    if (!cmd->args[1])
-        return list_exported(env);
-
-    while (cmd->args[i])
-    {
-        int res = update_var(cmd->args[i], env);
-        if (res == 2)      // invalid identifier
+/*        if (res == 2)      // invalid identifier
             ret = 2;       // propagate
         else if (res == 1) // malloc failure
-            ret = 1;
-        i++;
-    }
-    return ret;
-}
+            ret = 1;*/
+int	export_cmd(t_command *cmd, t_env **env)
+{
+	int	i;
+	int	ret;
+	int	res;
 
+	i = 1;
+	ret = 0;
+	if (!cmd || !env)
+		return (1);
+	if (!cmd->args[1])
+		return (list_exported(env));
+	while (cmd->args[i])
+	{
+		res = update_var(cmd->args[i], env);
+		if (res == 2)
+			ret = 2;
+		else if (res == 1)
+			ret = 1;
+		i++;
+	}
+	return (ret);
+}

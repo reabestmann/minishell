@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   find_path.c                                        :+:      :+:    :+:   */
+/*   path.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 14:45:16 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/21 14:45:34 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/10/23 16:41:29 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,118 +21,114 @@
  * - Directory → "Is a directory" (126).
  * - No exec permission → "Permission denied" (126).
  * Frees path before exiting when needed.
- * also returns simple error - which doesnt include mini in front for command not found
+ * also returns simple error - which doesnt include mini in 
+ * front for command not found
 */
-void    check_executable(char **args, char *path)
+void	check_executable(char **args, char *path)
 {
-    struct stat sb;
+	struct stat	sb;
 
-    if (!path)
-        exec_error_custom(args[0], "command not found", 127);
-    if (stat(path, &sb) == -1)
-    {
-        free(path);
-        exec_error_custom(args[0], "command not found", 127);
-    }
-    if (S_ISDIR(sb.st_mode))
-    {
-        if (strcmp(args[0], ".") == 0 ||
-            strcmp(args[0], "..") == 0 ||
-            strcmp(args[0], "~") == 0)
-        {
-            free(path);
-            exec_error_custom(args[0], "command not found", 127);
-        }
-        else
-        {
-            free(path);
-            exec_error_custom(args[0], "Is a directory", 126);
-        }
-    }
-    if (access(path, X_OK) == -1)
-    {
-        free(path);
-        exec_error_custom(args[0], "Permission denied", 126);
-    }
+	if (!path)
+		exec_error_custom(args[0], "command not found", 127);
+	if (stat(path, &sb) == -1)
+	{
+		free(path);
+		exec_error_custom(args[0], "command not found", 127);
+	}
+	if (S_ISDIR(sb.st_mode))
+	{
+		if ((ft_strncmp(args[0], ".", 2) == 0)
+			|| (ft_strncmp(args[0], "..", 3) == 0)
+			|| (ft_strncmp(args[0], "~", 2) == 0))
+		{
+			free(path);
+			exec_error_custom(args[0], "command not found", 127);
+		}
+		else
+		{
+			free(path);
+			exec_error_custom(args[0], "Is a directory", 126);
+		}
+	}
+	if (access(path, X_OK) == -1)
+	{
+		free(path);
+		exec_error_custom(args[0], "Permission denied", 126);
+	}
 }
 
-/* Tries to find the command in the current working directory */
-static char *try_cwd(const char *cmd)
+static char	*try_cwd(const char *cmd)
 {
-    char *cwd = getcwd(NULL, 0);
-    char *part_path;
-    char *path;
+	char	*cwd;
+	char	*part_path;
+	char	*path;
 
-    if (!cwd)
-        return NULL;
-
-    part_path = ft_strjoin(cwd, "/");
-    path = ft_strjoin(part_path, cmd);
-    free(part_path);
-    free(cwd);
-
-    if (!access(path, F_OK))
-        return path;
-
-    free(path);
-    return NULL;
+	cwd = getcwd(NULL, 0);
+	if (!cwd)
+		return (NULL);
+	part_path = ft_strjoin(cwd, "/");
+	path = ft_strjoin(part_path, cmd);
+	free(part_path);
+	free(cwd);
+	if (!access(path, F_OK))
+		return (path);
+	free(path);
+	return (NULL);
 }
 
 /*Tries to find the command in PATH directories */
-static char *search_path_dirs(const char *cmd, const char *path_env)
+static char	*search_path_dirs(const char *cmd, const char *path_env)
 {
-    char    **paths;
-    char    *part_path;
-    char    *path;
-    int     i;
+	char	**paths;
+	char	*part_path;
+	char	*path;
+	int		i;
 
-    if (!path_env)
-        return (NULL);
-    paths = ft_split(path_env, ':');
-    i = 0;
-    while (paths[i])
-    {
-        part_path = ft_strjoin(paths[i], "/");
-        path = ft_strjoin(part_path, cmd);
-        free(part_path);
-
-        if (access(path, F_OK) == 0 && access(path, X_OK) == 0)
-        {
-            free_array(paths);
-            return path;
-        }
-
-        free(path);
-        i++;
-    }
-    free_array(paths);
-    return NULL;
+	if (!path_env)
+		return (NULL);
+	paths = ft_split(path_env, ':');
+	i = 0;
+	while (paths[i])
+	{
+		part_path = ft_strjoin(paths[i], "/");
+		path = ft_strjoin(part_path, cmd);
+		free(part_path);
+		if (access(path, F_OK) == 0 && access(path, X_OK) == 0)
+		{
+			free_array(paths);
+			return (path);
+		}
+		free(path);
+		i++;
+	}
+	free_array(paths);
+	return (NULL);
 }
 
 // Main find_path function
-char *find_path(char *cmd, char **envp)
+char	*find_path(char *cmd, char **envp)
 {
-    const char  *path_env;
-    int         i;
+	const char	*path_env;
+	int			i;
 
-    if (ft_strchr(cmd, '/'))
-    {
-        if (access(cmd, F_OK) == 0 && access(cmd, X_OK) == 0)
-            return ft_strdup(cmd);
-        return NULL;
-    }
-    i = 0;
-    path_env = NULL;
-    while (envp[i])
-    {
-        if (ft_strnstr(envp[i], "PATH=", 5))
-        {
-            path_env = envp[i] + 5;
-            break;
-        }
-        i++;
-    }
-    if (!envp[i])
-        return (try_cwd(cmd));
-    return (search_path_dirs(cmd, path_env));
+	if (ft_strchr(cmd, '/'))
+	{
+		if (access(cmd, F_OK) == 0 && access(cmd, X_OK) == 0)
+			return (ft_strdup(cmd));
+		return (NULL);
+	}
+	i = 0;
+	path_env = NULL;
+	while (envp[i])
+	{
+		if (ft_strnstr(envp[i], "PATH=", 5))
+		{
+			path_env = envp[i] + 5;
+			break ;
+		}
+		i++;
+	}
+	if (!envp[i])
+		return (try_cwd(cmd));
+	return (search_path_dirs(cmd, path_env));
 }

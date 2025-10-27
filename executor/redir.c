@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 16:02:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/16 12:23:44 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/23 22:03:30 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ static void	merge_fd_into_pipe(int src_fd, int dest_fd)
 	char	*line;
 
 	line = get_next_line(src_fd);
-	while(line)
+	while (line)
 	{
 		write(dest_fd, line, ft_strlen(line));
 		free(line);
@@ -103,16 +103,16 @@ void	handle_heredocs(t_command *cmd)
 }
 
 // handles outfile or errfile with the right append_mode and fd_type
-static void handle_redir_file(char *file, int append_mode, int fd_type)
+static void	handle_redir_file(char *file, int append_mode, int fd_type)
 {
-    int fd;
-	
+	int	fd;
+
 	fd = -1;
-    if (append_mode == 1)
-        fd = open(file, O_WRONLY | O_CREAT | O_APPEND, 0664);
-    else if (append_mode == 2)
-        fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    fd_check(fd, fd_type, file);
+	if (append_mode == 1)
+		fd = open(file, O_WRONLY | O_CREAT | O_APPEND, 0664);
+	else if (append_mode == 2)
+		fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	fd_check(fd, fd_type, file);
 }
 
 /* apply_redirections:
@@ -135,45 +135,47 @@ void	apply_redirections(t_command *cmd, t_env **env, int last_status)
 	if (cmd->infile)
 		handle_infile(&cmd->infile);
 	if (cmd->outfile)
-    {
-        expanded = expand_arg_keep_quotes_simple(cmd->outfile, *env, last_status);
-        free(cmd->outfile);
-        cmd->outfile = remove_quotes(expanded);
+	{
+		expanded = expand_arg_keep_quotes_simple(cmd->outfile,
+				*env, last_status);
+		free(cmd->outfile);
+		cmd->outfile = remove_quotes(expanded);
 		free(expanded);
 		handle_redir_file(cmd->outfile, cmd->append, cmd->fd_type);
-    }
-    if (cmd->errfile)
-    {
-        expanded = expand_arg_keep_quotes_simple(cmd->errfile, *env, last_status);
-        free(cmd->errfile);
-        cmd->errfile = remove_quotes(expanded);
+	}
+	if (cmd->errfile)
+	{
+		expanded = expand_arg_keep_quotes_simple(cmd->errfile,
+				*env, last_status);
+		free(cmd->errfile);
+		cmd->errfile = remove_quotes(expanded);
 		free(expanded);
-        handle_redir_file(cmd->errfile, cmd->append_err, cmd->fd_type);
-    }
+		handle_redir_file(cmd->errfile, cmd->append_err, cmd->fd_type);
+	}
 }
 
 /* set_redirection:
 Helper for parse_redirection.
 Sets cmd->outfile and cmd->append type based on the token.
 */
-static void set_redirection(t_command *cmd, t_token *token, int append_type)
+static void	set_redirection(t_command *cmd, t_token *token, int append_type)
 {
-    if (!token || token->type != TOKEN_WORD)
-        return;
-    if (cmd->fd_type == STDOUT_FILENO || cmd->fd_type == 3)
-    {
-        if (cmd->outfile)
-            free(cmd->outfile);
-        cmd->outfile = ft_strdup(token->val);
-        cmd->append = append_type;
-    }
-    if (cmd->fd_type == STDERR_FILENO || cmd->fd_type == 3)
-    {
-        if (cmd->errfile)
-            free(cmd->errfile);
-        cmd->errfile = ft_strdup(token->val);
-        cmd->append_err = append_type;
-    }
+	if (!token || token->type != TOKEN_WORD)
+		return ;
+	if (cmd->fd_type == STDOUT_FILENO || cmd->fd_type == 3)
+	{
+		if (cmd->outfile)
+			free(cmd->outfile);
+		cmd->outfile = ft_strdup(token->val);
+		cmd->append = append_type;
+	}
+	if (cmd->fd_type == STDERR_FILENO || cmd->fd_type == 3)
+	{
+		if (cmd->errfile)
+			free(cmd->errfile);
+		cmd->errfile = ft_strdup(token->val);
+		cmd->append_err = append_type;
+	}
 }
 
 /* set_fd_type:
@@ -190,44 +192,43 @@ static void	set_fd_type(t_command *cmd, t_token *cpy)
 		cmd->fd_type = 3;
 }
 
-void parse_redirection(t_command *cmd, t_token **cpy)
+void	parse_redirection(t_command *cmd, t_token **cpy)
 {
-    t_token *next;
-    int append_type;
+	t_token	*next;
+	int		append_type;
 
-    if (!*cpy)
-        return;
-
-    next = (*cpy)->next;
-    append_type = 2;
-    if ((*cpy)->type == TOKEN_REDIR_APPEND
-        || (*cpy)->type == TOKEN_REDIR_ERR_APPEND
-        || (*cpy)->type == TOKEN_REDIR_BOTH_APPEND)
-        append_type = 1;
-    set_fd_type(cmd, *cpy);
-    if ((*cpy)->type == TOKEN_REDIR_IN)
-    {
-        if (next && next->type == TOKEN_WORD)
-        {
-            if (cmd->infile)
-                free(cmd->infile);
-            cmd->infile = ft_strdup(next->val);
-        }
-    }
-    else if ((*cpy)->type == TOKEN_REDIR_OUT
-        || (*cpy)->type == TOKEN_REDIR_ERR
-        || (*cpy)->type == TOKEN_REDIR_BOTH
-        || (*cpy)->type == TOKEN_REDIR_APPEND
-        || (*cpy)->type == TOKEN_REDIR_ERR_APPEND
-        || (*cpy)->type == TOKEN_REDIR_BOTH_APPEND)
-    {
-        set_redirection(cmd, next, append_type);
-    }
-    else if ((*cpy)->type == TOKEN_HEREDOC)
-    {
-        if (next && next->type == TOKEN_WORD)
-            add_heredoc(cmd, next->val);
-    }
-    if (next)
-        *cpy = next;
+	if (!*cpy)
+		return ;
+	next = (*cpy)->next;
+	append_type = 2;
+	if ((*cpy)->type == TOKEN_REDIR_APPEND
+		|| (*cpy)->type == TOKEN_REDIR_ERR_APPEND
+		|| (*cpy)->type == TOKEN_REDIR_BOTH_APPEND)
+		append_type = 1;
+	set_fd_type(cmd, *cpy);
+	if ((*cpy)->type == TOKEN_REDIR_IN)
+	{
+		if (next && next->type == TOKEN_WORD)
+		{
+			if (cmd->infile)
+				free(cmd->infile);
+			cmd->infile = ft_strdup(next->val);
+		}
+	}
+	else if ((*cpy)->type == TOKEN_REDIR_OUT
+		|| (*cpy)->type == TOKEN_REDIR_ERR
+		|| (*cpy)->type == TOKEN_REDIR_BOTH
+		|| (*cpy)->type == TOKEN_REDIR_APPEND
+		|| (*cpy)->type == TOKEN_REDIR_ERR_APPEND
+		|| (*cpy)->type == TOKEN_REDIR_BOTH_APPEND)
+	{
+		set_redirection(cmd, next, append_type);
+	}
+	else if ((*cpy)->type == TOKEN_HEREDOC)
+	{
+		if (next && next->type == TOKEN_WORD)
+			add_heredoc(cmd, next->val);
+	}
+	if (next)
+		*cpy = next;
 }

@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/11 16:13:11 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/16 10:22:18 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/23 21:55:30 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,26 +48,27 @@ static void	mini_tee(t_command *cmd, int out_fd)
 	exit(0);
 }
 
-/*runs child - signal set up, apply redirections, etc - now also does dollar_expansion*/
-void run_child(t_command *cmd, t_env **env, int status)
+/*runs child - signal set up, apply redirections, etc - 
+now also does dollar_expansion*/
+void	run_child(t_command *cmd, t_env **env, int status)
 {
-    char **envp;
+	char	**envp;
 
-    cmd->in_child = 1;
-    child_signal_setup();
-    apply_redirections(cmd, env, status);
-    if (!cmd->args || !cmd->args[0])
-        exit(EXIT_SUCCESS);
-    if (cmd->args && cmd->args[0])
-        dollar_expansion(cmd, env, status);
-    if (cmd->outfile && cmd->next)
-        mini_tee(cmd, -1);
-    if (run_builtin(cmd, env, status) == -1)
-    {
-        envp = struct_to_envp(*env, 1);
-        execute(cmd->args, envp);
-    }
-    exit(EXIT_SUCCESS);
+	cmd->in_child = 1;
+	child_signal_setup();
+	apply_redirections(cmd, env, status);
+	if (!cmd->args || !cmd->args[0])
+		exit(EXIT_SUCCESS);
+	if (cmd->args && cmd->args[0])
+		dollar_expansion(cmd, env, status);
+	if (cmd->outfile && cmd->next)
+		mini_tee(cmd, -1);
+	if (run_builtin(cmd, env, status) == -1)
+	{
+		envp = struct_to_envp(*env, 1);
+		execute(cmd->args, envp);
+	}
+	exit(EXIT_SUCCESS);
 }
 
 /* parent_process:
@@ -152,6 +153,7 @@ Executes a linked list of commands connected by pipes.
 		parent if standalone (handled elsewhere)
 - Waits for all children at the end
 */
+
 int	run_pipeline(t_command *cmds, t_env **env, int status)
 {
 	t_command	*cmd;
