@@ -27,7 +27,7 @@ void	update_shlvl(t_env **env)
 	lvl_str = get_env_value(env, "SHLVL");
 	lvl = 1;
 	if (lvl_str)
-		lvl = ft_atoi(lvl_str) + 1;
+		lvl = ft_atoi(lvl_str);
 	if (lvl < 0)
 		lvl = 0;
 	else if (lvl >= 1000)
@@ -43,6 +43,18 @@ void	update_shlvl(t_env **env)
 	free(to_set);
 }
 
+void	update_last_command(t_env **env, char *last_cmd)
+{
+	char	*to_set;
+
+	if (!last_cmd)
+		return ;
+	to_set = ft_strjoin("_=", last_cmd);
+	if (!to_set)
+		return ;
+	update_var(to_set, env);
+	free(to_set);
+}
 /* handle_input:
    Parses a full command line input.
    Puts input into tokens and commands.
@@ -88,6 +100,7 @@ void	init_main_vars(int *params, char **argv, t_env **env, char **envp)
 	if (!env)
 		error("environment: struct not built.");
 	update_shlvl(env);
+	update_last_command(env, "./minishell");
 	init_signals();
 	disable_ctrl_echo();
 }

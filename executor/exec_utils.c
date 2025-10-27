@@ -99,6 +99,7 @@ int	prepare_builtin_exec(t_command *cmds, t_env **env, int status)
 	saved_stdout = dup(STDOUT_FILENO);
 	saved_stderr = dup(STDERR_FILENO);
 	apply_redirections(cmds, env, status);
+	update_last_command(env, cmds->args[0]);
 	ret = run_builtin(cmds, env, status);
 	dup2(saved_stdout, STDOUT_FILENO);
 	dup2(saved_stderr, STDERR_FILENO);

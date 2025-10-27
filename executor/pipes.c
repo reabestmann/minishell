@@ -65,6 +65,8 @@ void	run_child(t_command *cmd, t_env **env, int status)
 		mini_tee(cmd, -1);
 	if (run_builtin(cmd, env, status) == -1)
 	{
+		if (cmd->args && cmd-> args[0])
+			update_last_command(env, cmd->args[0]);
 		envp = struct_to_envp(*env, 1);
 		execute(cmd->args, envp);
 	}

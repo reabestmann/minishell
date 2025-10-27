@@ -160,10 +160,18 @@ Sets cmd->outfile and cmd->append type based on the token.
 */
 static void	set_redirection(t_command *cmd, t_token *token, int append_type)
 {
+	int	fd;
+	
 	if (!token || token->type != TOKEN_WORD)
 		return ;
 	if (cmd->fd_type == STDOUT_FILENO || cmd->fd_type == 3)
 	{
+		if (append_type == 1)
+			fd = open(token->val, O_WRONLY | O_CREAT | O_APPEND, 0644);
+		else
+			fd = open(token->val, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		if (fd >= 0)
+			close(fd);
 		if (cmd->outfile)
 			free(cmd->outfile);
 		cmd->outfile = ft_strdup(token->val);

@@ -19,90 +19,24 @@
 */
 int	delimiter_was_quoted(const char *delimiter)
 {
-	int	len;
+	int	s_quote;
+	int	d_quote;
 
-	len = ft_strlen(delimiter);
-	return (len >= 2 && ((delimiter[0] == '\'' && delimiter[len - 1] == '\'')
-			|| (delimiter[0] == '"' && delimiter[len - 1] == '"')));
-}
-
-/* get_trimmed_delimiter:
-   Removes surrounding quotes from heredoc delimiter if present.
-   - Returns newly allocated string with quotes stripped.
-   - If not quoted, returns a strdup of original delimiter.
-
-char	*get_trimmed_delimiter(const char *delimiter)
-{
-	int	len;
-
-	len = ft_strlen(delimiter);
-	if (len >= 2 && ((delimiter[0] == '\'' && delimiter[len - 1] == '\'')
-			|| (delimiter[0] == '"' && delimiter[len - 1] == '"')))
-		return (ft_substr(delimiter, 1, len - 2));
-	return (ft_strdup(delimiter));
-}
-
-   run_heredoc:
-   Reads one line of heredoc input.
-   - Prompts with "> ".
-   - If line matches trimmed delimiter → return 1 (stop).
-   - Otherwise, expand (if expand==1), write line to fd, and continue.
-   - Returns 0 if more lines expected.
-
-static int	run_heredoc(char *trimmed, int expand, int fd)
-{
-	char	*line;
-	char	*processed;
-
-	line = readline("> ");
-	if (!line)
-		return (1);
-	if (str_equals(line, trimmed))
+	s_quote = 0;
+	d_quote = 0;
+	while (*delimiter)
 	{
-		free(line);
-		return (1);
+		if (*delimiter == '\'')
+			s_quote++;
+		if (*delimiter == '"')
+			d_quote++;
+		delimiter++;
 	}
-	processed = process_line(line, expand);
-	if (!processed)
-		return (free(line), 1);
-	ft_putstr_fd(processed, fd);
-	ft_putstr_fd("\n", fd);
-	free(processed);
+	if ((s_quote != 0 && (s_quote % 2 == 0))
+		|| (d_quote != 0 && (d_quote % 2 == 0)))
+		return (1);
 	return (0);
 }
-
- write_heredoc:
-   Creates and fills a temporary file for one heredoc.
-   - Opens a unique .heredoc_tmp file for writing.
-   - Reads lines until the given delimiter is found.
-   - Expands variables if allowed (expand==1).
-   - Writes all valid lines to the file.
-   - Returns the fd opened for reading the heredoc content.
-
-
-void	write_heredoc(const char *delimiter, int first)
-{
-	int fd;
-	char *trimmed;
-	int expand;
-
-	trimmed = get_trimmed_delimiter(delimiter);
-	expand = !delimiter_was_quoted(delimiter);
-
-	if (first)
-		fd = open(HEREDOC_TMP, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	else
-		fd = open(HEREDOC_TMP, O_WRONLY | O_CREAT | O_APPEND, 0644);
-	if (fd < 0)
-		error("heredoc");
-
-	while (1)
-		if (run_heredoc(trimmed, expand, fd) == 1)
-			break;
-
-	close(fd);
-	free(trimmed);
-}*/
 
 void	add_heredoc(t_command *cmd, const char *delimiter)
 {

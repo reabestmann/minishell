@@ -159,6 +159,7 @@ char		*get_next_line(int fd);
 int			get_exit_status(int status);
 int			str_equals(const char *str, const char *target);
 void		*handle_malloc(size_t bytes);
+void		update_last_command(t_env **env, char *last_cmd);
 /* error.c */
 void		error(const char *msg);
 void		exec_error_custom(const char *cmd, const char *msg, int status);
