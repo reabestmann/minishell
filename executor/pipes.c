@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/11 16:13:11 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/23 21:55:30 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/27 22:45:31 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,6 +156,14 @@ Executes a linked list of commands connected by pipes.
 - Waits for all children at the end
 */
 
+static void	init_vars(t_command **cmd, int *prev_fd,
+	pid_t *last_pid, t_command *cmds)
+{
+	*cmd = cmds;
+	*prev_fd = -1;
+	*last_pid = 0;
+}
+
 int	run_pipeline(t_command *cmds, t_env **env, int status)
 {
 	t_command	*cmd;
@@ -164,9 +172,7 @@ int	run_pipeline(t_command *cmds, t_env **env, int status)
 	pid_t		pid;
 	pid_t		last_pid;
 
-	cmd = cmds;
-	prev_fd = -1;
-	last_pid = 0;
+	init_vars(&cmd, &prev_fd, &last_pid, cmds);
 	while (cmd)
 	{
 		pid = init_pipes(pipe_fd, cmd);
@@ -184,6 +190,5 @@ int	run_pipeline(t_command *cmds, t_env **env, int status)
 	}
 	if (prev_fd != -1)
 		close(prev_fd);
-	status = wait_for_last(last_pid);
-	return (status);
+	return (wait_for_last(last_pid));
 }

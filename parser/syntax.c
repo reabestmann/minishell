@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/20 18:06:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/23 20:48:46 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/27 20:59:52 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,13 +34,13 @@ static int	check_redirection_syntax(t_token *token)
 	return (0);
 }*/
 
-static int	is_redirection_token(int type)
+static int	is_redir_token(int type)
 {
 	return (type == TOKEN_REDIR_OUT || type == TOKEN_REDIR_IN
 		|| type == TOKEN_REDIR_APPEND || type == TOKEN_HEREDOC);
 }
 
-static int	check_redirection_syntax(t_token *token)
+static int	check_redir_syntax(t_token *token)
 {
 	if (!token->next)
 	{
@@ -48,7 +48,7 @@ static int	check_redirection_syntax(t_token *token)
 		return (-1);
 	}
 	if (token->next->type != TOKEN_WORD
-		&& !is_redirection_token(token->next->type))
+		&& !is_redir_token(token->next->type))
 	{
 		ft_putstr_fd("minishell: parse error near redirection\n", 2);
 		return (-1);
@@ -95,22 +95,17 @@ int	syntax_valid(t_token *tokens)
 	{
 		set_state_str(cpy->val, &state);
 		if (cpy->type != TOKEN_WORD && state == 0)
-		{
-			if (check_pipe_syntax(cpy) == -1)
+			if (check_pipe_syntax(cpy) == -1 || check_redir_syntax(cpy) == -1)
 				return (2);
-			if (check_redirection_syntax(cpy) == -1)
-				return (2);
-		}
-		if (is_redirection_token(cpy->type) && cpy->next)
+		if (is_redir_token(cpy->type) && cpy->next)
 		{
 			if (cpy->next->type == TOKEN_PIPE
-				|| is_redirection_token(cpy->next->type))
+				|| is_redir_token(cpy->next->type))
 			{
 				ft_putstr_fd("minishell: parse error near redirection\n", 2);
 				return (2);
 			}
 		}
-		// todo: add more syntax checks that might be missing
 		cpy = cpy->next;
 	}
 	return (0);

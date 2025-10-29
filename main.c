@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:53:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/23 20:42:22 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/27 21:04:35 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ void	update_last_command(t_env **env, char *last_cmd)
    gets called by: main
    calls: lexer, parser, executor, free_commands, free_tokens
 */
+
 int	handle_input(char *input, t_env **env, int status)
 {
 	t_token		*tokens;
