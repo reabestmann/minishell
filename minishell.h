@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/23 20:45:10 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/30 20:08:23 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@
 # include "libft.h"
 # include "structs.h"
 
-#define HEREDOC_TMP ".heredoc_tmp"
+# define HEREDOC_TMP ".heredoc_tmp"
 
 extern volatile sig_atomic_t	g_sigint_received;
 

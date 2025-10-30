@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/16 17:34:46 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/27 22:33:13 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/30 20:06:15 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -585,7 +585,59 @@ static void	replace_single_arg(t_command *cmd, int *i, char *expanded)
 	(*i)++;
 }
 
+static int	handle_empty_first_arg(t_command *cmd, int i, char *exp)
+{
+	if (i == 0 && exp && exp[0] == '\0' && !cmd->args[1])
+	{
+		free(cmd->args[0]);
+		cmd->args = NULL;
+		cmd->expand_empty = 1;
+		return (1);
+	}
+	return (0);
+}
+
+static int	process_expansion_arg(t_command *cmd, t_env **head,
+		int last_status, int *i)
+{
+	int		unq;
+	char	*exp;
+	int		added;
+
+	unq = 0;
+	exp = expand_arg_keep_quotes(cmd->args[*i], *head, last_status, &unq);
+	if (!exp)
+	{
+		(*i)++;
+		return (1);
+	}
+	if (handle_empty_first_arg(cmd, *i, exp))
+		return (0);
+	if (unq && (ft_strchr(exp, ' ') || ft_strchr(exp, '\t')
+			|| ft_strchr(exp, '\n')))
+	{
+		added = split_and_replace(cmd, i, exp);
+		if (added == -1)
+			return (0);
+	}
+	else
+		replace_single_arg(cmd, i, exp);
+	return (1);
+}
+
 void	dollar_expansion(t_command *cmd, t_env **head, int last_status)
+{
+	int	i;
+
+	i = 0;
+	while (cmd->args && cmd->args[i])
+	{
+		if (!process_expansion_arg(cmd, head, last_status, &i))
+			return ;
+	}
+}
+
+/*void	dollar_expansion(t_command *cmd, t_env **head, int last_status)
 {
 	int		i;
 	int		unq;
@@ -619,7 +671,7 @@ void	dollar_expansion(t_command *cmd, t_env **head, int last_status)
 		else
 			replace_single_arg(cmd, &i, exp);
 	}
-}
+}*/
 
 /*dollar_expansion:
 - Applies expansion to all command arguments

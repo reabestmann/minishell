@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:03:05 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/23 16:29:56 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/30 20:22:23 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,8 +128,83 @@ int	is_valid_unset_key(char *key)
 	return (1);
 }
 
-// 0 if all ok, 2 for invalid identifiers, 127 for syntax-like errors
+
+static int	handle_invalid_key(char *arg)
+{
+	ft_putstr_fd("mini: unset: `", 2);
+	ft_putstr_fd(arg, 2);
+	ft_putendl_fd("': command not found", 2);
+	return (127);
+}
+
+static int	handle_invalid_identifier(char *arg)
+{
+	ft_putstr_fd("mini: unset: `", 2);
+	ft_putstr_fd(arg, 2);
+	ft_putendl_fd("': not a valid identifier", 2);
+	return (2);
+}
+
+static void	remove_env_var(t_env **env, char *key)
+{
+	t_env	*current;
+	t_env	*previous;
+
+	current = *env;
+	previous = NULL;
+	while (current)
+		current = find_and_delete_node(env, current, &previous, key);
+}
+
+static void	handle_unset_arg(t_command *cmd, t_env **env, int *ret, int *i)
+{
+	int	valid;
+	int	err;
+
+	valid = is_valid_unset_key(cmd->args[*i]);
+	if (valid == -1)
+	{
+		*ret = handle_invalid_key(cmd->args[*i]);
+		(*i)++;
+		return ;
+	}
+	else if (!valid)
+	{
+		err = handle_invalid_identifier(cmd->args[*i]);
+		if (*ret < err)
+			*ret = err;
+		(*i)++;
+		return ;
+	}
+	remove_env_var(env, cmd->args[*i]);
+	(*i)++;
+}
+
 int	unset_cmd(t_command *cmd, t_env **env)
+{
+	int	i;
+	int	ret;
+
+	if (!cmd || !env)
+		return (1);
+	if (!cmd->args[1])
+		return (0); 
+	ret = 0;
+	i = 1;
+	while (cmd->args[i])
+	{
+		if (cmd->args[i][0] == '\0')
+		{
+			i++;
+			continue ;
+		}
+		handle_unset_arg(cmd, env, &ret, &i);
+	}
+	return (ret);
+}
+
+// 0 if all ok, 2 for invalid identifiers, 127 for syntax-like errors
+/*int	unset_cmd(t_command *cmd, t_env **env)
 {
 	t_env	*current;
 	t_env	*previous;
@@ -176,7 +251,7 @@ int	unset_cmd(t_command *cmd, t_env **env)
 		i++;
 	}
 	return (ret);
-}
+}*/
 /*
 int	unset_cmd(t_command *cmd, t_env **env)
 {
