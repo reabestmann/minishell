@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/23 16:49:05 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/30 19:59:08 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,8 @@ void	execute(t_command *cmds, int *status, char **envp)
 	if (cmds->args[0][0] == '\0')
 		exec_error_custom("''", "command not found", 127);
 	trim_empty_args(cmds->args);
-	if (cmds->args[0][0] == '/' || (cmds->args[0][0] == '.' && cmds->args[0][1] == '/'))
+	if (cmds->args[0][0] == '/'
+		|| (cmds->args[0][0] == '.' && cmds->args[0][1] == '/'))
 		path = ft_strdup(cmds->args[0]);
 	else
 		path = find_path(cmds->args[0], envp);

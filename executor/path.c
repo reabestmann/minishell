@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 14:45:16 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/23 16:41:29 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/30 19:50:46 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,31 @@
  * also returns simple error - which doesnt include mini in 
  * front for command not found
 */
+static void	exec_error_and_free(char *arg, char *path, char *msg, int code)
+{
+	free(path);
+	exec_error_custom(arg, msg, code);
+}
+
 void	check_executable(char **args, char *path)
+{
+	struct stat	sb;
+
+	if (!path)
+		exec_error_custom(args[0], "command not found", 127);
+	if (stat(path, &sb) == -1)
+		exec_error_and_free(args[0], path, "command not found", 127);
+	if (S_ISDIR(sb.st_mode))
+	{
+		if (is_special_dir(args[0]))
+			exec_error_and_free(args[0], path, "command not found", 127);
+		else
+			exec_error_and_free(args[0], path, "Is a directory", 126);
+	}
+	if (access(path, X_OK) == -1)
+		exec_error_and_free(args[0], path, "Permission denied", 126);
+}
+/*void	check_executable(char **args, char *path)
 {
 	struct stat	sb;
 
@@ -55,7 +79,7 @@ void	check_executable(char **args, char *path)
 		free(path);
 		exec_error_custom(args[0], "Permission denied", 126);
 	}
-}
+}*/
 
 static char	*try_cwd(const char *cmd)
 {
