@@ -94,8 +94,6 @@ int	run_command(t_command *cmds, t_env **env, int status)
 		return (0);
 	if (has_dollar(cmds->args))
 		dollar_expansion(cmds, env, status);
-	if (collect_heredocs(cmds, status) < 0)
-		return (1);
 	if (!cmds->in_child)
 	{
 		if (cmds->next)

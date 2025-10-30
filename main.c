@@ -65,31 +65,40 @@ void	update_last_command(t_env **env, char *last_cmd)
    gets called by: main
    calls: lexer, parser, executor, free_commands, free_tokens
 */
-
-int	handle_input(char *input, t_env **env, int status)
+int handle_input(char *input, t_env **env, int status)
 {
-	t_token		*tokens;
-	t_command	*cmds;
-	int			valid;
+    t_token     *tokens;
+    t_command   *cmds;
+    int         valid;
 
 	tokens = lexer(input);
 	if (!tokens)
-		return (0);
-	valid = syntax_valid(tokens);
-	if (valid > 0)
+	    return (0);
+	cmds = parser(tokens);
+	if (!cmds)
 	{
 		free_tokens(tokens);
+		return(1);
+	}
+    valid = syntax_valid(tokens);
+     if (collect_heredocs(cmds, status) < 0)
+	{
+		free_commands(cmds);
+		free_tokens(tokens);
+		return (1);
+	}
+	if (valid > 0)
+	{
+		free_heredocs(cmds);
+		free_tokens(tokens);
+		free_commands(cmds);
 		return (valid);
 	}
-	cmds = parser(tokens);
-	if (cmds)
-	{
-		status = run_command(cmds, env, status);
-		free_heredocs(cmds);
-		free_commands(cmds);
-	}
-	free_tokens(tokens);
-	return (status);
+	status = run_command(cmds, env, status);
+	free_heredocs(cmds);
+	free_commands(cmds);
+    free_tokens(tokens);
+    return (status);
 }
 
 /*initiates everything */
