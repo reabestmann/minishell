@@ -108,7 +108,7 @@ int	prepare_builtin_exec(t_command *cmds, t_env **env, int status)
 	return (ret);
 }
 
-/*trims empty args so that the other args are usable in execute*/
+/*trims empty args so that the other args are usable in execute */
 void	trim_empty_args(char **args)
 {
 	int	i;

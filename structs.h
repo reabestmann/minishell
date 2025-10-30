@@ -48,6 +48,7 @@ typedef struct s_command
 	int					modifies_shell;
 	int					in_child;
 	int					fd_type;
+	int					expand_empty;
 	struct s_command	*next;
 }	t_command;
 

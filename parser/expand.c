@@ -602,6 +602,13 @@ void	dollar_expansion(t_command *cmd, t_env **head, int last_status)
 			i++;
 			continue ;
 		}
+		if (i == 0 && exp[0] == '\0' && !cmd->args[1])
+		{
+			free(cmd->args[0]);
+			cmd->args = NULL;
+			cmd->expand_empty = 1;
+			return ;
+		}
 		if (unq && (ft_strchr(exp, ' ') || ft_strchr(exp, '\t')
 				|| ft_strchr(exp, '\n')))
 		{

@@ -77,7 +77,7 @@ char		*find_env_value(t_env *head, char *key);
 char		*append_normal_text(char *text, char *result);
 /* executor/ 
  * exec.c */
-void		execute(char **args, char **envp);
+void		execute(t_command *cmds, int *status, char **envp);
 int			run_command(t_command *cmds, t_env **env, int status);
 /* path.c */
 char		*find_path(char *cmd, char **envp);

@@ -63,62 +63,6 @@ static void	append_token(t_token **head, t_token *new_token)
 	}
 }
 
-/* handle_stype
-	Handles special operator tokens (>, >>, <, <<, |).
-	Determines the correct token type and length.
-	Creates and appends the new token to the token list.
-	Returns number of characters consumed (1 or 2)
-
-typedef enum e_token_type
-{
-	TOKEN_WORD,
-	TOKEN_PIPE,
-	TOKEN_REDIR_IN,
-	TOKEN_REDIR_OUT,
-	TOKEN_REDIR_APPEND,
-	TOKEN_REDIR_ERR,
-	TOKEN_REDIR_ERR_APPEND,
-	TOKEN_REDIR_BOTH,
-	TOKEN_REDIR_BOTH_APPEND,
-	TOKEN_HEREDOC
-}	t_token_type;
-
-*/
-
-/*static int	handle_else(const char *str, t_token_type	*type)
-{
-	if (str[0] == '2' && str[1] == '>')
-	{
-		if (str[2] == '>')
-		{
-			*type = TOKEN_REDIR_ERR_APPEND;
-			return (3);
-		}
-		*type = TOKEN_REDIR_ERR;
-		return (2);
-	}
-	else if (str[0] == '&' && str[1] == '>')
-	{
-		if (str[2] == '>')
-		{
-			*type = TOKEN_REDIR_BOTH_APPEND;
-			return (3);
-		}
-		*type = TOKEN_REDIR_BOTH;
-		return (2);
-	}
-	else if (str[0] == '1' && str[1] == '>')
-	{
-		if (str[2] == '>')
-		{
-			*type = TOKEN_REDIR_APPEND;
-			return (3);
-		}
-		*type = TOKEN_REDIR_OUT;
-		return (2);
-	}
-	return (1);
-}*/
 static int	handle_redir_err(const char *str, t_token_type *type)
 {
 	if (str[2] == '>')

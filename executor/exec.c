@@ -35,23 +35,26 @@
    5. Call execve() with args/envp.
    6. On execve fail, free path and exit(1).
 */
-void	execute(char **args, char **envp)
+void	execute(t_command *cmds, int *status, char **envp)
 {
 	char	*path;
 
-	if (!args || !args[0])
+	if (!cmds->args || !cmds->args[0] || cmds->expand_empty)
+	{
+		*status = 0;
 		return ;
-	trim_empty_args(args);
-	if (!args[0] || args[0][0] == '\0')
-		return ;
-	if (args[0][0] == '/' || (args[0][0] == '.' && args[0][1] == '/'))
-		path = ft_strdup(args[0]);
+	}
+	if (cmds->args[0][0] == '\0')
+		exec_error_custom("''", "command not found", 127);
+	trim_empty_args(cmds->args);
+	if (cmds->args[0][0] == '/' || (cmds->args[0][0] == '.' && cmds->args[0][1] == '/'))
+		path = ft_strdup(cmds->args[0]);
 	else
-		path = find_path(args[0], envp);
-	check_executable(args, path);
-	execve(path, args, envp);
+		path = find_path(cmds->args[0], envp);
+	check_executable(cmds->args, path);
+	execve(path, cmds->args, envp);
 	free(path);
-	exec_error(args[0], 1);
+	exec_error(cmds->args[0], 1);
 }
 
 /* fork_process: 
@@ -102,10 +105,6 @@ int	run_command(t_command *cmds, t_env **env, int status)
 		{
 			if (cmds->modifies_shell && cmds->args && cmds->args[0])
 				return (prepare_builtin_exec(cmds, env, status));
-			if (cmds->args && ft_strlen(cmds->args[0]) == 2
-				&& ((cmds->args[0][0] == '"' && cmds->args[0][1] == '"') ||
-				(cmds->args[0][0] == '\'' && cmds->args[0][1] == '\'')))
-				exec_error_custom("", "command not found", 127);
 			return (fork_process(cmds, env, status));
 		}
 		else
