@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 15:58:45 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/23 16:51:03 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/30 19:59:38 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,78 @@ static char	*check_expand_line(char *line, int expand, int status)
 	return (result);
 }
 
+static void	print_heredoc_prompt(void)
+{
+	int	tty_fd;
+
+	tty_fd = open("/dev/tty", O_WRONLY);
+	if (tty_fd >= 0)
+	{
+		ft_putstr_fd("> ", tty_fd);
+		close(tty_fd);
+	}
+}
+
+static int	is_delimiter_line(char *line, char *trimmed_delim)
+{
+	char	*trimmed_line;
+	int		match;
+
+	trimmed_line = ft_strtrim(line, "\n");
+	match = str_equals(trimmed_line, trimmed_delim);
+	free(trimmed_line);
+	return (match);
+}
+
+static void	process_and_write_line(char *line, int expand,
+	int status, int write_fd)
+{
+	line = check_expand_line(line, expand, status);
+	write(write_fd, line, ft_strlen(line));
+	free(line);
+}
+
+//returns 1 if sigint was received, 0 otherwise
+static int	handle_sigint_in_heredoc(char *line, char *trimmed_delim)
+{
+	if (g_sigint_received)
+	{
+		free(line);
+		free(trimmed_delim);
+		return (1);
+	}
+	return (0);
+}
+
 static int	write_heredoc(char *delim, int write_fd, int status)
+{
+	char	*line;
+	char	*trimmed_delim;
+	int		expand;
+
+	trimmed_delim = remove_quotes(delim);
+	expand = !delimiter_was_quoted(delim);
+	g_sigint_received = 0;
+	while (1)
+	{
+		print_heredoc_prompt();
+		line = get_next_line(STDIN_FILENO);
+		if (!line)
+			break ;
+		if (handle_sigint_in_heredoc(line, trimmed_delim))
+			return (-1);
+		if (is_delimiter_line(line, trimmed_delim))
+		{
+			free(line);
+			break ;
+		}
+		process_and_write_line(line, expand, status, write_fd);
+	}
+	free(trimmed_delim);
+	return (0);
+}
+
+/*static int	write_heredoc(char *delim, int write_fd, int status)
 {
 	char	*line;
 	char	*trimmed_delim;
@@ -104,7 +175,7 @@ static int	write_heredoc(char *delim, int write_fd, int status)
 	}
 	free(trimmed_delim);
 	return (0);
-}
+}*/
 
 int	apply_heredocs(t_command *cmd, int status)
 {
