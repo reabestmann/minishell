@@ -17,15 +17,30 @@
    prev_fd: read end from previous command (or -1 if none)
    pipe_fd: current pipe
    cmd: current command node
+   Sets up stdin/stdout using dup2 for the pipeline, and closes
+   unused pipe ends in this child.  <-- This ensures that writing
+   processes (like 'yes') receive SIGPIPE when the downstream
+   reader exits, preventing infinite loops in the pipeline.
 */
 static void	apply_pipes(int prev_fd, int pipe_fd[2], t_command *cmd)
 {
 	if (prev_fd != -1 && !cmd->heredoc_count)
 		fd_check(prev_fd, STDIN_FILENO, "pipe read");
 	if (cmd->next)
+	{
 		fd_check(pipe_fd[1], STDOUT_FILENO, "pipe write");
+		if (pipe_fd[0] != -1)
+			close(pipe_fd[0]);
+	}
 }
 
+/* mini_tee:
+ * Mini version of the Unix 'tee' command for pipelines.
+ * Reads from standard input, writes each line to both:
+ *   1) STDOUT (to continue the pipeline)
+ *   2) A file specified in cmd->outfile (append or truncate)
+ * Used for commands that have both an outfile and a next command in the pipeline.
+ */
 static void	mini_tee(t_command *cmd, int out_fd)
 {
 	char	*line;

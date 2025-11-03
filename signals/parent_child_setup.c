@@ -13,7 +13,7 @@
 #include "../minishell.h"
 
 /*here I set up sigaction struct so default actions occur instead of what we 
-	had in main and then execute SIGINT and SIGQUIT signals in child*/
+	had in main and then execute SIGINT, SIGQUIT and SIGPIPE signals in child*/
 void	child_signal_setup(void)
 {
 	struct sigaction	sa;
@@ -29,6 +29,11 @@ void	child_signal_setup(void)
 	if (sigaction(SIGQUIT, &sa, NULL) == -1)
 	{
 		write(2, "error with sigquit \n", 19);
+		exit(1);
+	}
+	if (sigaction(SIGPIPE, &sa, NULL) == -1)
+	{
+		write(2, "error with sigpipe\n", 19);
 		exit(1);
 	}
 }

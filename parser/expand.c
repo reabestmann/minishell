@@ -123,41 +123,6 @@ char	**ft_split_whitespace(const char *str)
 	return (result);
 }
 
-/*char	**ft_split_whitespace(const char *str)
-{
-	char		**result;
-	int			i;
-	const char	*start;
-
-	i = 0;
-	if (!str)
-		return (NULL);
-	result = malloc((count_words(str) + 1) * sizeof(char *));
-	if (!result)
-		return (NULL);
-	while (*str)
-	{
-		while (*str && is_ifs_char(*str))
-			str++;
-		if (*str)
-		{
-			start = str;
-			while (*str && !is_ifs_char(*str))
-				str++;
-			result[i++] = dup_word(start, str);
-			if (!result[i - 1])
-			{
-				while (i > 0)
-					free(result[--i]);
-				free(result);
-				return (NULL);
-			}
-		}
-	}
-	result[i] = NULL;
-	return (result);
-}*/
-
 /* replace_arg_with_splits:
 **   Replaces cmd->args[idx] with multiple parts (from ft_split_whitespace),
 **   preserving the other arguments. Frees the old argument being replaced.
@@ -221,49 +186,6 @@ int	replace_arg_with_splits(t_command *cmd, int idx, char **parts)
 	return (0);
 }
 
-/*int	replace_arg_with_splits(t_command *cmd, int idx, char **parts)
-{
-	t_split_replace	c;
-
-	c.old_args = cmd->args;
-	c.old_len = 0;
-	c.parts_len = 0;
-	while (c.old_args && c.old_args[c.old_len])
-		c.old_len++;
-	while (parts && parts[c.parts_len])
-		c.parts_len++;
-	c.new_len = c.old_len - 1 + c.parts_len;
-	if (c.new_len < 0)
-		c.new_len = 0;
-	c.new_args = malloc((c.new_len + 1) * sizeof(char *));
-	if (!c.new_args)
-		return (1);
-	c.dst = 0;
-	c.i = 0;
-	while (c.i < idx && c.i < c.old_len)
-	{
-		c.new_args[c.dst++] = c.old_args[c.i];
-		c.i++;
-	}
-	free(c.old_args[idx]);
-	c.i = 0;
-	while (c.i < c.parts_len)
-	{
-		c.new_args[c.dst++] = parts[c.i];
-		c.i++;
-	}
-	c.i = idx + 1;
-	while (c.i < c.old_len)
-	{
-		c.new_args[c.dst++] = c.old_args[c.i];
-		c.i++;
-	}
-	c.new_args[c.dst] = NULL;
-	free(c.old_args);
-	cmd->args = c.new_args;
-	return (0);
-}*/
-
 /*
 Call Diagram (Textual / Visual)
 dollar_expansion(cmd)
@@ -293,42 +215,6 @@ Quote Handling Rules:
     - Not inside single quotes
 - Unclosed quotes are allowed; processing stops safely at string end
 */
-
-/* expand_one_arg:
-- Purpose: Expand one $ token (VAR or ?)
-- Calls: append_key_value, append_result, append_normal_text
-- Returns: New allocated string with expansion
-- Handles $?, $VAR, and lone $ at end of string
-*/
-/*char	*expand_one_arg(char *arg, int *i, t_env *head, int last_status)
-{
-	char	*result;
-	char	*tmp;
-
-	result = ft_strdup("");
-	if (!result)
-		return (NULL);
-	(*i)++;
-	if (!arg[*i])
-		return (append_normal_text("$", result));
-	if (arg[*i] == '?')
-	{
-		result = append_result(head, NULL, result, last_status);
-		(*i)++;
-	}
-	else
-	{
-		tmp = append_key_value(head, arg, i, result);
-		if (!tmp)
-		{
-			tmp = append_normal_text("", result);
-			if (!tmp)
-				return (free(result), NULL);
-		}
-		result = tmp;
-	}
-	return (result);
-}*/
 
 static char	*append_empty_safely(char *result)
 {
@@ -370,33 +256,6 @@ char	*expand_one_arg(char *arg, int *i, t_env *head, int last_status)
 	}
 	return (result);
 }
-
-/*OG*/
-/*char	*expand_one_arg(char *arg, int *i, t_env *head, int last_status)
-{
-	char	*result;
-	char	*tmp;
-
-	result = ft_strdup("");
-	if (!result)
-		return (NULL);
-	(*i)++;
-	if (!arg[*i])
-		return (append_normal_text("$", result));
-	if (arg[*i] == '?')
-	{
-		result = append_result(head, NULL, result, last_status);
-		(*i)++;
-	}
-	else
-	{
-		tmp = append_key_value(head, arg, i, result);
-		if (!tmp)
-			return (free(result), NULL);
-		result = tmp;
-	}
-	return (result);
-}*/
 
 /*handle_normal_txt:
 - Copies literal characters until a special character ($, ', ")
@@ -501,63 +360,6 @@ char	*expand_arg_keep_quotes(char *arg, t_env *head,
 	return (result);
 }
 
-/*char	*expand_arg_keep_quotes(char *arg, t_env *head,
-	int last_status, int *had_unquoted)
-{
-	int		i;
-	char	state;
-	char	*result;
-	char	*tmp;
-	char	c[2];
-
-	i = 0;
-	state = 0;
-	result = ft_strdup("");
-	if (!result)
-		return (NULL);
-	if (had_unquoted)
-		*had_unquoted = 0;
-	while (arg[i])
-	{
-		if (arg[i] == '\'' || arg[i] == '"')
-		{
-			if (state == 0)
-				state = arg[i];
-			else if (state == arg[i])
-				state = 0;
-			c[0] = arg[i];
-			c[1] = '\0';
-			result = append_normal_text(c, result);
-			i++;
-		}
-		else if (arg[i] == '$' && state != '\'')
-		{
-			tmp = expand_one_arg(arg, &i, head, last_status);
-			if (!tmp)
-			{
-				free(result);
-				return (NULL);
-			}
-			if (state == 0 && had_unquoted)
-			{
-				if (ft_strchr(tmp, ' ') || ft_strchr(tmp, '\t')
-					|| ft_strchr(tmp, '\n'))
-					*had_unquoted = 1;
-			}
-			result = append_normal_text(tmp, result);
-			free(tmp);
-		}
-		else
-		{
-			c[0] = arg[i];
-			c[1] = '\0';
-			result = append_normal_text(c, result);
-			i++;
-		}
-	}
-	return (result);
-}*/
-
 static int	split_and_replace(t_command *cmd, int *i, char *expanded)
 {
 	char	**parts;
@@ -589,9 +391,10 @@ static int	handle_empty_first_arg(t_command *cmd, int i, char *exp)
 {
 	if (i == 0 && exp && exp[0] == '\0' && !cmd->args[1])
 	{
-		free(cmd->args[0]);
+		free_array(cmd->args);
 		cmd->args = NULL;
 		cmd->expand_empty = 1;
+		free(exp);
 		return (1);
 	}
 	return (0);
@@ -637,86 +440,3 @@ void	dollar_expansion(t_command *cmd, t_env **head, int last_status)
 	}
 }
 
-/*void	dollar_expansion(t_command *cmd, t_env **head, int last_status)
-{
-	int		i;
-	int		unq;
-	char	*exp;
-	int		added;
-
-	i = 0;
-	while (cmd->args && cmd->args[i])
-	{
-		unq = 0;
-		exp = expand_arg_keep_quotes(cmd->args[i], *head, last_status, &unq);
-		if (!exp)
-		{
-			i++;
-			continue ;
-		}
-		if (i == 0 && exp[0] == '\0' && !cmd->args[1])
-		{
-			free(cmd->args[0]);
-			cmd->args = NULL;
-			cmd->expand_empty = 1;
-			return ;
-		}
-		if (unq && (ft_strchr(exp, ' ') || ft_strchr(exp, '\t')
-				|| ft_strchr(exp, '\n')))
-		{
-			added = split_and_replace(cmd, &i, exp);
-			if (added == -1)
-				return ;
-		}
-		else
-			replace_single_arg(cmd, &i, exp);
-	}
-}*/
-
-/*dollar_expansion:
-- Applies expansion to all command arguments
-- Frees old argument strings and replaces with expanded versions*/
-/*void	dollar_expansion(t_command *cmd, t_env **head, int last_status)
-{
-	int		i;
-	char	*expanded;
-	char	**parts;
-	int		had_unquoted;
-	int		added;
-
-	i = 0;
-	while (cmd->args && cmd->args[i])
-	{
-		had_unquoted = 0;
-		expanded = expand_arg_keep_quotes(cmd->args[i], *head,
-				last_status, &had_unquoted);
-		if (!expanded)
-		{
-			i++;
-			continue ;
-		}
-		if (had_unquoted && (ft_strchr(expanded, ' ')
-				|| ft_strchr(expanded, '\t')
-				|| ft_strchr(expanded, '\n')))
-		{
-			parts = ft_split_whitespace(expanded);
-			free(expanded);
-			if (!parts)
-				return ;
-			added = args_len(parts);
-			if (replace_arg_with_splits(cmd, i, parts) != 0)
-			{
-				free(parts);
-				return ;
-			}
-			free(parts);
-			i += added;
-		}
-		else
-		{
-			free(cmd->args[i]);
-			cmd->args[i] = expanded;
-			i++;
-		}
-	}
-}*/

@@ -119,7 +119,12 @@ static int	write_heredoc(char *delim, int write_fd, int status)
 		print_heredoc_prompt();
 		line = get_next_line(STDIN_FILENO);
 		if (!line)
+		{
+			ft_putstr_fd("warning: here-document delimited by end-of-file (wanted `", STDERR_FILENO);
+			ft_putstr_fd(trimmed_delim, STDERR_FILENO);
+			ft_putendl_fd("')", STDERR_FILENO);
 			break ;
+		}
 		if (handle_sigint_in_heredoc(line, trimmed_delim))
 			return (-1);
 		if (is_delimiter_line(line, trimmed_delim))
@@ -132,50 +137,6 @@ static int	write_heredoc(char *delim, int write_fd, int status)
 	free(trimmed_delim);
 	return (0);
 }
-
-/*static int	write_heredoc(char *delim, int write_fd, int status)
-{
-	char	*line;
-	char	*trimmed_delim;
-	char	*trimmed_line;
-	int		expand;
-	int		tty_fd;
-
-	trimmed_delim = remove_quotes(delim);
-	expand = !delimiter_was_quoted(delim);
-	g_sigint_received = 0;
-	while (1)
-	{
-		tty_fd = open("/dev/tty", O_WRONLY);
-		if (tty_fd >= 0)
-		{
-			ft_putstr_fd("> ", tty_fd);
-			close(tty_fd);
-		}
-		line = get_next_line(STDIN_FILENO);
-		if (!line)
-			break ;
-		if (g_sigint_received)
-		{
-			free(line);
-			free(trimmed_delim);
-			return (-1);
-		}
-		trimmed_line = ft_strtrim(line, "\n");
-		if (str_equals(trimmed_line, trimmed_delim))
-		{
-			free(trimmed_line);
-			free(line);
-			break ;
-		}
-		free(trimmed_line);
-		line = check_expand_line(line, expand, status);
-		write(write_fd, line, ft_strlen(line));
-		free(line);
-	}
-	free(trimmed_delim);
-	return (0);
-}*/
 
 int	apply_heredocs(t_command *cmd, int status)
 {

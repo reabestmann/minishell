@@ -66,21 +66,6 @@ void	free_tokens(t_token *tokens)
 	iterating through components of each member
 	of the linked list.
 */
-/*void	free_commands(t_command *cmds)
-{
-	t_command	*tmp;
-
-	while (cmds)
-	{
-		tmp = cmds->next;
-		free_array(cmds->args);
-		free_array(cmds->heredoc_delim);
-		free(cmds->infile);
-		free(cmds->outfile);
-		free(cmds);
-		cmds = tmp;
-	}
-}*/
 void	free_commands(t_command *cmds)
 {
 	t_command	*tmp;
@@ -89,10 +74,9 @@ void	free_commands(t_command *cmds)
 	{
 		tmp = cmds->next;
 		free_array(cmds->args);
-		// free_array(cmds->heredoc_delim);  <-- REMOVE this line
 		free(cmds->infile);
 		free(cmds->outfile);
-		free(cmds->heredoc_fds); // also free the fds array if you allocated it
+		free(cmds->errfile);
 		free(cmds);
 		cmds = tmp;
 	}
