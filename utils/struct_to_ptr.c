@@ -6,21 +6,15 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:01:13 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/26 18:40:02 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/04 14:01:48 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-/* count_nodes(t_env *head, int export_only)
-   - Purpose: Counts the number of nodes in a t_env linked list.
-              Can optionally count only exported variables.
-   - Parameters:
-       * head: pointer to the first node of the linked list.
-       * export_only: if non-zero, only counts nodes where exported == 1.
-   - Returns: Number of nodes matching the criteria.
-   - Notes: Used to determine the size of an envp-style array before allocation.
-*/
+/* count_nodes:
+**   Counts nodes in a t_env list. 
+**   If export_only is non-zero, counts only exported nodes.*/
 static int	count_nodes(t_env *head, int export_only)
 {
 	int		count;
@@ -37,20 +31,9 @@ static int	count_nodes(t_env *head, int export_only)
 	return (count);
 }
 
-/* add_strings(t_env *head, char **envp, int export_only)
-   - Purpose: Converts a t_env linked list into a null-terminated array 
-   		of strings.
-              Each string is of the form "KEY=VALUE".
-              Can optionally include only exported variables.
-   - Parameters:
-       * head: pointer to the first node of the linked list.
-       * envp: preallocated array of char * to fill.
-       * export_only: if non-zero, only include nodes where exported == 1.
-   - Returns: 0 on success, 1 if a malloc failure occurs.
-   - Notes: Safely handles nodes with NULL value (shell-only variables 
-   		without '=').
-            Frees any previously allocated strings on failure.
-*/
+/* add_strings_help:
+**   Creates "KEY=VALUE" string for a single node in envp array.
+**   Returns 1 on malloc failure, 0 on success.*/
 static int	add_strings_help(t_env *temp, char **envp, int *i)
 {
 	int		buff;
@@ -73,6 +56,9 @@ static int	add_strings_help(t_env *temp, char **envp, int *i)
 	return (0);
 }
 
+/* add_strings:
+**   Fills preallocated envp array with "KEY=VALUE" strings from t_env list.
+**   Returns 1 on failure, 0 on success.*/
 static int	add_strings(t_env *head, char **envp, int export_only)
 {
 	int		i;
@@ -96,17 +82,10 @@ static int	add_strings(t_env *head, char **envp, int export_only)
 	return (0);
 }
 
-/* struct_to_envp(t_env *head, int export_only)
-   - Purpose: Converts a t_env linked list into a null-terminated array 
-   		of strings ready to pass to execve() or use in an env-like builtin.
-   - Parameters:
-       * head: pointer to the first node of the linked list.
-       * export_only: if non-zero, only include exported variables.
-   - Returns: Pointer to the newly allocated char ** array, or NULL on failure.
-   - Notes: Allocates exactly the right number of strings using count_nodes().
-            Frees the array on error. Caller is responsible for freeing the 
-					returned array.
-*/
+/* struct_to_envp:
+**   Converts t_env list to NULL-terminated char ** array.
+**   If export_only is non-zero, includes only exported nodes.
+**   Returns allocated array, or NULL on failure.*/
 char	**struct_to_envp(t_env *head, int export_only)
 {
 	char	**envp;

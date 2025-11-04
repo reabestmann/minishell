@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/30 20:08:23 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/04 15:05:00 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,12 @@ extern volatile sig_atomic_t	g_sigint_received;
 /* parser/
  * lexer.c */
 t_token		*lexer(const char *input);
+/*lexer_token_utils*/
+t_token		*create_token(const char *str, t_token_type type);
+void		append_token(t_token **head, t_token *new_token);
+int			handle_redir_err(const char *str, t_token_type *type);
+int			handle_redir_both(const char *str, t_token_type *type);
+int			handle_redir_out(const char *str, t_token_type *type);
 /*expand.c*/
 char		*append_normal_text(char *text, char *result);
 /* parse.c */
@@ -68,6 +74,12 @@ char		*handle_normal_txt(int *i, char *arg, char *result);
 char		*expand_arg_keep_quotes(char *arg, t_env *head,
 				int last_status, int *had_unquoted);
 void		dollar_expansion(t_command *cmd, t_env **head, int last_status);
+/*expand_split_whitespace.c */
+char		**ft_split_whitespace(const char *str);
+/*expamd_basics.c*/
+char		*append_char(char c, char *result);
+/*expand_split_replace*/
+int			replace_arg_with_splits(t_command *cmd, int idx, char **parts);
 /* expand_utils.c */
 char		*append_key_value(t_env *head, char *arg, int *i, char *result);
 int			is_valid_key(char *arg, int i, int *len);
@@ -82,6 +94,8 @@ int			run_command(t_command *cmds, t_env **env, int status);
 /* path.c */
 char		*find_path(char *cmd, char **envp);
 void		check_executable(char **args, char *path);
+/*path_utils.c*/
+int			is_special_dir(char *arg);
 /* exec_utils.c */
 int			run_builtin(t_command *cmd, t_env **env, int status);
 int			prepare_builtin_exec(t_command *cmds, t_env **env, int status);
@@ -97,6 +111,13 @@ void		fd_check(int fd, int std_fd, char *file);
 void		free_heredocs(t_command *cmd);
 int			apply_heredocs(t_command *cmd, int last_status);
 int			collect_heredocs(t_command *cmds, int status);
+/*heredoc_utils.c*/
+void		print_heredoc_prompt(void);
+int			is_delimiter_line(char *line, char *trimmed_delim);
+void		process_and_write_line(char *line, int expand, int status, int write_fd);
+void		handle_redir_file(char *file, int append_mode, int fd_type);
+void		handle_infile(char **filename);
+int			handle_sigint_in_heredoc(char *line, char *trimmed_delim);
 /*redir_heredoc1.c */
 char		*get_trimmed_delimiter(const char *delimiter);
 int			delimiter_was_quoted(const char *delimiter);
@@ -106,6 +127,14 @@ char		*expand_for_heredoc(char *line, int last_status);
 /*redir_utils.c*/
 void		fd_check(int fd, int std_fd, char *file);
 int			dol_q_expansion(char *line, int *i, int last_status, char **result);
+void		handle_redir_file(char *file, int append_mode, int fd_type);
+void		handle_infile(char **filename);
+/*redir_utils2.c*/
+void		set_redirection(t_command *cmd, t_token *token, int append_type);
+void		set_fd_type(t_command *cmd, t_token *cpy);
+int			is_append_type(int type);
+int			is_output_redir(int type);
+void		handle_input_redir(t_command *cmd, t_token *next);
 /* ptr_to_struct.c */
 t_env		*envp_to_struct(char **envp);
 /* struct_to_ptr.c */
@@ -113,7 +142,6 @@ char		**struct_to_envp(t_env *head, int export_only);
 /* builtins/
  * cd_cmd.c */
 char		*get_env_value(t_env **env, const char *key);
-int			is_quoted(char *arg);
 int			too_many_args(t_command *cmd);
 int			cd_cmd(t_command *cmd, t_env **env);
 /*cd_cmd_utils.c*/
@@ -137,6 +165,8 @@ int			export_cmd(t_command *cmd, t_env **env);
 int			setting_value(char **equals, t_env **new_node);
 void		free_keys(char *key_one, char *key_two);
 void		setting_vars(char **path, char **equals, t_env **new_node);
+int			check_match_and_free(int match, char *key);
+int			check_match(int match);
 /*export_cmd_keys.c*/
 int			is_valid_export_key(char *arg, int *len);
 int			setting_key(char **path, char **equals, t_env **new_node);
@@ -147,6 +177,8 @@ int			key_info(char **envp, int j, char **key_one, char **key_two);
 void		ft_bubble_sort(char **envp);
 /* unset_cmd.c */
 int			unset_cmd(t_command *cmd, t_env **env);
+/*unset_cmd_utils.c*/
+void		remove_env_var(t_env **env, char *key);
 /* utils/
  * free.c */
 void		free_array(char **array);
@@ -160,6 +192,8 @@ int			get_exit_status(int status);
 int			str_equals(const char *str, const char *target);
 void		*handle_malloc(size_t bytes);
 void		update_last_command(t_env **env, char *last_cmd);
+int			args_len(char **args);
+int			is_quoted(char *arg);
 /* error.c */
 void		error(const char *msg);
 void		exec_error_custom(const char *cmd, const char *msg, int status);

@@ -6,12 +6,15 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/20 18:06:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/27 20:59:52 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/04 13:43:48 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
+/* check_pipe_syntax:
+ * Verifies a PIPE token is followed by a valid token.
+ * Prints error if PIPE is at end or followed by another PIPE.*/
 static int	check_pipe_syntax(t_token *token)
 {
 	if (!token || token->type != TOKEN_PIPE)
@@ -23,23 +26,18 @@ static int	check_pipe_syntax(t_token *token)
 	}
 	return (0);
 }
-/*
-static int	check_redirection_syntax(t_token *token)
-{
-	if (!token->next || token->next->type != TOKEN_WORD)
-	{
-		ft_putstr_fd("minishell: parse error near redirection\n", 2);
-		return (-1);
-	}
-	return (0);
-}*/
 
+/* is_redir_token:
+ * Returns 1 if type is any redirection operator (<, >, >>, <<).*/
 static int	is_redir_token(int type)
 {
 	return (type == TOKEN_REDIR_OUT || type == TOKEN_REDIR_IN
 		|| type == TOKEN_REDIR_APPEND || type == TOKEN_HEREDOC);
 }
 
+/* check_redir_syntax:
+ * Verifies redirection token is followed by a WORD or another redirection.
+ * Prints error if syntax is invalid.*/
 static int	check_redir_syntax(t_token *token)
 {
 	if (!token->next)
@@ -56,6 +54,9 @@ static int	check_redir_syntax(t_token *token)
 	return (0);
 }
 
+/* check_start:
+ * Ensures the first token is not a PIPE.
+ * Prints error if command starts with PIPE.*/
 static int	check_start(t_token *tokens)
 {
 	if (tokens && tokens->type != TOKEN_WORD)
@@ -71,17 +72,10 @@ static int	check_start(t_token *tokens)
 	return (0);
 }
 
-/*static int work_contains_redir_chars(const char *word)
-{
-	while (*word)
-	{
-		if (*word == '<' || *word == '>')
-			return 1; // found
-		word++;
-	}
-	return 0; // not found
-}
-*/
+/* syntax_valid:
+ * Iterates through token list to validate overall command syntax.
+ * Checks quotes (via state), PIPE, and redirection syntax.
+ * Returns 0 if valid, 2 if parse errors found.*/
 int	syntax_valid(t_token *tokens)
 {
 	t_token	*cpy;

@@ -6,96 +6,15 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 15:26:43 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/27 21:02:57 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/04 13:54:35 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-/* 
-typedef struct s_token
-{
-	char          *value;     // "echo"
-	t_token_type  type;       // TOKEN_WORD
-	int           in_squote;  // was it inside ' '
-	int           in_dquote;  // was it inside " "
-}   t_token;
+/* handle_else
+- Checks for special prefixed redirections (2>, &>, 1>) and delegates.
 */
-
-/* create_token
-	Allocates and initializes a new token.
-	Stores the token string (with quotes trimmed), type, and quote state.
-	Returns pointer to the new t_token.
-	strdup uses malloc
-*/
-static t_token	*create_token(const char *str, t_token_type type)
-{
-	t_token	*token;
-
-	token = handle_malloc(sizeof(t_token));
-	token->val = ft_strdup((char *)str);
-	if (!token->val)
-	{
-		free(token);
-		return (NULL);
-	}
-	token->type = type;
-	token->next = NULL;
-	return (token);
-}
-
-/* append_token
-	Adds a token to the end of a token linked list.
-	If the list is empty, the new token becomes the head.
-*/
-static void	append_token(t_token **head, t_token *new_token)
-{
-	t_token	*tmp;
-
-	if (!*head)
-		*head = new_token;
-	else
-	{
-		tmp = *head;
-		while (tmp->next)
-			tmp = tmp->next;
-		tmp->next = new_token;
-	}
-}
-
-static int	handle_redir_err(const char *str, t_token_type *type)
-{
-	if (str[2] == '>')
-	{
-		*type = TOKEN_REDIR_ERR_APPEND;
-		return (3);
-	}
-	*type = TOKEN_REDIR_ERR;
-	return (2);
-}
-
-static int	handle_redir_both(const char *str, t_token_type *type)
-{
-	if (str[2] == '>')
-	{
-		*type = TOKEN_REDIR_BOTH_APPEND;
-		return (3);
-	}
-	*type = TOKEN_REDIR_BOTH;
-	return (2);
-}
-
-static int	handle_redir_out(const char *str, t_token_type *type)
-{
-	if (str[2] == '>')
-	{
-		*type = TOKEN_REDIR_APPEND;
-		return (3);
-	}
-	*type = TOKEN_REDIR_OUT;
-	return (2);
-}
-
 static int	handle_else(const char *str, t_token_type *type)
 {
 	if (str[0] == '2' && str[1] == '>')
@@ -107,6 +26,11 @@ static int	handle_else(const char *str, t_token_type *type)
 	return (1);
 }
 
+/* handle_stype
+- Handles all operator tokens (|, <, >, <<, >>, 2>, etc.).
+- Creates and appends a token for the operator.
+- Returns length of operator in input string.
+*/
 static int	handle_stype(t_token **tokens, const char *str)
 {
 	int				len;
@@ -135,6 +59,11 @@ static int	handle_stype(t_token **tokens, const char *str)
 	return (len);
 }
 
+/* handle_wtype
+- Handles normal word tokens, respecting quotes.
+- Stops at whitespace or operator.
+- Returns length of the word consumed.
+*/
 static int	handle_wtype(t_token **tokens, const char *str)
 {
 	int		len;

@@ -6,12 +6,16 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 15:15:31 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/25 15:05:34 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/04 14:05:44 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
+/* append_buffers:
+**   Concatenates small_buf onto big_buf, freeing the old big_buf.
+**   Returns the new combined string or NULL on allocation failure.
+*/
 static char	*append_buffers(char *small_buf, char *big_buf)
 {
 	char	*temp_buf;
@@ -23,6 +27,10 @@ static char	*append_buffers(char *small_buf, char *big_buf)
 	return (temp_buf);
 }
 
+/* get_line:
+**   Extracts the next line (up to and including '\n') from big_buf.
+**   Returns the line string, or NULL if big_buf is empty.
+*/
 static char	*get_line(char *big_buf)
 {
 	size_t	len;
@@ -41,6 +49,10 @@ static char	*get_line(char *big_buf)
 	return (line);
 }
 
+/* read_into_buffer:
+**   Reads from fd in chunks into big_buf until a newline is found or EOF.
+**   Returns updated big_buf, or NULL on read/alloc failure.
+*/
 static char	*read_into_buffer(char	*big_buf, int fd)
 {
 	char	*small_buf;
@@ -68,6 +80,10 @@ static char	*read_into_buffer(char	*big_buf, int fd)
 	return (big_buf);
 }
 
+/* get_next_line:
+**   Returns the next line from fd each call.
+**   Keeps leftover data in a static buffer for subsequent calls.
+*/
 char	*get_next_line(int fd)
 {
 	static char	*big_buf;

@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/26 21:29:48 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/23 16:46:50 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/04 14:41:53 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,11 @@ int	delimiter_was_quoted(const char *delimiter)
 	return (0);
 }
 
+/* add_heredoc:
+ *  - Adds a new heredoc delimiter to the command.
+ *  - Allocates a new array with space for the new delimiter.
+ *  - Copies existing delimiters and appends the new one.
+ *  - Updates cmd->heredoc_count and frees old array if needed.*/
 void	add_heredoc(t_command *cmd, const char *delimiter)
 {
 	char	**arr;

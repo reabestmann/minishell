@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 16:02:47 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/27 22:56:21 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/04 15:02:35 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,19 +54,6 @@ char	*expand_arg_keep_quotes_simple(char *arg, t_env *head, int last_status)
      - Works with standalone commands, pipelines, heredocs, and redirections
 */
 
-/* helper functions of apply, redirections */
-static void	handle_infile(char **filename)
-{
-	char	*clean;
-	int		fd;
-
-	clean = remove_quotes(*filename);
-	free(*filename);
-	*filename = clean;
-	fd = open(*filename, O_RDONLY);
-	fd_check(fd, STDIN_FILENO, *filename);
-}
-
 /* helper: reads all content from src_fd and writes it to dest_fd */
 static void	merge_fd_into_pipe(int src_fd, int dest_fd)
 {
@@ -100,19 +87,6 @@ void	handle_heredocs(t_command *cmd)
 		merge_fd_into_pipe(cmd->heredoc_fds[i], merged_pipe[1]);
 	close(merged_pipe[1]);
 	fd_check(merged_pipe[0], STDIN_FILENO, "heredoc");
-}
-
-// handles outfile or errfile with the right append_mode and fd_type
-static void	handle_redir_file(char *file, int append_mode, int fd_type)
-{
-	int	fd;
-
-	fd = -1;
-	if (append_mode == 1)
-		fd = open(file, O_WRONLY | O_CREAT | O_APPEND, 0664);
-	else if (append_mode == 2)
-		fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	fd_check(fd, fd_type, file);
 }
 
 /* apply_redirections:
@@ -151,79 +125,6 @@ void	apply_redirections(t_command *cmd, t_env **env, int last_status)
 		cmd->errfile = remove_quotes(expanded);
 		free(expanded);
 		handle_redir_file(cmd->errfile, cmd->append_err, cmd->fd_type);
-	}
-}
-
-/* set_redirection:
-Helper for parse_redirection.
-Sets cmd->outfile and cmd->append type based on the token.
-*/
-static void	set_redirection(t_command *cmd, t_token *token, int append_type)
-{
-	int	fd;
-
-	if (!token || token->type != TOKEN_WORD)
-		return ;
-	if (cmd->fd_type == STDOUT_FILENO || cmd->fd_type == 3)
-	{
-		if (append_type == 1)
-			fd = open(token->val, O_WRONLY | O_CREAT | O_APPEND, 0644);
-		else
-			fd = open(token->val, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		if (fd >= 0)
-			close(fd);
-		if (cmd->outfile)
-			free(cmd->outfile);
-		cmd->outfile = ft_strdup(token->val);
-		cmd->append = append_type;
-	}
-	if (cmd->fd_type == STDERR_FILENO || cmd->fd_type == 3)
-	{
-		if (cmd->errfile)
-			free(cmd->errfile);
-		cmd->errfile = ft_strdup(token->val);
-		cmd->append_err = append_type;
-	}
-}
-
-/* set_fd_type:
-Helper for parse_redirection.
-Sets the file descriptor we want to write to.
-(std_out, std_err or both)
-*/
-static void	set_fd_type(t_command *cmd, t_token *cpy)
-{
-	cmd->fd_type = STDOUT_FILENO;
-	if (cpy->type == TOKEN_REDIR_ERR || cpy->type == TOKEN_REDIR_ERR_APPEND)
-		cmd->fd_type = STDERR_FILENO;
-	if (cpy->type == TOKEN_REDIR_BOTH || cpy->type == TOKEN_REDIR_BOTH_APPEND)
-		cmd->fd_type = 3;
-}
-
-static int	is_append_type(int type)
-{
-	return (type == TOKEN_REDIR_APPEND
-		|| type == TOKEN_REDIR_ERR_APPEND
-		|| type == TOKEN_REDIR_BOTH_APPEND);
-}
-
-static int	is_output_redir(int type)
-{
-	return (type == TOKEN_REDIR_OUT
-		|| type == TOKEN_REDIR_ERR
-		|| type == TOKEN_REDIR_BOTH
-		|| type == TOKEN_REDIR_APPEND
-		|| type == TOKEN_REDIR_ERR_APPEND
-		|| type == TOKEN_REDIR_BOTH_APPEND);
-}
-
-static void	handle_input_redir(t_command *cmd, t_token *next)
-{
-	if (next && next->type == TOKEN_WORD)
-	{
-		if (cmd->infile)
-			free(cmd->infile);
-		cmd->infile = ft_strdup(next->val);
 	}
 }
 

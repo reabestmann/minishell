@@ -3,27 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rbestman <rbestman@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 15:23:19 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/02 17:39:54 by rbestman         ###   ########.fr       */
+/*   Updated: 2025/11/04 13:42:16 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
-/* COMMAND STRUCT
-	typedef struct s_command
-	{
-		char **args;           // Command and its arguments
-		char *infile;      // Redirection input file
-		char *outfile;     // Redirection output file
-		int append;     //append (1 = >>), overwrite (2 = >) or heredoc (3 = <<)
-		int	modifies_shell;  //if cmd modifies envp (1 = yes, 0 = no)
-		int	in_child;		// if the command currently runs in a child process
-		struct s_command *next;  // Next command in pipeline
-	} t_command;
-*/
 
 /* create_cmd:
 	Allocate and initializes a new commands structure.
