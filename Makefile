@@ -15,6 +15,7 @@ LIBFT = $(LIBFT_DIR)/libft.a
 
 # src files 
 SRC_FILES = main.c \
+shell_utils.c \
 $(PARSER_DIR)/lexer.c \
 $(PARSER_DIR)/lexer_token_utils.c \
 $(PARSER_DIR)/parse.c \
@@ -36,6 +37,7 @@ $(EXECUTER_DIR)/redir_utils.c \
 $(EXECUTER_DIR)/redir_utils2.c \
 $(EXECUTER_DIR)/redir.c \
 $(EXECUTER_DIR)/pipes.c \
+$(EXECUTER_DIR)/pipe_utils.c \
 $(EXECUTER_DIR)/exec_utils.c \
 $(EXECUTER_DIR)/path.c \
 $(EXECUTER_DIR)/path_utils.c \

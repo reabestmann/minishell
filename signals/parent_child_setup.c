@@ -22,20 +22,11 @@ void	child_signal_setup(void)
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
 	if (sigaction(SIGINT, &sa, NULL) == -1)
-	{
-		write(2, "error with sigint_handler \n", 26);
-		exit(1);
-	}
+		error("error with sigint_handler");
 	if (sigaction(SIGQUIT, &sa, NULL) == -1)
-	{
-		write(2, "error with sigquit \n", 19);
-		exit(1);
-	}
+		error("error with sigquit");
 	if (sigaction(SIGPIPE, &sa, NULL) == -1)
-	{
-		write(2, "error with sigpipe\n", 19);
-		exit(1);
-	}
+		error("error with sigpipe");
 }
 
 /*here I set up sigaction struct so that signals are ignored instead 
@@ -48,13 +39,7 @@ void	parent_signal_setup(void)
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
 	if (sigaction(SIGINT, &sa, NULL) == -1)
-	{
-		write(2, "error with sigint_handler \n", 26);
-		exit(1);
-	}
+		error("error with sigint_handler");
 	if (sigaction(SIGQUIT, &sa, NULL) == -1)
-	{
-		write(2, "error with sigquit \n", 19);
-		exit(1);
-	}
+		error("error with sigquit");
 }

@@ -14,13 +14,10 @@
 
 /* apply_pipes:
    Handles piping for a child process.
-   prev_fd: read end from previous command (or -1 if none)
+   prev_fd: read end from previous command
    pipe_fd: current pipe
-   cmd: current command node
    Sets up stdin/stdout using dup2 for the pipeline, and closes
-   unused pipe ends in this child.  <-- This ensures that writing
-   processes (like 'yes') receive SIGPIPE when the downstream
-   reader exits, preventing infinite loops in the pipeline.
+   unused pipe ends in this child.
 */
 static void	apply_pipes(int prev_fd, int pipe_fd[2], t_command *cmd)
 {
@@ -35,11 +32,11 @@ static void	apply_pipes(int prev_fd, int pipe_fd[2], t_command *cmd)
 }
 
 /* mini_tee:
- * Mini version of the Unix 'tee' command for pipelines.
- * Reads from standard input, writes each line to both:
- *   1) STDOUT (to continue the pipeline)
- *   2) A file specified in cmd->outfile (append or truncate)
- * Used for commands that have both an outfile and a next command in the pipeline.
+	Mini version of the Unix 'tee' command for pipelines.
+	Reads from standard input, writes each line to both:
+	STDOUT & outfile.
+ 	Used for commands that have both an outfile
+	 and a next command in the pipeline.
  */
 static void	mini_tee(t_command *cmd, int out_fd)
 {
@@ -115,53 +112,6 @@ static int	parent_process(t_command *cmd, int prev_fd, int pipe_fd[2])
 	}
 }
 
-/* init_pipes:
-	helper function that initializes the pipe fds for the current command.
-	- If the cmd is not the last, create a new pipe.
-	- Else, set both ends to -1, signaling "no pipe"
-*/
-static pid_t	init_pipes(int pipe_fd[2], t_command *cmd)
-{
-	pid_t	pid;
-
-	if (cmd->next)
-	{
-		if (pipe(pipe_fd) == -1)
-			error("pipe");
-	}
-	else
-	{
-		pipe_fd[0] = -1;
-		pipe_fd[1] = -1;
-	}
-	pid = fork();
-	if (pid < 0)
-		error("fork");
-	return (pid);
-}
-
-/* wait_for_last:
-	Tracks the PID of the last command in the pipeline.
-	Waits for all children to finish (avoiding zombie processes)
-	sets last_status only for the last command,
-	returns it, becoming the pipelines final exit code.
-*/
-static int	wait_for_last(pid_t last_pid)
-{
-	int		wstatus;
-	pid_t	wpid;
-	int		last_status;
-
-	last_status = 0;
-	wpid = wait(&wstatus);
-	while (wpid > 0)
-	{
-		if (wpid == last_pid)
-			last_status = get_exit_status(wstatus);
-		wpid = wait(&wstatus);
-	}
-	return (last_status);
-}
 /* run_pipeline:
 Executes a linked list of commands connected by pipes.
 - Forks each command in a child process
@@ -170,14 +120,6 @@ Executes a linked list of commands connected by pipes.
 		parent if standalone (handled elsewhere)
 - Waits for all children at the end
 */
-
-static void	init_vars(t_command **cmd, int *prev_fd,
-	pid_t *last_pid, t_command *cmds)
-{
-	*cmd = cmds;
-	*prev_fd = -1;
-	*last_pid = 0;
-}
 
 int	run_pipeline(t_command *cmds, t_env **env, int status)
 {

@@ -43,6 +43,11 @@
 
 extern volatile sig_atomic_t	g_sigint_received;
 
+/* shell_utils.c*/
+void		read_line(char **input);
+void		init_main_vars(int *params, char **argv, t_env **env, char **envp);
+void		update_last_command(t_env **env, char *last_cmd);
+void		update_shlvl(t_env **env);
 /* parser/
  * lexer.c */
 t_token		*lexer(const char *input);
@@ -103,6 +108,10 @@ void		trim_empty_args(char **args);
 /* pipes.c */
 void		run_child(t_command *cmd, t_env **env, int status);
 int			run_pipeline(t_command *cmds, t_env **env, int status);
+/* pipe_utils.c */
+void		init_vars(t_command **cmd, int *prev_fd, pid_t *last_pid, t_command *cmds);
+int			wait_for_last(pid_t last_pid);
+pid_t		init_pipes(int pipe_fd[2], t_command *cmd);
 /* redirections.c */
 void		parse_redirection(t_command *cmd, t_token **cpy);
 void		apply_redirections(t_command *cmd, t_env **env, int last_status);
