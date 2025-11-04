@@ -6,32 +6,14 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/18 15:46:22 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/13 16:26:03 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/04 14:05:25 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
 /*
-trim_quotes_for_execution(args)    <-- called from your shell/main
-│
-├─ remove_quotes(arg)               <-- called for each argument
-│   │
-│   └─ arg_loop(arg, &i, &j, clean)  <-- called for each character
-│       │
-│       ├─ quote_check(arg, &i, &state)  <-- sets state when a quote is found
-│       │
-│       └─ found(arg, &i)    
-
-
  * quote_check:
- *  - Sets the quote state when a single (') or double (") quote is found.
- *  - Inputs:
- *      arg   : string being processed
- *      i     : pointer to current index in arg
- *      state : pointer to current quote state (0 if none, '\'' or '"')
- *  - Output: Updates *state to indicate current quote context
- */
+ *   Sets the quote state if current char is ' or ".*/
 void	quote_check(char *arg, int *i, char *state)
 {
 	if (arg[*i] == '\'')
@@ -40,15 +22,8 @@ void	quote_check(char *arg, int *i, char *state)
 		*state = '"';
 }
 
-/*
- * found:
- *  - Checks if the quote at arg[*i] has a matching
- *  closing quote later in the string.
- *  - Inputs:
- *      arg : string being processed
- *      i   : pointer to current index of the quote in arg
- *  - Output: Returns 1 if a closing quote is found, 0 otherwise
- */
+/** found:
+ *   Returns 1 if quote at arg[*i] has a matching closing quote later.*/
 int	found(char *arg, int *i)
 {
 	int	k;
@@ -68,22 +43,9 @@ int	found(char *arg, int *i)
 	return (found);
 }
 
-/* arg_loop:
- *  - Processes a single character of arg and copies it 
- to clean while removing quotes.
- *  - Handles single and double quotes using a 
- * static state variable.
- *  - Preserves unclosed quotes at their original positions.
- *  - Inputs:
- *      arg   : original string
- *      i     : pointer to current index in arg
- *      j     : pointer to current index in clean
- *      clean : destination buffer for string without quotes
- *  - Behavior:
- *      - Skips quotes only if they are properly closed
- *      - Copies all other characters to clean
- *      - Resets static state at the end of the string
- */
+/** arg_loop:
+ *   Processes arg[*i] for clean[], skipping quotes if properly closed.
+ *   Preserves unclosed quotes; handles single/double quote state.*/
 void	arg_loop(char *arg, int *i, int *j, char *clean)
 {
 	static char	state = 0;
@@ -111,15 +73,9 @@ void	arg_loop(char *arg, int *i, int *j, char *clean)
 		state = 0;
 }
 
-/*
- * remove_quotes:
- *  - Removes quotes from a single string while preserving content inside quotes.
- *  - Input:
- *      arg : string to process
- *  - Output:
- *      Returns a newly allocated string with quotes removed
- *      Caller is responsible for freeing the returned string
- */
+/*remove_quotes:
+ *  - Removes quotes from a single string while preserving 
+ content inside quotes.*/
 
 char	*remove_quotes(char *arg)
 {
@@ -141,16 +97,8 @@ char	*remove_quotes(char *arg)
 	return (clean);
 }
 
-/*
- * trim_quotes_for_execution:
- *  - Removes quotes from all strings in a null-terminated array of arguments.
- *  - Input:
- *      args : array of strings
- *  - Behavior:
- *      - Calls remove_quotes for each argument
- *      - Frees the original string
- *      - Replaces it with the cleaned version
- */
+/*trim_quotes_for_execution:
+ *   Removes quotes from all strings in args array, replacing originals.*/
 void	trim_quotes_for_execution(char **args)
 {
 	int		i;
@@ -161,7 +109,6 @@ void	trim_quotes_for_execution(char **args)
 	i = 0;
 	while (args[i])
 	{
-		//printf("arg[i] is: %s \n", args[i]);
 		cleaned = remove_quotes(args[i]);
 		free(args[i]);
 		args[i] = cleaned;

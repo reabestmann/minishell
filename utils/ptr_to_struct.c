@@ -6,12 +6,14 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:01:42 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/09/11 16:30:22 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/04 14:00:17 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
+/* node_value:
+**   Duplicates the value part of an env string (after '='). 
+**   Frees the node if allocation fails and returns NULL.*/
 static char	*node_value(t_env *node, char *equals)
 {
 	char	*value;
@@ -57,17 +59,12 @@ static t_env	*add_nodes(t_env *current, char *equals, char *env_str)
 	return (new_node);
 }
 
-/* envp_to_struct(char **envp)
-   - Purpose: Converts a char ** environment array (from main)
-   	 into a linked list of t_env nodes.
-   - Parameters:
-       * envp: NULL-terminated array of strings ("KEY=VALUE") to convert.
-   - Returns: Pointer to the head of the linked list, or NULL on failure.
-   - Notes: Iterates through envp, using add_nodes() to append each valid entry.
-            Frees any allocated nodes on failure. 
-			Only strings containing '=' are added.
-            This linked list will have exported = 1 for all nodes.
-*/
+/* envp_to_struct:
+**   Converts a char **envp array into a linked list of t_env nodes.
+**   Only strings containing '=' are added.
+**   Uses add_nodes() to create nodes and links them.
+**   Frees all allocated nodes on failure and returns NULL.
+**   Returns head of the linked list on success.*/
 t_env	*envp_to_struct(char **envp)
 {
 	char	*equals;

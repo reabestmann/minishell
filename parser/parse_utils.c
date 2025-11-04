@@ -6,12 +6,16 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 12:00:54 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 17:17:13 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/04 13:42:01 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
+/* has_dollar:
+ * Checks if any argument contains a '$' character.
+ * Returns 1 if found, 0 otherwise.
+ */
 int	has_dollar(char **args)
 {
 	int	i;
@@ -28,8 +32,7 @@ int	has_dollar(char **args)
 	return (0);
 }
 
-/*
- * skip_space
+/* skip_space
  * helper function to avoid repetition across split functions -
  * skips whitespaces starting from index i in str.
  * returns first index after all spaces.
@@ -41,8 +44,7 @@ int	skip_spaces(const char *str, int i)
 	return (i);
 }
 
-/* 
- * update_quotes:
+/* update_quotes:
  * helper function to avoid repetition across split functions -
  * keeps track wether input is within simple or double quotes
  */

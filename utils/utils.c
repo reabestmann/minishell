@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/11 14:28:03 by rbestman          #+#    #+#             */
-/*   Updated: 2025/09/26 21:28:31 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/04 13:57:26 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,4 +57,29 @@ void	*handle_malloc(size_t bytes)
 	if (NULL == ret)
 		error("Malloc");
 	return (ret);
+}
+
+/* args_len:
+**   Returns the length of a NULL-terminated argument array.
+*/
+int	args_len(char **args)
+{
+	int	len;
+
+	len = 0;
+	while (args && args[len])
+		len++;
+	return (len);
+}
+
+/* is_quoted - used in cd_cmd.c
+   Checks if a string starts with a single or double quote.
+   @arg: the input string
+   Returns: 1 if quoted, 0 otherwise
+*/
+int	is_quoted(char *arg)
+{
+	if (!arg)
+		return (0);
+	return (arg[0] == '\'' || arg[0] == '"');
 }

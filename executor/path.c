@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 14:45:16 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/30 20:19:07 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/04 12:31:45 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,6 @@
  * also returns simple error - which doesnt include mini in 
  * front for command not found
 */
-static int	is_special_dir(char *arg)
-{
-	return ((ft_strncmp(arg, ".", 2) == 0)
-		|| (ft_strncmp(arg, "..", 3) == 0)
-		|| (ft_strncmp(arg, "~", 2) == 0));
-}
 
 static void	exec_error_and_free(char *arg, char *path, char *msg, int code)
 {

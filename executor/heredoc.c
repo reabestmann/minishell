@@ -6,12 +6,14 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 15:58:45 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/30 19:59:38 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/04 14:24:49 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
+/* free_heredocs:
+ *   Frees all heredoc delimiters and file descriptor arrays for all commands.*/
 void	free_heredocs(t_command *cmds)
 {
 	int	i;
@@ -39,72 +41,28 @@ void	free_heredocs(t_command *cmds)
 	}
 }
 
-/* check_expand_line:
-   Prepares a line before writing it to heredoc file.
-   - If expand == 1, performs variable expansion.
-   - If expand == 0, returns line unchanged.
-   - Always frees original line if expansion is done.
-*/
-static char	*check_expand_line(char *line, int expand, int status)
+/* handle_heredoc_eof:
+ *   Checks if get_next_line returned NULL (EOF).
+ *   Prints a warning if EOF reached before the delimiter.
+ *   Returns 1 if EOF, 0 otherwise.*/
+static int	handle_heredoc_eof(char *line, char *trimmed_delim)
 {
-	char	*result;
-
 	if (!line)
-		return (NULL);
-	if (expand)
 	{
-		result = expand_for_heredoc(line, status);
-		free(line);
-		return (result);
-	}
-	result = ft_strdup(line);
-	free(line);
-	return (result);
-}
-
-static void	print_heredoc_prompt(void)
-{
-	int	tty_fd;
-
-	tty_fd = open("/dev/tty", O_WRONLY);
-	if (tty_fd >= 0)
-	{
-		ft_putstr_fd("> ", tty_fd);
-		close(tty_fd);
-	}
-}
-
-static int	is_delimiter_line(char *line, char *trimmed_delim)
-{
-	char	*trimmed_line;
-	int		match;
-
-	trimmed_line = ft_strtrim(line, "\n");
-	match = str_equals(trimmed_line, trimmed_delim);
-	free(trimmed_line);
-	return (match);
-}
-
-static void	process_and_write_line(char *line, int expand,
-	int status, int write_fd)
-{
-	line = check_expand_line(line, expand, status);
-	write(write_fd, line, ft_strlen(line));
-	free(line);
-}
-
-//returns 1 if sigint was received, 0 otherwise
-static int	handle_sigint_in_heredoc(char *line, char *trimmed_delim)
-{
-	if (g_sigint_received)
-	{
-		free(line);
-		free(trimmed_delim);
+		ft_putstr_fd("warning: here-document delimited by ", STDERR_FILENO);
+		ft_putstr_fd("end-of-file (wanted `", STDERR_FILENO);
+		ft_putstr_fd(trimmed_delim, STDERR_FILENO);
+		ft_putendl_fd("')", STDERR_FILENO);
 		return (1);
 	}
 	return (0);
 }
 
+/* write_heredoc:
+ *   Reads user input line by line until the delimiter is found or SIGINT occurs.
+ *   Expands variables if delimiter was unquoted, writes lines to pipe.
+ *   Handles EOF and SIGINT cleanly.
+ *   Returns 0 on success, -1 if interrupted by SIGINT.*/
 static int	write_heredoc(char *delim, int write_fd, int status)
 {
 	char	*line;
@@ -118,13 +76,8 @@ static int	write_heredoc(char *delim, int write_fd, int status)
 	{
 		print_heredoc_prompt();
 		line = get_next_line(STDIN_FILENO);
-		if (!line)
-		{
-			ft_putstr_fd("warning: here-document delimited by end-of-file (wanted `", STDERR_FILENO);
-			ft_putstr_fd(trimmed_delim, STDERR_FILENO);
-			ft_putendl_fd("')", STDERR_FILENO);
+		if (handle_heredoc_eof(line, trimmed_delim))
 			break ;
-		}
 		if (handle_sigint_in_heredoc(line, trimmed_delim))
 			return (-1);
 		if (is_delimiter_line(line, trimmed_delim))
@@ -138,6 +91,9 @@ static int	write_heredoc(char *delim, int write_fd, int status)
 	return (0);
 }
 
+/* apply_heredocs:
+ *   Sets up pipes for each heredoc, writes contents, 
+ and stores read ends in command struct.*/
 int	apply_heredocs(t_command *cmd, int status)
 {
 	int	hd_pipe[2];
@@ -162,6 +118,9 @@ int	apply_heredocs(t_command *cmd, int status)
 	return (0);
 }
 
+/* collect_heredocs:
+ *   Iterates over all commands, allocates arrays, and applies heredocs;
+  stops on error.*/
 int	collect_heredocs(t_command *cmds, int status)
 {
 	t_command	*current;

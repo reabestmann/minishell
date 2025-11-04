@@ -6,12 +6,17 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:37 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/23 16:02:56 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/04 13:03:36 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
+/* is_n_flag:
+ * Checks if a string is a valid "-n" flag for echo 
+ 	(supports multiple n's, e.g., "-nnn").
+ * Returns 1 if it is a valid -n flag, 0 otherwise.
+ */
 int	is_n_flag(const char *arg)
 {
 	int	i;
@@ -28,6 +33,10 @@ int	is_n_flag(const char *arg)
 	return (arg[i] == '\0');
 }
 
+/* print_args:
+ * Debug utility: prints all arguments in a t_command struct with their indices.
+ * Prints "No arguments" if cmd or cmd->args is NULL.
+ */
 void	print_args(t_command *cmd)
 {
 	int	i;
@@ -45,6 +54,12 @@ void	print_args(t_command *cmd)
 	}
 }
 
+/* echo_cmd:
+ * Implements the echo command.
+ * Supports multiple -n flags to suppress the trailing newline.
+ * Prints arguments separated by spaces.
+ * Returns 0 on success.
+ */
 int	echo_cmd(t_command *cmd)
 {
 	int		i;

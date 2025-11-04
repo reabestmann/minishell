@@ -6,23 +6,17 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:54 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/27 23:22:42 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/04 13:03:01 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-/* add_nodes(env, path)
-   - Purpose: Creates a new t_env node from a "KEY=VALUE" string and 
-   	appends it to the linked list.
-   - Parameters:
-       * env: pointer to head of the t_env list; may be NULL if list 
-	   is empty.
-       * path: environment string to parse (e.g., "KEY=VALUE").
-   - Returns: pointer to the new node, or NULL if allocation fails.
-   - Notes: Calls setting_vars, setting_key, and setting_value. Adds 
-   new node to end of list and sets exported = 1.
-*/
+/* add_nodes:
+ * Creates a new t_env node from "KEY=VALUE" and appends to list.
+ * Returns pointer to new node or NULL on allocation failure.
+ * Calls setting_vars, setting_key, and setting_value.
+ */
 static t_env	*add_nodes(t_env **env, char *path)
 {
 	char	*equals;
@@ -50,20 +44,11 @@ static t_env	*add_nodes(t_env **env, char *path)
 	return (new_node);
 }
 
-/* found_match(key, temp, key_len, path)
-   - Purpose: Checks if a node matches a key and updates its value if necessary.
-   - Parameters:
-       * key: key string to match.
-       * temp: pointer to current node in list.
-       * key_len: length of key.
-       * path: full "KEY=VALUE" string to update value from.
-   - Returns: 
-       0 → no match,
-       1 → allocation failure,
-       2 → match found and value updated.
-   - Notes: Frees key after successful match. Updates exported = 1. 
-   Uses ft_strdup for value allocation.
-*/
+/* found_match:
+ * Checks if temp node matches key and updates its value if needed.
+ * Returns 0=no match, 1=malloc failure, 2=match updated.
+ * Frees key on success; sets exported=1.
+ */
 static int	found_match(char *key, t_env *temp, int key_len, char *path)
 {
 	char	*equals;
@@ -91,74 +76,11 @@ static int	found_match(char *key, t_env *temp, int key_len, char *path)
 	return (0);
 }
 
-/* update_var(path, env)
-   - Purpose: Updates an existing variable if key exists; otherwise 
-   adds a new node.
-   - Parameters:
-       * path: environment string ("KEY=VALUE" or "KEY").
-       * env: pointer to head of the t_env list.
-   - Returns: 0 on success, 1 on allocation failure.
-   - Notes: Calls find_key to get key, found_match to update existing nodes, 
-   and add_nodes to create new nodes.
-*/
-
-/*OG*/
-/*static int	update_var(char *path, t_env **env)
-{
-	t_env	*temp;
-	char	*key;
-	int		match;
-	int		key_len;
-
-	if (validate_and_get_key(path, &key_len, &key))
-		return (1);
-	temp = *env;
-	while (temp)
-	{
-		match = found_match(key, temp, key_len, path);
-		if (match == 1)
-			return (free(key), 1);
-		if (match == 2)
-			return (free(key), 0);
-		temp = temp->next;
-	}
-	free(key);
-	if (!add_nodes(env, path))
-		return (1);
-	return (0);
-}*/
-/* // <-- propagate 2 for invalid key, 1 for malloc failure*/
-//I am checking and freeing key here
-static int	check_match_and_free(int match, char *key)
-{
-	if (match == 1)
-	{
-		free(key);
-		return (1);
-	}
-	if (match == 2)
-	{
-		free(key);
-		return (0);
-	}
-	return (-1);
-}
-
-//here I only check match so I know what to return
-static int	check_match(int match)
-{
-	if (match == 1)
-	{
-		return (1);
-	}
-	if (match == 2)
-	{
-		return (0);
-	}
-	return (-1);
-}
-
-//here is the function those two are called from
+/* update_var:
+ * Updates an existing variable or adds a new node if not found.
+ * Returns 0 on success, 1 on malloc failure, 2 for invalid key.
+ * Uses validate_and_get_key, found_match, add_nodes.
+ */
 int	update_var(char *path, t_env **env)
 {
 	t_env	*temp;
@@ -222,42 +144,12 @@ static int	list_exported(t_env **env)
 	return (0);
 }
 
-/* export_cmd(cmd, env)
-   - Purpose: Implements the `export` shell builtin.
-   - Parameters:
-       * cmd: command struct containing arguments (cmd->args[0] = "export").
-       * env: pointer to head of the t_env list.
-   - Returns: 0 on success, 1 on failure.
-   - Notes: 
-       - If no arguments, calls list_exported.
-       - Otherwise, loops through cmd->args and calls update_var 
-	   for each argument.
-       - Updates existing variables or adds new nodes.
-*/
-/*OG*/
-/*int	export_cmd(t_command *cmd, t_env **env)
-{
-	int	i;
-	int	ret;
-
-	i = 1;
-	ret = 0;
-	if (!cmd || !env)
-		return (1);
-	if (!cmd->args[1])
-		return (list_exported(env));
-	while (cmd->args[i])
-	{
-		if (update_var(cmd->args[i], env) != 0)
-			ret = 1;
-		i++;
-	}
-	return (ret);
-}*/
-/*        if (res == 2)      // invalid identifier
-            ret = 2;       // propagate
-        else if (res == 1) // malloc failure
-            ret = 1;*/
+/* export_cmd:
+ * Implements `export` builtin.
+ * If no args → lists exported variables.
+ * Otherwise, updates or adds each argument via update_var.
+ * Returns 0 on success, 1 on malloc failure, 2 for invalid identifier.
+ */
 int	export_cmd(t_command *cmd, t_env **env)
 {
 	int	i;

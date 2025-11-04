@@ -1,31 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pwd_cmd.c                                          :+:      :+:    :+:   */
+/*   path_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/10 15:02:59 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/11/04 12:54:06 by aabelkis         ###   ########.fr       */
+/*   Created: 2025/11/04 13:27:36 by aabelkis          #+#    #+#             */
+/*   Updated: 2025/11/04 14:16:57 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-/* pwd_cmd:
- * Prints the value of the "PWD" environment variable.
- * env: pointer to the head of the t_env list.
- * Returns 0.
- * Notes: Searches the list for key "PWD" and prints its value if found.
- */
-int	pwd_cmd(t_env **env)
+/* * is_special_dir:
+ *  Returns 1 if arg is ".", "..", or "~"; otherwise 0.*/
+int	is_special_dir(char *arg)
 {
-	t_env	*temp;
-
-	temp = *env;
-	while (!str_equals(temp->key, "PWD"))
-		temp = temp->next;
-	if (temp && temp->value)
-		printf("%s\n", temp->value);
-	return (0);
+	return ((ft_strncmp(arg, ".", 2) == 0)
+		|| (ft_strncmp(arg, "..", 3) == 0)
+		|| (ft_strncmp(arg, "~", 2) == 0));
 }
