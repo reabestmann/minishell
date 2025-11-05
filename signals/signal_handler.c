@@ -57,6 +57,10 @@ static void	sigint_handler(int sig)
 	rl_redisplay();
 }
 
+/* init_signals:
+	sets up the shells signal handling:
+	SIGQUIT(Ctrl+\) -> ignored
+	SIGINT(Ctrl+C) -> sigint_handler */
 void	init_signals(void)
 {
 	struct sigaction	sa;

@@ -19,6 +19,8 @@ shell_utils.c \
 $(PARSER_DIR)/lexer.c \
 $(PARSER_DIR)/lexer_token_utils.c \
 $(PARSER_DIR)/parse.c \
+$(PARSER_DIR)/parse_redir.c \
+$(PARSER_DIR)/parse_redir_utils.c \
 $(PARSER_DIR)/parse_utils.c \
 $(PARSER_DIR)/expand.c \
 $(PARSER_DIR)/expand_arg.c \
@@ -33,8 +35,7 @@ $(EXECUTER_DIR)/heredoc.c \
 $(EXECUTER_DIR)/heredoc_utils.c \
 $(EXECUTER_DIR)/heredoc_expand.c \
 $(EXECUTER_DIR)/redir_heredoc_utils.c \
-$(EXECUTER_DIR)/redir_utils.c \
-$(EXECUTER_DIR)/redir.c \
+$(EXECUTER_DIR)/apply_redir.c \
 $(EXECUTER_DIR)/pipes.c \
 $(EXECUTER_DIR)/pipe_utils.c \
 $(EXECUTER_DIR)/exec_utils.c \

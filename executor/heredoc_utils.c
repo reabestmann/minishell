@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "../minishell.h"
+
 /* check_expand_line:
    Prepares a line before writing it to heredoc file.
    - If expand == 1, performs variable expansion.

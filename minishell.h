@@ -57,8 +57,6 @@ void		append_token(t_token **head, t_token *new_token);
 int			handle_redir_err(const char *str, t_token_type *type);
 int			handle_redir_both(const char *str, t_token_type *type);
 int			handle_redir_out(const char *str, t_token_type *type);
-/*expand.c*/
-char		*append_normal_text(char *text, char *result);
 /* parse.c */
 int			handle_input(char *input, t_env **env, int status);
 t_command	*parser(t_token *tokens);
@@ -73,7 +71,7 @@ char		*copy_squote(int *i, char *arg, char *result);
 char		*set_state(char *arg, int *i, char *result, char *state);
 /* syntax.c */
 int			syntax_valid(t_token *tokens);
-/* expand.c */
+/* EXPAND FUNCTIONS */
 char		*expand_one_arg(char *arg, int *i, t_env *head, int last_status);
 char		*handle_normal_txt(int *i, char *arg, char *result);
 char		*expand_arg_keep_quotes(char *arg, t_env *head,
@@ -81,7 +79,7 @@ char		*expand_arg_keep_quotes(char *arg, t_env *head,
 void		dollar_expansion(t_command *cmd, t_env **head, int last_status);
 /*expand_split_whitespace.c */
 char		**ft_split_whitespace(const char *str);
-/*expamd_basics.c*/
+/*expand_basics.c*/
 char		*append_char(char c, char *result);
 /*expand_split_replace*/
 int			replace_arg_with_splits(t_command *cmd, int idx, char **parts);
@@ -117,11 +115,10 @@ pid_t		init_pipes(int pipe_fd[2], t_command *cmd);
 void		parse_redirection(t_command *cmd, t_token **cpy);
 void		apply_redirections(t_command *cmd, t_env **env, int last_status);
 void		fd_check(int fd, int std_fd, char *file);
-/* heredoc.c */
+/* HEREDOC FUNCTIONS */
 void		free_heredocs(t_command *cmd);
 int			apply_heredocs(t_command *cmd, int last_status);
 int			collect_heredocs(t_command *cmds, int status);
-/*heredoc_utils.c*/
 void		print_heredoc_prompt(void);
 int			is_delimiter_line(char *line, char *trimmed_delim);
 void		process_and_write_line(char *line, int expand,
@@ -129,28 +126,30 @@ void		process_and_write_line(char *line, int expand,
 void		handle_redir_file(char *file, int append_mode, int fd_type);
 void		handle_infile(char **filename);
 int			handle_sigint_in_heredoc(char *line, char *trimmed_delim);
-/*redir_heredoc1.c */
 char		*get_trimmed_delimiter(const char *delimiter);
 int			delimiter_was_quoted(const char *delimiter);
 void		add_heredoc(t_command *cmd, const char *delimiter);
-/*redir_heredoc2.c*/
+void		merge_fd_into_pipe(int src_fd, int dest_fd);
 char		*expand_for_heredoc(char *line, int last_status);
-/*redir_utils.c*/
+char		*append_normal_text(char *text, char *result);
+/* REDIRECTION FUNCTIONS */
 void		fd_check(int fd, int std_fd, char *file);
 int			dol_q_expansion(char *line, int *i, int last_status, char **result);
 void		handle_redir_file(char *file, int append_mode, int fd_type);
 void		handle_infile(char **filename);
-/*redir_utils2.c*/
-void		set_redirection(t_command *cmd, t_token *token, int append_type);
+int			is_last_redir(t_token *current);
+char		*expand_arg_keep_quotes_simple(char *arg, t_env *head,
+				int last_status);
+void		set_redirection(t_command *cmd, t_token *token,
+				int append_type, int last);
 void		set_fd_type(t_command *cmd, t_token *cpy);
 int			is_append_type(int type);
 int			is_output_redir(int type);
 void		handle_input_redir(t_command *cmd, t_token *next);
-/* ptr_to_struct.c */
+/* ENV FUNCTIONS */
 t_env		*envp_to_struct(char **envp);
-/* struct_to_ptr.c */
 char		**struct_to_envp(t_env *head, int export_only);
-/* builtins/
+/* BUILTIN FUNCTIONS/
  * cd_cmd.c */
 char		*get_env_value(t_env **env, const char *key);
 int			too_many_args(t_command *cmd);
@@ -190,7 +189,7 @@ void		ft_bubble_sort(char **envp);
 int			unset_cmd(t_command *cmd, t_env **env);
 /*unset_cmd_utils.c*/
 void		remove_env_var(t_env **env, char *key);
-/* utils/
+/* UTILITY FUNCTIONS/
  * free.c */
 void		free_array(char **array);
 void		free_commands(t_command *cmds);
@@ -214,7 +213,7 @@ void		exec_error(const char *msg, int status);
 /* trim_quotes */
 void		trim_quotes_for_execution(char **args);
 char		*remove_quotes(char *arg);
-/* signals/
+/* SIGNAL FUNCTIONS/
  * parent_child_setup.c */
 void		child_signal_setup(void);
 void		parent_signal_setup(void);

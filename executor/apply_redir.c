@@ -12,61 +12,59 @@
 
 #include "../minishell.h"
 
-char	*expand_arg_keep_quotes_simple(char *arg, t_env *head, int last_status)
-{
-	int		i;
-	char	state;
-	char	*result;
-	char	*tmp;
-
-	i = 0;
-	state = 0;
-	result = ft_strdup("");
-	if (!result)
-		return (NULL);
-	while (arg[i])
-	{
-		result = set_state(arg, &i, result, &state);
-		if (arg[i] == '$' && state != '\'')
-		{
-			tmp = expand_one_arg(arg, &i, head, last_status);
-			if (!tmp)
-				return (free(result), NULL);
-			result = append_normal_text(tmp, result);
-			free(tmp);
-		}
-		else
-			result = handle_normal_txt(&i, arg, result);
-	}
-	return (result);
-}
-/*    Execution flow:
-     1. parse_redirection() sets infile, outfile, append, heredoc
-     2. heredoc_fd() reads user input → returns fd
-     3. apply_redirections() dup2s FDs based on priority:
-        stdin  ← heredoc / infile / pipe read
-        stdout → outfile / pipe write
-     4. fd_check() safely duplicates and closes original fd.
-
-	 Notes:
-     - Heredoc overrides infile if both exist
-     - FDs are closed after dup2 to prevent leaks
-     - Works with standalone commands, pipelines, heredocs, and redirections
+/* fd_check:
+   Safely redirects one file descriptor to another.
+	(dup2 with error handling)
 */
-
-/* helper: reads all content from src_fd and writes it to dest_fd */
-static void	merge_fd_into_pipe(int src_fd, int dest_fd)
+void	fd_check(int fd, int std_fd, char *file)
 {
-	char	*line;
-
-	line = get_next_line(src_fd);
-	while (line)
+	if (fd < 0)
+		error(file);
+	if (std_fd == 3)
 	{
-		write(dest_fd, line, ft_strlen(line));
-		free(line);
-		line = get_next_line(src_fd);
+		if (dup2(fd, STDOUT_FILENO) < 0 || dup2(fd, STDERR_FILENO) < 0)
+			error("dup2");
+		return ;
 	}
-	close(src_fd);
+	if (dup2(fd, std_fd) < 0)
+	{
+		close(fd);
+		error("dup2");
+	}
+	close(fd);
+}
+
+/* handle_redir_file:
+Opens a file for output redirection according to append_mode.
+ - fd_type: target file descriptor (STDOUT, STDERR, or both)
+Uses fd_check() to safely duplicate and close the FD.*/
+void	handle_redir_file(char *file, int append_mode, int fd_type)
+{
+	int	fd;
+
+	fd = -1;
+	if (append_mode == 1)
+		fd = open(file, O_WRONLY | O_CREAT | O_APPEND, 0664);
+	else if (append_mode == 2)
+		fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	fd_check(fd, fd_type, file);
+}
+
+/* handle_infile:
+ Prepares an input file for redirection.
+  - Removes quotes from filename
+  - Opens file read-only
+ - Uses fd_check() to set STDIN and handle errors*/
+void	handle_infile(char **filename)
+{
+	char	*clean;
+	int		fd;
+
+	clean = remove_quotes(*filename);
+	free(*filename);
+	*filename = clean;
+	fd = open(*filename, O_RDONLY);
+	fd_check(fd, STDIN_FILENO, *filename);
 }
 
 // call this from apply_redirections() before other redirections
@@ -126,29 +124,4 @@ void	apply_redirections(t_command *cmd, t_env **env, int last_status)
 		free(expanded);
 		handle_redir_file(cmd->errfile, cmd->append_err, cmd->fd_type);
 	}
-}
-
-void	parse_redirection(t_command *cmd, t_token **cpy)
-{
-	t_token	*next;
-	int		append_type;
-
-	if (!*cpy)
-		return ;
-	next = (*cpy)->next;
-	append_type = 2;
-	if (is_append_type((*cpy)->type))
-		append_type = 1;
-	set_fd_type(cmd, *cpy);
-	if ((*cpy)->type == TOKEN_REDIR_IN)
-		handle_input_redir(cmd, next);
-	else if (is_output_redir((*cpy)->type))
-		set_redirection(cmd, next, append_type);
-	else if ((*cpy)->type == TOKEN_HEREDOC)
-	{
-		if (next && next->type == TOKEN_WORD)
-			add_heredoc(cmd, next->val);
-	}
-	if (next)
-		*cpy = next;
 }

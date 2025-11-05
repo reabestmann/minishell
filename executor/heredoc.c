@@ -12,33 +12,29 @@
 
 #include "../minishell.h"
 
-/* free_heredocs:
- *   Frees all heredoc delimiters and file descriptor arrays for all commands.*/
-void	free_heredocs(t_command *cmds)
+/* delimiter_was_quoted:
+   Checks if a heredoc delimiter is quoted,
+   used to decide whether expansion is disabled in heredoc.
+*/
+int	delimiter_was_quoted(const char *delimiter)
 {
-	int	i;
+	int	s_quote;
+	int	d_quote;
 
-	while (cmds)
+	s_quote = 0;
+	d_quote = 0;
+	while (*delimiter)
 	{
-		if (cmds->heredoc_count > 0 && cmds->heredoc_delim)
-		{
-			i = 0;
-			while (i < cmds->heredoc_count)
-			{
-				free(cmds->heredoc_delim[i]);
-				cmds->heredoc_delim[i] = NULL;
-				i++;
-			}
-			free(cmds->heredoc_delim);
-			cmds->heredoc_delim = NULL;
-		}
-		if (cmds->heredoc_fds)
-		{
-			free(cmds->heredoc_fds);
-			cmds->heredoc_fds = NULL;
-		}
-		cmds = cmds->next;
+		if (*delimiter == '\'')
+			s_quote++;
+		if (*delimiter == '"')
+			d_quote++;
+		delimiter++;
 	}
+	if ((s_quote != 0 && (s_quote % 2 == 0))
+		|| (d_quote != 0 && (d_quote % 2 == 0)))
+		return (1);
+	return (0);
 }
 
 /* handle_heredoc_eof:
