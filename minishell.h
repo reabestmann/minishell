@@ -44,6 +44,7 @@
 extern volatile sig_atomic_t	g_sigint_received;
 
 /* shell_utils.c*/
+char		*remove_control_chars(const char *s);
 void		read_line(char **input);
 void		init_main_vars(int *params, char **argv, t_env **env, char **envp);
 void		update_last_command(t_env **env, char *last_cmd);

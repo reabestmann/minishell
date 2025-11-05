@@ -62,17 +62,14 @@ int	handle_input(char *input, t_env **env, int status)
 	and multiline input that readline can't handle */
 void	look_at_input(char **input, int *status, t_env **env)
 {
+	char	*cleaned;
+
 	if (*input && isatty(STDIN_FILENO))
 	{
 		add_history(*input);
-		if (ft_strchr(*input, '\n'))
-		{
-			ft_putstr_fd("minishell: multiline input not supported\n", 2);
-			free(*input);
-			*input = NULL;
-			*status = 2;
-			return ;
-		}
+		cleaned = remove_control_chars(*input);
+		free(*input);
+		*input = cleaned;
 	}
 	*status = handle_input(*input, env, *status);
 	free(*input);

@@ -72,6 +72,28 @@ void	init_main_vars(int *params, char **argv, t_env **env, char **envp)
 	disable_ctrl_echo();
 }
 
+/* removes control chars from input */
+char	*remove_control_chars(const char *s)
+{
+	int		i;
+	int		j;
+	char	*cleaned;
+
+	cleaned = malloc(ft_strlen(s) + 1);
+	if (!cleaned)
+		return (NULL);
+	i = -1;
+	j = 0;
+	while (s[++i])
+	{
+		if (s[i] != '\t' && s[i] != '\b' && s[i] != '\v'
+			&& s[i] != '\f' && s[i] != '\r' && s[i] != '\n')
+			cleaned[j++] = s[i];
+	}
+	cleaned[j] = '\0';
+	return (cleaned);
+}
+
 /*determines wether in noninteractive or interactive mode and reads the lines*/
 void	read_line(char **input)
 {
