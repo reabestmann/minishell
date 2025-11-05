@@ -14,13 +14,8 @@
 
 /* parse_key:
    Parses a variable name starting at *i inside heredoc expansion.
-   - Extracts alphanumeric/underscore sequence as key.
-   - Looks up value with getenv(key) (later replace with lookup in t_env).
+   - Looks up value with getenv(key).
    - Appends value (or "" if not found) to *result.
-   - Advances *i to the end of the key.
-   - On malloc failure, frees key and leaves *result unchanged.
-   - Note:
-   ⚠️ Later you might replace getenv with lookup in your own t_env.
 */
 static void	parse_key(int start_idx, int *i, char *line, char **result)
 {
@@ -37,7 +32,7 @@ static void	parse_key(int start_idx, int *i, char *line, char **result)
 	key = ft_substr(line, start, *i - start);
 	if (!key)
 		return ;
-	val = getenv(key); // is out t_env available at this point?
+	val = getenv(key);
 	if (!val)
 		val = "";
 	temp = append_normal_text(val, *result);
@@ -52,31 +47,27 @@ static void	parse_key(int start_idx, int *i, char *line, char **result)
 
 /* handle_normal_txt:
    Appends a single non-special character from line[*i] to result.
-   - Wraps it in a buffer and calls append_normal_text().
-   - Returns updated result, or NULL on malloc failure.
-   - Caller must free result if NULL is returned.
 */
-static char	*handle_normal_text(int *i, char *line, char *result)
+static int	handle_normal_text(int *i, char *line, char **result)
 {
 	char	buf[2];
 	char	*temp;
 
 	buf[0] = line[*i];
 	buf[1] = '\0';
-	temp = append_normal_text(buf, result);
+	temp = append_normal_text(buf, *result);
 	if (!temp)
 	{
-		free(result);
-		return (NULL);
+		free(*result);
+		return (1);
 	}
-	return (temp);
+	*result = temp;
+	(*i)++;
+	return (0);
 }
 
 /* init_res_i:
    Initializes heredoc expansion loop variables.
-   - Sets index *i to 0.
-   - Allocates an empty result string ("").
-   - Returns 1 on success, 0 on malloc failure.
 */
 static int	init_res_i(int *i, char **result)
 {
@@ -87,13 +78,30 @@ static int	init_res_i(int *i, char **result)
 	return (1);
 }
 
-/*sends to handle_normal_text and makes sure reult comes back properlly*/
-static int	norm_txt_res_check(int *i, char *line, char **result)
+/* dol_q_expansion:
+   Handles the special "$?" expansion inside heredocs.
+   If current char is '?', replace with last_status,
+   appends it to result using append_normal_text().
+*/
+int	dol_q_expansion(char *line, int *i, int last_status, char **result)
 {
-	*result = handle_normal_text(i, line, *result);
-	if (!*result)
+	char	*num;
+	char	*temp;
+
+	if (line[*i] == '?')
+	{
+		num = ft_itoa(last_status);
+		if (!num)
+			return (-1);
+		temp = append_normal_text(num, *result);
+		if (!temp)
+			return (free(num), -1);
+		free(*result);
+		*result = temp;
+		free(num);
+		(*i)++;
 		return (1);
-	(*i)++;
+	}
 	return (0);
 }
 
@@ -104,7 +112,6 @@ static int	norm_txt_res_check(int *i, char *line, char **result)
        → try "$?" via dol_q_expansion
        → else parse variable with parse_key
    - Otherwise appends normal characters.
-   - Returns expanded result string or NULL on error.
 */
 char	*expand_for_heredoc(char *line, int last_status)
 {
@@ -127,7 +134,7 @@ char	*expand_for_heredoc(char *line, int last_status)
 			parse_key(i, &i, line, &result);
 		}
 		else
-			if (norm_txt_res_check(&i, line, &result) == 1)
+			if (handle_normal_text(&i, line, &result))
 				return (NULL);
 	}
 	return (result);

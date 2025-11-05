@@ -109,7 +109,8 @@ void		trim_empty_args(char **args);
 void		run_child(t_command *cmd, t_env **env, int status);
 int			run_pipeline(t_command *cmds, t_env **env, int status);
 /* pipe_utils.c */
-void		init_vars(t_command **cmd, int *prev_fd, pid_t *last_pid, t_command *cmds);
+void		init_vars(t_command **cmd, int *prev_fd,
+				pid_t *last_pid, t_command *cmds);
 int			wait_for_last(pid_t last_pid);
 pid_t		init_pipes(int pipe_fd[2], t_command *cmd);
 /* redirections.c */
@@ -123,7 +124,8 @@ int			collect_heredocs(t_command *cmds, int status);
 /*heredoc_utils.c*/
 void		print_heredoc_prompt(void);
 int			is_delimiter_line(char *line, char *trimmed_delim);
-void		process_and_write_line(char *line, int expand, int status, int write_fd);
+void		process_and_write_line(char *line, int expand,
+				int status, int write_fd);
 void		handle_redir_file(char *file, int append_mode, int fd_type);
 void		handle_infile(char **filename);
 int			handle_sigint_in_heredoc(char *line, char *trimmed_delim);

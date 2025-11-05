@@ -42,9 +42,8 @@ void	free_heredocs(t_command *cmds)
 }
 
 /* handle_heredoc_eof:
- *   Checks if get_next_line returned NULL (EOF).
- *   Prints a warning if EOF reached before the delimiter.
- *   Returns 1 if EOF, 0 otherwise.*/
+ 	Checks if get_next_line returned NULL (EOF).
+*/
 static int	handle_heredoc_eof(char *line, char *trimmed_delim)
 {
 	if (!line)
@@ -59,10 +58,10 @@ static int	handle_heredoc_eof(char *line, char *trimmed_delim)
 }
 
 /* write_heredoc:
- *   Reads user input line by line until the delimiter is found or SIGINT occurs.
- *   Expands variables if delimiter was unquoted, writes lines to pipe.
- *   Handles EOF and SIGINT cleanly.
- *   Returns 0 on success, -1 if interrupted by SIGINT.*/
+	Reads user input line by line until the delimiter is found
+	or SIGINT occurs. Expands variables if delimiter was unquoted, 
+	writes lines to pipe.
+ */
 static int	write_heredoc(char *delim, int write_fd, int status)
 {
 	char	*line;
@@ -92,7 +91,7 @@ static int	write_heredoc(char *delim, int write_fd, int status)
 }
 
 /* apply_heredocs:
- *   Sets up pipes for each heredoc, writes contents, 
+ Sets up pipes for each heredoc, writes contents, 
  and stores read ends in command struct.*/
 int	apply_heredocs(t_command *cmd, int status)
 {
@@ -119,7 +118,7 @@ int	apply_heredocs(t_command *cmd, int status)
 }
 
 /* collect_heredocs:
- *   Iterates over all commands, allocates arrays, and applies heredocs;
+  Iterates over all commands, allocates arrays, and applies heredocs;
   stops on error.*/
 int	collect_heredocs(t_command *cmds, int status)
 {

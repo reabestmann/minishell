@@ -31,10 +31,9 @@ $(PARSER_DIR)/quote_state.c \
 $(EXECUTER_DIR)/exec.c \
 $(EXECUTER_DIR)/heredoc.c \
 $(EXECUTER_DIR)/heredoc_utils.c \
-$(EXECUTER_DIR)/redir_heredoc1.c \
-$(EXECUTER_DIR)/redir_heredoc2.c \
+$(EXECUTER_DIR)/heredoc_expand.c \
+$(EXECUTER_DIR)/redir_heredoc_utils.c \
 $(EXECUTER_DIR)/redir_utils.c \
-$(EXECUTER_DIR)/redir_utils2.c \
 $(EXECUTER_DIR)/redir.c \
 $(EXECUTER_DIR)/pipes.c \
 $(EXECUTER_DIR)/pipe_utils.c \
