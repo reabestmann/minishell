@@ -12,25 +12,14 @@
 
 #include "../minishell.h"
 
-/* check_executable:
- * Validates that the resolved path is runnable.
- * - NULL path: 
- * 	'/' or '.' → "No such file or directory" (127),
- *  else → "command not found" (127).
- * - stat() fail → "No such file or directory" (127).
- * - Directory → "Is a directory" (126).
- * - No exec permission → "Permission denied" (126).
- * Frees path before exiting when needed.
- * also returns simple error - which doesnt include mini in 
- * front for command not found
-*/
-
+/* helper that frees PATH for error checking*/
 static void	exec_error_and_free(char *arg, char *path, char *msg, int code)
 {
 	free(path);
 	exec_error_custom(arg, msg, code);
 }
 
+/* error handling for commands before execution */
 void	check_executable(char **args, char *path)
 {
 	struct stat	sb;
@@ -49,39 +38,9 @@ void	check_executable(char **args, char *path)
 	if (access(path, X_OK) == -1)
 		exec_error_and_free(args[0], path, "Permission denied", 126);
 }
-/*void	check_executable(char **args, char *path)
-{
-	struct stat	sb;
 
-	if (!path)
-		exec_error_custom(args[0], "command not found", 127);
-	if (stat(path, &sb) == -1)
-	{
-		free(path);
-		exec_error_custom(args[0], "command not found", 127);
-	}
-	if (S_ISDIR(sb.st_mode))
-	{
-		if ((ft_strncmp(args[0], ".", 2) == 0)
-			|| (ft_strncmp(args[0], "..", 3) == 0)
-			|| (ft_strncmp(args[0], "~", 2) == 0))
-		{
-			free(path);
-			exec_error_custom(args[0], "command not found", 127);
-		}
-		else
-		{
-			free(path);
-			exec_error_custom(args[0], "Is a directory", 126);
-		}
-	}
-	if (access(path, X_OK) == -1)
-	{
-		free(path);
-		exec_error_custom(args[0], "Permission denied", 126);
-	}
-}*/
-
+/* helper to confirm a command
+	is in the current working directory and has access */
 static char	*try_cwd(const char *cmd)
 {
 	char	*cwd;
@@ -101,7 +60,7 @@ static char	*try_cwd(const char *cmd)
 	return (NULL);
 }
 
-/*Tries to find the command in PATH directories */
+/* Tries to find the command in PATH directories */
 static char	*search_path_dirs(const char *cmd, const char *path_env)
 {
 	char	**paths;
@@ -130,7 +89,8 @@ static char	*search_path_dirs(const char *cmd, const char *path_env)
 	return (NULL);
 }
 
-// Main find_path function
+/* finds the full path of a command for execution:
+	if not found, looks for it in working directory */
 char	*find_path(char *cmd, char **envp)
 {
 	const char	*path_env;

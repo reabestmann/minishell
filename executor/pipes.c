@@ -14,10 +14,8 @@
 
 /* apply_pipes:
    Handles piping for a child process.
-   prev_fd: read end from previous command
-   pipe_fd: current pipe
-   Sets up stdin/stdout using dup2 for the pipeline, and closes
-   unused pipe ends in this child.
+   Sets up stdin/stdout using dup2 for the pipeline,
+	and closes unused pipe ends in this child.
 */
 static void	apply_pipes(int prev_fd, int pipe_fd[2], t_command *cmd)
 {
@@ -61,7 +59,7 @@ static void	mini_tee(t_command *cmd, int out_fd)
 }
 
 /*runs child - signal set up, apply redirections, etc - 
-now also does dollar_expansion*/
+now also does dollar_expansion */
 void	run_child(t_command *cmd, t_env **env, int status)
 {
 	char	**envp;
@@ -88,8 +86,6 @@ void	run_child(t_command *cmd, t_env **env, int status)
 /* parent_process:
 Executed in the parent after forking a child.
 - Closes old pipe ends no longer needed
-- Keeps read end of current pipe for next command in the pipeline
-- Returns the fd to pass to the next child, or -1 if last command
 */
 static int	parent_process(t_command *cmd, int prev_fd, int pipe_fd[2])
 {
@@ -113,14 +109,11 @@ static int	parent_process(t_command *cmd, int prev_fd, int pipe_fd[2])
 }
 
 /* run_pipeline:
-Executes a linked list of commands connected by pipes.
-- Forks each command in a child process
-- Pipes output to input of the next child
-- Builtins modifying the shell still run in 
-		parent if standalone (handled elsewhere)
+Executes commands connected by pipes,
+forks each command in a child process,
+pipes output to input of the next child
 - Waits for all children at the end
 */
-
 int	run_pipeline(t_command *cmds, t_env **env, int status)
 {
 	t_command	*cmd;

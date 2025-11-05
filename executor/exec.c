@@ -12,28 +12,10 @@
 
 #include "../minishell.h"
 
-/*  roadmap:
-	1. run_command(): decides wether to fork or not
-		- standalone builtin that modifies the shell runs directly
-		- for the rest, we fork.                         
-	2.  else → fork_process() is called
-		(fork + execve child, parent waits).
-		if builtin, run_builtin is called (calls function directly)
-	3. Helper functions: 
-		find_path(): searches PATH to locate an executable.
-		execute(): resolves path + calls execve().
-		str_equals() + is_builtin(): helpers to detect builtins. (in utils.c) 
-*/
-
 /* execute: 
-  1. Return early if args empty.
-   2. Trim quotes in args.
-   3. Resolve command path:
-        '/' or './' → direct,
-        else → PATH lookup.
-   4. Run check_executable() on the path.
-   5. Call execve() with args/envp.
-   6. On execve fail, free path and exit(1).
+   Trim quotes in args, resolve command path,
+	run check_executable() on the path,
+	all execve() with args/envp.
 */
 void	execute(t_command *cmds, int *status, char **envp)
 {
