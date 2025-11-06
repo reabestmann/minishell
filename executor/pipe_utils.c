@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipes.c                                            :+:      :+:    :+:   */
+/*   pipe_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/11 16:13:11 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/27 22:45:31 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/06 18:18:41 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,8 @@ int	wait_for_last(pid_t last_pid)
 			last_status = get_exit_status(wstatus);
 		wpid = wait(&wstatus);
 	}
+	if (last_status == 130)
+		write(STDOUT_FILENO, "\n", 1);
 	return (last_status);
 }
 

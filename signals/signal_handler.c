@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 15:29:35 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/11/06 15:57:21 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/06 18:25:37 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,17 +43,6 @@ void	enable_ctrl_echo(void)
 		if (tcsetattr(STDIN_FILENO, TCSANOW, &term_state) == -1)
 			error("Error setting terminal attributes");
 	}
-}
-
-/* heredoc_sigint_handler:
-   Signal handler for heredoc child 
-   - just prints a nl & exits with 130.
-*/
-void	heredoc_sigint_handler(int sig)
-{
-	(void)sig;
-	write(STDOUT_FILENO, "\n", 1);
-	exit(130);
 }
 
 /* ctrl-C displays a new prompt on a new line,

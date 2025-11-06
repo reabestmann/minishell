@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/11 16:13:11 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/27 22:45:31 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/06 18:19:21 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ void	run_child(t_command *cmd, t_env **env, int status)
 
 	cmd->in_child = 1;
 	child_signal_setup();
+	reset_terminal_mode();
 	apply_redirections(cmd, env, status);
 	if (!cmd->args || !cmd->args[0])
 		exit(EXIT_SUCCESS);

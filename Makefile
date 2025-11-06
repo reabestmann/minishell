@@ -43,6 +43,7 @@ $(EXECUTER_DIR)/path.c \
 $(EXECUTER_DIR)/path_utils.c \
 $(SIGNALS_DIR)/signal_handler.c \
 $(SIGNALS_DIR)/parent_child_setup.c \
+$(SIGNALS_DIR)/signal_and_tty_utils.c \
 $(UTILS_DIR)/utils.c \
 $(UTILS_DIR)/trim_quotes.c \
 $(UTILS_DIR)/free.c \
