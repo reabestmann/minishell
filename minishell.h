@@ -133,6 +133,10 @@ void		add_heredoc(t_command *cmd, const char *delimiter);
 void		merge_fd_into_pipe(int src_fd, int dest_fd);
 char		*expand_for_heredoc(char *line, int last_status);
 char		*append_normal_text(char *text, char *result);
+int			write_heredoc(char *delim, int write_fd, int status);
+/* heredoc_utils.c */
+char		*read_heredoc_line(void);
+char		*read_heredoc_line(void);
 /* REDIRECTION FUNCTIONS */
 void		fd_check(int fd, int std_fd, char *file);
 int			dol_q_expansion(char *line, int *i, int last_status, char **result);
@@ -216,11 +220,14 @@ void		trim_quotes_for_execution(char **args);
 char		*remove_quotes(char *arg);
 /* SIGNAL FUNCTIONS/
  * parent_child_setup.c */
+int			wait_for_heredoc_child(pid_t pid, int hd_pipe[2]);
+void		heredoc_child_process(char *delim, int write_fd, int status);
 void		child_signal_setup(void);
 void		parent_signal_setup(void);
 /* signal_handler.c */
 void		disable_ctrl_echo(void);
 void		enable_ctrl_echo(void);
+void		heredoc_sigint_handler(int sig);
 void		init_signals(void);
 
 #endif

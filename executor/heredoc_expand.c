@@ -66,18 +66,6 @@ static int	handle_normal_text(int *i, char *line, char **result)
 	return (0);
 }
 
-/* init_res_i:
-   Initializes heredoc expansion loop variables.
-*/
-static int	init_res_i(int *i, char **result)
-{
-	*i = 0;
-	*result = ft_strdup("");
-	if (!*result)
-		return (0);
-	return (1);
-}
-
 /* dol_q_expansion:
    Handles the special "$?" expansion inside heredocs.
    If current char is '?', replace with last_status,
@@ -103,6 +91,18 @@ int	dol_q_expansion(char *line, int *i, int last_status, char **result)
 		return (1);
 	}
 	return (0);
+}
+
+/* init_res_i:
+   Initializes heredoc expansion loop variables.
+*/
+static int	init_res_i(int *i, char **result)
+{
+	*i = 0;
+	*result = ft_strdup("");
+	if (!*result)
+		return (0);
+	return (1);
 }
 
 /* expand_for_heredoc:

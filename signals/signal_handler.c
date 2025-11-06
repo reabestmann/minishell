@@ -45,6 +45,17 @@ void	enable_ctrl_echo(void)
 	}
 }
 
+/* heredoc_sigint_handler:
+   Signal handler for heredoc child 
+   - just prints a nl & exits with 130.
+*/
+void	heredoc_sigint_handler(int sig)
+{
+	(void)sig;
+	write(STDOUT_FILENO, "\n", 1);
+	exit(130);
+}
+
 /* ctrl-C displays a new prompt on a new line,
 	called by init_signals.*/
 static void	sigint_handler(int sig)

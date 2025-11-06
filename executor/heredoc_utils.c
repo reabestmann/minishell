@@ -73,14 +73,21 @@ void	process_and_write_line(char *line, int expand, int status, int write_fd)
 	free(line);
 }
 
-//returns 1 if sigint was received, 0 otherwise
-int	handle_sigint_in_heredoc(char *line, char *trimmed_delim)
+/* read_heredoc_line:
+	Reads a line for heredoc - uses get_next_line for non-tty,
+	readline for interactive.
+ */
+char	*read_heredoc_line(void)
 {
-	if (g_sigint_received)
-	{
-		free(line);
-		free(trimmed_delim);
-		return (1);
-	}
-	return (0);
+	char	*line;
+	char	*trimmed;
+
+	if (isatty(STDIN_FILENO))
+		return (readline("> "));
+	line = get_next_line(STDIN_FILENO);
+	if (!line)
+		return (NULL);
+	trimmed = ft_strtrim(line, "\n");
+	free(line);
+	return (trimmed);
 }
