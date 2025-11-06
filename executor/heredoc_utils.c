@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/04 14:12:31 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/11/04 14:17:46 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/06 14:12:48 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ void	process_and_write_line(char *line, int expand, int status, int write_fd)
 {
 	line = check_expand_line(line, expand, status);
 	write(write_fd, line, ft_strlen(line));
+	write(write_fd, "\n", 1);
 	free(line);
 }
 
