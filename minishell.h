@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/11/04 15:05:00 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/06 18:22:49 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -218,8 +218,9 @@ void		exec_error(const char *msg, int status);
 /* trim_quotes */
 void		trim_quotes_for_execution(char **args);
 char		*remove_quotes(char *arg);
-/* SIGNAL FUNCTIONS/
- * parent_child_setup.c */
+/* SIGNAL FUNCTIONS */
+void		reset_terminal_mode(void);
+/* parent_child_setup.c */
 int			wait_for_heredoc_child(pid_t pid, int hd_pipe[2]);
 void		heredoc_child_process(char *delim, int write_fd, int status);
 void		child_signal_setup(void);
