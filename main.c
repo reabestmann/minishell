@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:53:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/10/30 20:15:51 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/06 15:21:40 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ static int	handle_heredoc_fail(t_command *cmds, t_token *tokens)
 {
 	free_commands(cmds);
 	free_tokens(tokens);
-	return (1);
+	return (130);
 }
 
 static void	free_cmd_tokens(t_command *cmds, t_token *tokens)

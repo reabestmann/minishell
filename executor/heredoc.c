@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 15:58:45 by rbestman          #+#    #+#             */
-/*   Updated: 2025/11/06 14:40:34 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/06 15:57:12 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,15 +141,31 @@ int	write_heredoc(char *delim, int write_fd, int status)
 	return (0);
 }
 
+/* heredoc_sigint_handler:
+   Signal handler for heredoc child - just exits with 130.
+*/
+static void	heredoc_sigint_handler(int sig)
+{
+	(void)sig;
+	write(STDOUT_FILENO, "\n", 1);
+	exit(130);
+}
+
 /* heredoc_child_process:
    Handles heredoc reading in child process.
    Exits with status 0 on success, 130 on SIGINT.
 */
 static void	heredoc_child_process(char *delim, int write_fd, int status)
 {
-	int	result;
+	struct sigaction	sa;
+	int					result;
 
-	child_signal_setup();
+	enable_ctrl_echo();
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	sa.sa_handler = heredoc_sigint_handler;
+	if (sigaction(SIGINT, &sa, NULL) == -1)
+		error("error with sigint_handler");
 	result = write_heredoc(delim, write_fd, status);
 	close(write_fd);
 	if (result == -1)
