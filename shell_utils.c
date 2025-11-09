@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:53:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/11/06 18:20:03 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/30 20:15:51 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,6 @@ void	init_main_vars(int *params, char **argv, t_env **env, char **envp)
 	update_shlvl(env);
 	update_last_command(env, "./minishell");
 	init_signals();
-	//disable_ctrl_echo();
 }
 
 /* removes control chars from input */

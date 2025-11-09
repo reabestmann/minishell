@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 15:29:35 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/11/06 18:25:37 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/06 15:57:21 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,35 +14,15 @@
 
 volatile sig_atomic_t	g_sigint_received = 0;
 
-/* sets up terminal attributes, disableing display of 
-	received signals */
-void	disable_ctrl_echo(void)
+/* heredoc_sigint_handler:
+   Signal handler for heredoc child 
+   - just prints a nl & exits with 130.
+*/
+void	heredoc_sigint_handler(int sig)
 {
-	struct termios	term_state;
-
-	if (isatty(STDIN_FILENO))
-	{
-		if (tcgetattr(STDIN_FILENO, &term_state) == -1)
-			error("Error getting terminal attributes");
-		term_state.c_lflag &= ~ECHOCTL;
-		if (tcsetattr(STDIN_FILENO, TCSANOW, &term_state) == -1)
-			error("Error setting terminal attributes");
-	}
-}
-
-/* does the same as above but restores original echoing */
-void	enable_ctrl_echo(void)
-{
-	struct termios	term_state;
-
-	if (isatty(STDIN_FILENO))
-	{
-		if (tcgetattr(STDIN_FILENO, &term_state) == -1)
-			error("Error getting terminal attributes");
-		term_state.c_lflag |= ECHOCTL;
-		if (tcsetattr(STDIN_FILENO, TCSANOW, &term_state) == -1)
-			error("Error setting terminal attributes");
-	}
+	(void)sig;
+	write(STDOUT_FILENO, "\n", 1);
+	exit(130);
 }
 
 /* ctrl-C displays a new prompt on a new line,
@@ -73,4 +53,19 @@ void	init_signals(void)
 	sa.sa_handler = SIG_IGN;
 	if (sigaction(SIGQUIT, &sa, NULL) == -1)
 		error("error with sigquit");
+}
+
+void	reset_terminal_mode(void)
+{
+	struct termios	term_state;
+
+	if (isatty(STDIN_FILENO))
+	{
+		if (tcgetattr(STDIN_FILENO, &term_state) == -1)
+			return ;
+		term_state.c_lflag |= (ICANON | ECHO | ECHOCTL | ECHOE | ECHOK);
+		term_state.c_lflag &= ~ECHONL;
+		if (tcsetattr(STDIN_FILENO, TCSANOW, &term_state) == -1)
+			return ;
+	}
 }

@@ -83,52 +83,10 @@ int	write_heredoc(char *delim, int write_fd, int status)
 	return (0);
 }
 
-/* apply_heredocs:
- Sets up pipes for each heredoc, writes contents (forks only if interactive), 
- and stores read ends in command struct.*/
-int	apply_heredocs(t_command *cmd, int status)
-{
-	int		hd_pipe[2];
-	int		i;
-	pid_t	pid;
-	int		result;
-
-	if (!cmd->heredoc_count)
-		return (0);
-	i = -1;
-	while (++i < cmd->heredoc_count)
-	{
-		if (pipe(hd_pipe) == -1)
-			error("pipe heredoc");
-		if (isatty(STDIN_FILENO))
-		{
-			pid = fork();
-			if (pid == -1)
-				error("fork heredoc");
-			if (pid == 0)
-				heredoc_child_process(cmd->heredoc_delim[i], hd_pipe[1], status);
-			if (wait_for_heredoc_child(pid, hd_pipe) == -1)
-				return (-1);
-		}
-		else
-		{
-			result = write_heredoc(cmd->heredoc_delim[i], hd_pipe[1], status);
-			close(hd_pipe[1]);
-			if (result == -1)
-			{
-				close(hd_pipe[0]);
-				return (-1);
-			}
-		}
-		cmd->heredoc_fds[i] = hd_pipe[0];
-	}
-	return (0);
-}
-
 /* collect_heredocs:
   Iterates over all commands, allocates arrays, and applies heredocs;
   stops on error. Parent ignores signals while child reads heredoc.*/
-int	collect_heredocs(t_command *cmds, int status)
+int	collect_heredocs(t_command *cmds)
 {
 	t_command	*current;
 	int			result;
@@ -142,7 +100,7 @@ int	collect_heredocs(t_command *cmds, int status)
 		{
 			current->heredoc_fds = handle_malloc(sizeof(int)
 					* current->heredoc_count);
-			if (apply_heredocs(current, status) < 0)
+			if (apply_heredocs(current) < 0)
 			{
 				free(current->heredoc_fds);
 				current->heredoc_fds = NULL;

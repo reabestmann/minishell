@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/11/06 18:22:49 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/04 15:05:00 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,41 +112,46 @@ void		init_vars(t_command **cmd, int *prev_fd,
 				pid_t *last_pid, t_command *cmds);
 int			wait_for_last(pid_t last_pid);
 pid_t		init_pipes(int pipe_fd[2], t_command *cmd);
-/* redirections.c */
-void		parse_redirection(t_command *cmd, t_token **cpy);
-void		apply_redirections(t_command *cmd, t_env **env, int last_status);
-void		fd_check(int fd, int std_fd, char *file);
 /* HEREDOC FUNCTIONS */
-void		free_heredocs(t_command *cmd);
-int			apply_heredocs(t_command *cmd, int last_status);
-int			collect_heredocs(t_command *cmds, int status);
+/* heredoc_expand.c */
+int			dol_q_expansion(char *line, int *i, int last_status, char **result);
+char		*expand_for_heredoc(char *line, int last_status);
+/* heredoc.c */
+int			delimiter_was_quoted(const char *delimiter);
+int			write_heredoc(char *delim, int write_fd, int status);
+/* heredoc_pipe.c */
+int			apply_heredocs(t_command *cmd);
+int			wait_for_heredoc_child(pid_t pid, int hd_pipe[2]);
+void		heredoc_child_process(char *delim, int write_fd, int status);
+/* heredoc_utils.c */
 void		print_heredoc_prompt(void);
 int			is_delimiter_line(char *line, char *trimmed_delim);
+int			collect_heredocs(t_command *cmds);
+char		*read_heredoc_line(void);
+char		*read_heredoc_line(void);
 void		process_and_write_line(char *line, int expand,
 				int status, int write_fd);
-void		handle_redir_file(char *file, int append_mode, int fd_type);
-void		handle_infile(char **filename);
-int			handle_sigint_in_heredoc(char *line, char *trimmed_delim);
-char		*get_trimmed_delimiter(const char *delimiter);
-int			delimiter_was_quoted(const char *delimiter);
-void		add_heredoc(t_command *cmd, const char *delimiter);
-void		merge_fd_into_pipe(int src_fd, int dest_fd);
-char		*expand_for_heredoc(char *line, int last_status);
-char		*append_normal_text(char *text, char *result);
-int			write_heredoc(char *delim, int write_fd, int status);
-/* heredoc_utils.c */
-char		*read_heredoc_line(void);
-char		*read_heredoc_line(void);
 /* REDIRECTION FUNCTIONS */
-void		fd_check(int fd, int std_fd, char *file);
-int			dol_q_expansion(char *line, int *i, int last_status, char **result);
+/* apply_redir.c */
+void		apply_redirections(t_command *cmd, t_env **env, int last_status);
 void		handle_redir_file(char *file, int append_mode, int fd_type);
 void		handle_infile(char **filename);
+void		fd_check(int fd, int std_fd, char *file);
+void		handle_redir_file(char *file, int append_mode, int fd_type);
+void		handle_infile(char **filename);
+/*parse_redir_utils.c */
 int			is_last_redir(t_token *current);
+/* redir_heredoc_utils.c */
+void		free_heredocs(t_command *cmd);
+void		merge_fd_into_pipe(int src_fd, int dest_fd);
 char		*expand_arg_keep_quotes_simple(char *arg, t_env *head,
 				int last_status);
+/* parse_redir.c */
+void		parse_redirection(t_command *cmd, t_token **cpy);
+void		add_heredoc(t_command *cmd, const char *delimiter);
 void		set_redirection(t_command *cmd, t_token *token,
 				int append_type, int last);
+/* parse_redir_utils.c */
 void		set_fd_type(t_command *cmd, t_token *cpy);
 int			is_append_type(int type);
 int			is_output_redir(int type);
@@ -218,16 +223,12 @@ void		exec_error(const char *msg, int status);
 /* trim_quotes */
 void		trim_quotes_for_execution(char **args);
 char		*remove_quotes(char *arg);
-/* SIGNAL FUNCTIONS */
-void		reset_terminal_mode(void);
-/* parent_child_setup.c */
-int			wait_for_heredoc_child(pid_t pid, int hd_pipe[2]);
-void		heredoc_child_process(char *delim, int write_fd, int status);
+/* SIGNAL FUNCTIONS/
+ * parent_child_setup.c */
 void		child_signal_setup(void);
 void		parent_signal_setup(void);
 /* signal_handler.c */
-void		disable_ctrl_echo(void);
-void		enable_ctrl_echo(void);
+void		reset_terminal_mode(void);
 void		heredoc_sigint_handler(int sig);
 void		init_signals(void);
 

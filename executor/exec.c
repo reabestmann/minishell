@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 14:50:59 by rbestman          #+#    #+#             */
-/*   Updated: 2025/11/06 18:14:19 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/30 19:59:08 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,8 @@ static int	fork_process(t_command *cmds, t_env **env, int status)
 	exit_status = get_exit_status(status);
 	if (exit_status == 130)
 		write(STDOUT_FILENO, "\n", 1);
-	return (exit_status);}
+	return (exit_status);
+}
 
 /* run_command: 
 	main entry point to run a command node.

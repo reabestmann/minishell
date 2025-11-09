@@ -32,6 +32,7 @@ $(PARSER_DIR)/syntax.c \
 $(PARSER_DIR)/quote_state.c \
 $(EXECUTER_DIR)/exec.c \
 $(EXECUTER_DIR)/heredoc.c \
+$(EXECUTER_DIR)/heredoc_pipe.c \
 $(EXECUTER_DIR)/heredoc_utils.c \
 $(EXECUTER_DIR)/heredoc_expand.c \
 $(EXECUTER_DIR)/redir_heredoc_utils.c \
@@ -43,7 +44,6 @@ $(EXECUTER_DIR)/path.c \
 $(EXECUTER_DIR)/path_utils.c \
 $(SIGNALS_DIR)/signal_handler.c \
 $(SIGNALS_DIR)/parent_child_setup.c \
-$(SIGNALS_DIR)/signal_and_tty_utils.c \
 $(UTILS_DIR)/utils.c \
 $(UTILS_DIR)/trim_quotes.c \
 $(UTILS_DIR)/free.c \

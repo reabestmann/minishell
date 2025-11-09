@@ -12,63 +12,6 @@
 
 #include "../minishell.h"
 
-//returns 1 if sigint was received, 0 otherwise
-int	handle_sigint_in_heredoc(char *line, char *trimmed_delim)
-{
-	if (g_sigint_received)
-	{
-		free(line);
-		free(trimmed_delim);
-		return (1);
-	}
-	return (0);
-}
-
-/* wait_for_heredoc_child:
-   Waits for child process and returns -1 if interrupted (Ctrl+C),
-   0 otherwise.
-*/
-int	wait_for_heredoc_child(pid_t pid, int hd_pipe[2])
-{
-	int	status;
-
-	close(hd_pipe[1]);
-	waitpid(pid, &status, 0);
-	if (WIFEXITED(status) && WEXITSTATUS(status) == 130)
-	{
-		close(hd_pipe[0]);
-		return (-1);
-	}
-	if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
-	{
-		close(hd_pipe[0]);
-		return (-1);
-	}
-	return (0);
-}
-
-/* heredoc_child_process:
-   Handles heredoc reading in child process.
-   Exits with status 0 on success, 130 on SIGINT.
-*/
-void	heredoc_child_process(char *delim, int write_fd, int status)
-{
-	struct sigaction	sa;
-	int					result;
-
-	enable_ctrl_echo();
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = 0;
-	sa.sa_handler = heredoc_sigint_handler;
-	if (sigaction(SIGINT, &sa, NULL) == -1)
-		error("error with sigint_handler");
-	result = write_heredoc(delim, write_fd, status);
-	close(write_fd);
-	if (result == -1)
-		exit(130);
-	exit(0);
-}
-
 /*here I set up sigaction struct so default actions occur instead of what we 
 	had in main and then execute SIGINT, SIGQUIT and SIGPIPE signals in child*/
 void	child_signal_setup(void)

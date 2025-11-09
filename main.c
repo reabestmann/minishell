@@ -46,7 +46,7 @@ int	handle_input(char *input, t_env **env, int status)
 		return (1);
 	}
 	valid = syntax_valid(tokens);
-	if (collect_heredocs(cmds, status) < 0)
+	if (collect_heredocs(cmds) < 0)
 		return (handle_heredoc_fail(cmds, tokens));
 	if (valid > 0)
 	{
@@ -90,8 +90,6 @@ int	main(int params, char **argv, char **envp)
 			break ;
 		look_at_input(&input, &status, &env);
 	}
-	if (isatty(STDIN_FILENO))
-		enable_ctrl_echo();
 	if (env)
 		free_env_struct(env);
 	return (status);

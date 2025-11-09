@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/11 16:13:11 by rbestman          #+#    #+#             */
-/*   Updated: 2025/11/06 18:19:21 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/10/27 22:45:31 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,34 +29,10 @@ static void	apply_pipes(int prev_fd, int pipe_fd[2], t_command *cmd)
 	}
 }
 
-/* mini_tee:
-	Mini version of the Unix 'tee' command for pipelines.
-	Reads from standard input, writes each line to both:
-	STDOUT & outfile.
- 	Used for commands that have both an outfile
-	 and a next command in the pipeline.
- */
-static void	mini_tee(t_command *cmd, int out_fd)
-{
-	char	*line;
-
-	if (cmd->append == 1)
-		out_fd = open(cmd->outfile, O_CREAT | O_WRONLY | O_APPEND, 0644);
-	else if (cmd->append == 2)
-		out_fd = open(cmd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-	if (out_fd < 0)
-		error("open fd");
-	line = get_next_line(STDIN_FILENO);
-	while (line)
-	{
-		write(STDOUT_FILENO, line, ft_strlen(line));
-		write(out_fd, line, ft_strlen(line));
-		free(line);
-		line = get_next_line(STDIN_FILENO);
-	}
-	close(out_fd);
-	exit(0);
-}
+/* Note: mini_tee removed — previous implementation read from STDIN and
+   could consume shell input. A correct tee implementation requires
+   wiring an extra pipe between the producing process and a tee process
+   and is more involved; leave as future improvement. */
 
 /*runs child - signal set up, apply redirections, etc - 
 now also does dollar_expansion */
@@ -72,8 +48,6 @@ void	run_child(t_command *cmd, t_env **env, int status)
 		exit(EXIT_SUCCESS);
 	if (cmd->args && cmd->args[0])
 		dollar_expansion(cmd, env, status);
-	if (cmd->outfile && cmd->next)
-		mini_tee(cmd, -1);
 	if (run_builtin(cmd, env, status) == -1)
 	{
 		if (cmd->args && cmd-> args[0])
