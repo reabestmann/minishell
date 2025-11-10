@@ -152,6 +152,7 @@ void		add_heredoc(t_command *cmd, const char *delimiter);
 void		set_redirection(t_command *cmd, t_token *token,
 				int append_type, int last);
 /* parse_redir_utils.c */
+void		pretruncate_files(t_command *cmds);
 void		set_fd_type(t_command *cmd, t_token *cpy);
 int			is_append_type(int type);
 int			is_output_redir(int type);

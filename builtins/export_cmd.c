@@ -23,9 +23,7 @@ static t_env	*add_nodes(t_env **env, char *path)
 	t_env	*new_node;
 	t_env	*last;
 
-	new_node = malloc(sizeof(t_env));
-	if (!new_node)
-		return (NULL);
+	new_node = handle_malloc(sizeof(t_env));
 	setting_vars(&path, &equals, &new_node);
 	if (setting_key(&path, &equals, &new_node) == 1)
 		return (NULL);
@@ -60,16 +58,13 @@ static int	found_match(char *key, t_env *temp, int key_len, char *path)
 			free(temp->value);
 		if (equals)
 		{
-			temp->value = ft_strdup(equals + 1);
-			if (!temp->value)
-				return (1);
+			if (equals + 1)
+				temp->value = ft_strdup(equals + 1);
+			else
+				temp->value = ft_strdup("");
 		}
 		else
-		{
-			temp->value = ft_strdup("");
-			if (!temp->value)
-				return (1);
-		}
+			temp->value = NULL;
 		temp->exported = 1;
 		return (2);
 	}

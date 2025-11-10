@@ -29,11 +29,6 @@ static void	apply_pipes(int prev_fd, int pipe_fd[2], t_command *cmd)
 	}
 }
 
-/* Note: mini_tee removed — previous implementation read from STDIN and
-   could consume shell input. A correct tee implementation requires
-   wiring an extra pipe between the producing process and a tee process
-   and is more involved; leave as future improvement. */
-
 /*runs child - signal set up, apply redirections, etc - 
 now also does dollar_expansion */
 void	run_child(t_command *cmd, t_env **env, int status)

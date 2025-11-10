@@ -45,14 +45,18 @@ static int	add_strings_help(t_env *temp, char **envp, int *i)
 		val_len = ft_strlen(temp->value);
 	else
 		val_len = 0;
-	buff = (ft_strlen(temp->key) + val_len + 2);
+	buff = (ft_strlen(temp->key) + val_len + 1);
+	if (temp->value)
+		buff += 1;
 	envp[(*i)] = malloc(buff);
 	if (!envp[(*i)])
 		return (1);
 	ft_strlcpy(envp[(*i)], temp->key, buff);
-	ft_strlcat(envp[(*i)], "=", buff);
 	if (temp->value)
+	{
+		ft_strlcat(envp[(*i)], "=", buff);
 		ft_strlcat(envp[(*i)], temp->value, buff);
+	}
 	return (0);
 }
 

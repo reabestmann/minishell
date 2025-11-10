@@ -56,7 +56,8 @@ int	env_cmd(t_command *cmd, t_env **env)
 	}
 	while (envp[i])
 	{
-		printf("%s\n", envp[i]);
+		if (ft_strchr(envp[i], '='))
+			printf("%s\n", envp[i]);
 		i++;
 	}
 	free_array(envp);

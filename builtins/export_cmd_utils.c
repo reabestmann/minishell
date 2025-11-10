@@ -23,24 +23,13 @@ int	setting_value(char **equals, t_env **new_node)
 		return (1);
 	if (*equals)
 	{
-		(*new_node)->value = ft_strdup(*equals + 1);
-		if (!(*new_node)->value)
-		{
-			free((*new_node)->key);
-			free(*new_node);
-			return (1);
-		}
+		if (*equals + 1)
+			(*new_node)->value = ft_strdup(*equals + 1);
+		else
+			(*new_node)->value = ft_strdup("");
 	}
 	else
-	{
-		(*new_node)->value = ft_strdup("");
-		if (!(*new_node)->value)
-		{
-			free((*new_node)->key);
-			free(*new_node);
-			return (1);
-		}
-	}
+		(*new_node)->value = NULL;
 	return (0);
 }
 

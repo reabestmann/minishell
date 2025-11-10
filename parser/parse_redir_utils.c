@@ -12,11 +12,40 @@
 
 #include "../minishell.h"
 
+/* pretruncate_files
+	trucates files before execution, matching bash's behavior */
+void	pretruncate_files(t_command *cmds)
+{
+	t_command	*cmd;
+	int			fd;
+
+	cmd = cmds;
+	while (cmd)
+	{
+		if (cmd->append == 2 && cmd->outfile)
+		{
+			fd = open(cmd->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+			if (fd < 0)
+				return ;
+			else
+				close(fd);
+		}
+		if (cmd->append_err == 2 && cmd->errfile)
+		{
+			fd = open(cmd->errfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+			if (fd < 0)
+				return ;
+			else
+				close(fd);
+		}
+		cmd = cmd->next;
+	}
+}
+
 /* set_fd_type:
 Helper for parse_redirection.
 Sets the file descriptor we want to write to.
-(std_out, std_err or both)
-*/
+(std_out, std_err or both) */
 void	set_fd_type(t_command *cmd, t_token *cpy)
 {
 	cmd->fd_type = STDOUT_FILENO;

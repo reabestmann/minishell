@@ -53,6 +53,7 @@ int	handle_input(char *input, t_env **env, int status)
 		free_cmd_tokens(cmds, tokens);
 		return (valid);
 	}
+	pretruncate_files(cmds);
 	status = run_command(cmds, env, status);
 	free_cmd_tokens(cmds, tokens);
 	return (status);

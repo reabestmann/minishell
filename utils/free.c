@@ -97,8 +97,10 @@ void	free_env_struct(t_env *head)
 	while (head)
 	{
 		temp = head->next;
-		free(head->key);
-		free(head->value);
+		if (head->key)
+			free(head->key);
+		if (head->value)
+			free(head->value);
 		free(head);
 		head = temp;
 	}
