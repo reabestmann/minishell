@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 15:02:54 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/11/04 13:03:01 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/11 13:56:35 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,35 +40,6 @@ static t_env	*add_nodes(t_env **env, char *path)
 		last->next = new_node;
 	}
 	return (new_node);
-}
-
-/* found_match:
- * Checks if temp node matches key and updates its value if needed.
- * Returns 0=no match, 1=malloc failure, 2=match updated.
- * Frees key on success; sets exported=1.
- */
-static int	found_match(char *key, t_env *temp, int key_len, char *path)
-{
-	char	*equals;
-
-	equals = ft_strchr(path, '=');
-	if (ft_strncmp(key, temp->key, key_len) == 0 && temp->key[key_len] == '\0')
-	{
-		if (temp->value)
-			free(temp->value);
-		if (equals)
-		{
-			if (equals + 1)
-				temp->value = ft_strdup(equals + 1);
-			else
-				temp->value = ft_strdup("");
-		}
-		else
-			temp->value = NULL;
-		temp->exported = 1;
-		return (2);
-	}
-	return (0);
 }
 
 /* update_var:

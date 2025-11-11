@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/26 17:47:56 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/11/04 13:03:25 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/11 13:57:34 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,11 +42,18 @@ int	is_valid_export_key(char *arg, int *len)
 /* setting_key:
  * Extracts and stores the key from a VAR=VALUE string into new_node->key.
  * Uses '=' position if present. Returns 0 on success, 1 on allocation error.
- */
+* if key was given as KEY+=VALUE, do not include '+' in the stored key */
 int	setting_key(char **path, char **equals, t_env **new_node)
 {
+	int	len;
+
 	if (*equals)
-		(*new_node)->key = ft_substr(*path, 0, *equals - *path);
+	{
+		len = *equals - *path;
+		if (len > 0 && (*path)[len - 1] == '+')
+			len--;
+		(*new_node)->key = ft_substr(*path, 0, len);
+	}
 	else
 		(*new_node)->key = ft_substr(*path, 0, ft_strlen(*path));
 	if (!(*new_node)->key)
@@ -60,7 +67,7 @@ int	setting_key(char **path, char **equals, t_env **new_node)
 /* find_key:
  * Extracts key substring from VAR=VALUE (or whole string if no '=').
  * Stores key length in *key_len. Returns allocated key or NULL on failure.
- */
+ also handles case += so that + isnt included in the key we look for/key_len*/
 char	*find_key(char *path, int *key_len)
 {
 	char	*key;
@@ -68,7 +75,12 @@ char	*find_key(char *path, int *key_len)
 
 	equals = ft_strchr(path, '=');
 	if (equals)
-		*key_len = equals - path;
+	{
+		if (equals > path && *(equals - 1) == '+')
+			*key_len = (equals - path) - 1;
+		else
+			*key_len = equals - path;
+	}
 	else
 		*key_len = ft_strlen(path);
 	key = ft_substr(path, 0, *key_len);

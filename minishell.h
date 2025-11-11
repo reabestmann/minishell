@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 17:50:53 by rbestman          #+#    #+#             */
-/*   Updated: 2025/11/04 15:05:00 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/11 13:47:56 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,6 +179,8 @@ int			pwd_cmd(t_env **env);
 int			env_cmd(t_command *cmd, t_env **env);
 /* exit_cmd.c */
 int			exit_cmd(t_command *cmd, t_env **env, int last_status);
+/*export_add_val.c*/
+int			found_match(char *key, t_env *temp, int key_len, char *path);
 /* export_cmd.c */
 int			update_var(char *path, t_env **env);
 int			export_cmd(t_command *cmd, t_env **env);
