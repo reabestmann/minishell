@@ -183,7 +183,6 @@ int			exit_cmd(t_command *cmd, t_env **env, int last_status);
 int			update_var(char *path, t_env **env);
 int			export_cmd(t_command *cmd, t_env **env);
 /*export utils*/
-int			setting_value(char **equals, t_env **new_node);
 void		free_keys(char *key_one, char *key_two);
 void		setting_vars(char **path, char **equals, t_env **new_node);
 int			check_match_and_free(int match, char *key);
@@ -196,6 +195,9 @@ int			validate_and_get_key(char *path, int *key_len, char **key);
 int			key_info(char **envp, int j, char **key_one, char **key_two);
 /*export_cmd_bubble_sort*/
 void		ft_bubble_sort(char **envp);
+/* export_add_val.c */
+int			set_value(t_env *temp, char *equals);
+int			found_match(char *key, t_env *temp, int key_len, char *path);
 /* unset_cmd.c */
 int			unset_cmd(t_command *cmd, t_env **env);
 /*unset_cmd_utils.c*/

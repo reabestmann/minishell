@@ -13,11 +13,11 @@
 #include "../minishell.h"
 
 /* is_valid_unset_key
-   - Checks if a key is valid for unset:
-       1 → valid
-       0 → invalid identifier
-      -1 → syntax-like error (contains ;, |, &, <, >, etc.) */
-
+   Checks if a key is valid for unset:
+   	1 → valid
+    0 → invalid identifier
+   -1 → syntax-like error (contains ;, |, &, <, >, etc.)
+*/
 int	is_valid_unset_key(char *key)
 {
 	int	i;

@@ -47,8 +47,15 @@ int	is_valid_export_key(char *arg, int *len)
  */
 int	setting_key(char **path, char **equals, t_env **new_node)
 {
+	int	len;
+
 	if (*equals)
-		(*new_node)->key = ft_substr(*path, 0, *equals - *path);
+	{
+		len = *equals - *path;
+		if (len > 0 && (*path)[len - 1] == '+')
+			len--;
+		(*new_node)->key = ft_substr(*path, 0, len);
+	}
 	else
 		(*new_node)->key = ft_substr(*path, 0, ft_strlen(*path));
 	if (!(*new_node)->key)
@@ -71,7 +78,12 @@ char	*find_key(char *path, int *key_len)
 
 	equals = ft_strchr(path, '=');
 	if (equals)
-		*key_len = equals - path;
+	{
+		if (equals - path > 0 && *(equals - 1) == '+')
+			*key_len = (equals - path) - 1;
+		else
+			*key_len = equals - path;
+	}
 	else
 		*key_len = ft_strlen(path);
 	key = ft_substr(path, 0, *key_len);

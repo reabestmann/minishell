@@ -26,7 +26,7 @@ static t_env	*add_nodes(t_env **env, char *path)
 	setting_vars(&path, &equals, &new_node);
 	if (setting_key(&path, &equals, &new_node) == 1)
 		return (NULL);
-	if (setting_value(&equals, &new_node) == 1)
+	if (set_value(new_node, equals))
 		return (NULL);
 	new_node->next = NULL;
 	if (!*env)
@@ -39,35 +39,6 @@ static t_env	*add_nodes(t_env **env, char *path)
 		last->next = new_node;
 	}
 	return (new_node);
-}
-
-/* found_match:
-	Checks if temp node matches key and updates its value.
-	0=no match, 1=malloc failure, 2=match updated.
-	Frees key on success; sets exported=1.
- */
-static int	found_match(char *key, t_env *temp, int key_len, char *path)
-{
-	char	*equals;
-
-	equals = ft_strchr(path, '=');
-	if (ft_strncmp(key, temp->key, key_len) == 0 && temp->key[key_len] == '\0')
-	{
-		if (temp->value)
-			free(temp->value);
-		if (equals)
-		{
-			if (equals + 1)
-				temp->value = ft_strdup(equals + 1);
-			else
-				temp->value = ft_strdup("");
-		}
-		else
-			temp->value = NULL;
-		temp->exported = 1;
-		return (2);
-	}
-	return (0);
 }
 
 /* update_var:
@@ -156,7 +127,12 @@ int	export_cmd(t_command *cmd, t_env **env)
 	{
 		res = update_var(cmd->args[i], env);
 		if (res == 2)
+		{
+			ft_putstr_fd("minishell: export: `", 2);
+			ft_putstr_fd(cmd->args[i], 2);
+			ft_putendl_fd("': not a valid identifier", 2);
 			ret = 2;
+		}
 		else if (res == 1)
 			ret = 1;
 		i++;

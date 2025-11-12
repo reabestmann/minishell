@@ -62,7 +62,8 @@ $(BUILTIN_DIR)/env_cmd.c \
 $(BUILTIN_DIR)/export_cmd.c \
 $(BUILTIN_DIR)/export_cmd_bubble.c \
 $(BUILTIN_DIR)/export_cmd_keys.c \
-$(BUILTIN_DIR)/export_cmd_utils.c
+$(BUILTIN_DIR)/export_cmd_utils.c \
+$(BUILTIN_DIR)/export_add_val.c
 
 
 # Object files

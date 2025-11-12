@@ -14,9 +14,7 @@
 
 /* pwd_cmd:
  * Prints the value of the "PWD" environment variable.
- * env: pointer to the head of the t_env list.
- * Returns 0.
- * Notes: Searches the list for key "PWD" and prints its value if found.
+ * Searches env for key "PWD" and prints its value if found.
  */
 int	pwd_cmd(t_env **env)
 {

@@ -13,13 +13,8 @@
 #include "../minishell.h"
 
 /* find_and_delete_node:
- * Checks if the current node's key matches `key` and deletes it if so.
+ * Deletes current node's key if it matches a given key.
  * Updates linked list pointers accordingly.
- * env: pointer to head of the list.
- * crnt: current node to check.
- * prev: pointer to previous node (for relinking).
- * key: environment variable name to match.
- * Returns: next node in the list for iteration.
  */
 t_env	*find_and_delete_node(t_env **env, t_env *crnt, t_env **prev, char *key)
 {
@@ -43,10 +38,8 @@ t_env	*find_and_delete_node(t_env **env, t_env *crnt, t_env **prev, char *key)
 }
 
 /* remove_env_var:
- * Removes all nodes with a matching key from the environment list.
- * env: pointer to head of the list.
- * key: environment variable name to remove.
- * Notes: Iterates through the list and calls find_and_delete_node for each node.
+	Removes all nodes with a matching key from env.
+	Iterates through env calling find_and_delete_node.
  */
 void	remove_env_var(t_env **env, char *key)
 {
