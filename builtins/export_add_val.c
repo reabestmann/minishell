@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/11 13:46:09 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/11/11 13:49:51 by aabelkis         ###   ########.fr       */
+/*   Updated: 2025/11/12 12:42:02 by rbestman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,10 +49,10 @@ static int	handle_append_value(t_env *temp, char *equals)
  */
 int	set_value(t_env *temp, char *equals)
 {
-    if (!temp || !temp->key)
-        return (1);
-    if (temp->value)
-	    free(temp->value);
+	if (!temp || !temp->key)
+		return (1);
+	if (temp->value)
+		free(temp->value);
 	if (equals)
 	{
 		if (*(equals + 1))
