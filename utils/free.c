@@ -23,13 +23,7 @@ void	free_val(int *last_status, char **val)
 }
 
 /* free_array(char **array)
-   - Purpose: Frees memory of a given array of strings.
-   - Variables:
-     * array: array of strings.
-     * i: index to iterate through envp.
-   - Called from: Anywhere you need to free a char ** representing 
-   		the environment.
-   - Calls: free(). 
+   Frees memory of a given array of strings.
 */
 void	free_array(char **array)
 {
@@ -83,13 +77,9 @@ void	free_commands(t_command *cmds)
 }
 
 /* free_env_struct(t_env *head):
-   - Purpose: Frees a linked list of t_env nodes, including keys and values.
-   - Variables:
-     * head: pointer to the first node of the linked list; iterates through list.
-     * temp: temporary pointer to store next node while freeing current node.
-   - Called from: Anywhere you need to free a t_env linked list (e.g., on error 
-   		or program exit).
-   - Calls: free(). */
+   - Purpose: Frees a linked list of t_env nodes,
+   including keys and values.
+*/
 void	free_env_struct(t_env *head)
 {
 	t_env	*temp;

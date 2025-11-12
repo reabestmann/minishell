@@ -12,15 +12,6 @@
 
 #include "../minishell.h"
 
-/*
-Purpose: Prints all exported environment variables.
-Input: Pointer to the head of a t_env linked list.
-Behavior:
-Converts the linked list to a char ** array containing only exported variables.
-Prints each variable on its own line in the format "KEY=VALUE".
-Frees the allocated array.
-Return Value: 0 on success, 1 if memory allocation fails.
-*/
 /* handle_env_chdir:
  * Changes the current working directory to the given path.
  * If chdir fails, prints a custom error message and exits with code 127.
@@ -32,12 +23,11 @@ static void	handle_env_chdir(char *path)
 }
 
 /* env_cmd:
- * Implements the `env` shell builtin.
- * If a path argument is provided, attempts to change directory first.
- * Converts the t_env linked list to an array and prints all 
- 	environment variables.
- * Frees allocated memory before returning.
- * Returns 0 on success, 1 on allocation failure.
+	Implements the `env` shell builtin.
+	If a path argument is provided, attempts to change directory first.
+	Converts the t_env linked list to an array and prints all 
+ 	environment variables. Frees allocated memory before returning.
+	Returns 0 on success, 1 on allocation failure.
  */
 int	env_cmd(t_command *cmd, t_env **env)
 {

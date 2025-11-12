@@ -13,9 +13,10 @@
 #include "../minishell.h"
 
 /* is_valid_export_key:
- * Validates a variable name for export 
- 	(letters/nums/_, cannot start with digit).
- * Stops at '=' or '+='. Stores key length in *len. Returns 1 if valid, else 0.
+	Validates a variable name for export 
+	(letters/nums/_, cannot start with digit).
+	Stops at '=' or '+='. Stores key length in *len.
+	Returns 1 if valid, else 0.
  */
 int	is_valid_export_key(char *arg, int *len)
 {
@@ -40,8 +41,9 @@ int	is_valid_export_key(char *arg, int *len)
 }
 
 /* setting_key:
- * Extracts and stores the key from a VAR=VALUE string into new_node->key.
- * Uses '=' position if present. Returns 0 on success, 1 on allocation error.
+	Extracts and stores the key from a VAR=VALUE string into new_node->key.
+	Uses '=' position if present.
+	Returns 0 on success, 1 on allocation error.
  */
 int	setting_key(char **path, char **equals, t_env **new_node)
 {
@@ -58,8 +60,9 @@ int	setting_key(char **path, char **equals, t_env **new_node)
 }
 
 /* find_key:
- * Extracts key substring from VAR=VALUE (or whole string if no '=').
- * Stores key length in *key_len. Returns allocated key or NULL on failure.
+	Extracts key substring from VAR=VALUE (or whole string if no '=').
+	Stores key length in *key_len. 
+	Returns allocated key or NULL on failure.
  */
 char	*find_key(char *path, int *key_len)
 {
@@ -78,10 +81,9 @@ char	*find_key(char *path, int *key_len)
 }
 
 /* validate_and_get_key:
- * Validates export key syntax and extracts key.
- * Prints error for invalid identifier.
- * On success: allocates key (caller frees), returns 0.
- * Returns 1/2 on validation or allocation failure.
+ 	Validates export key syntax and extracts key.
+	Allocates key, returns 0 or 1/2 on validation
+	or allocation failure.
  */
 int	validate_and_get_key(char *path, int *key_len, char **key)
 {

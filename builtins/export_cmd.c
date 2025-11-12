@@ -13,9 +13,8 @@
 #include "../minishell.h"
 
 /* add_nodes:
- * Creates a new t_env node from "KEY=VALUE" and appends to list.
- * Returns pointer to new node or NULL on allocation failure.
- * Calls setting_vars, setting_key, and setting_value.
+ 	Creates a new t_env node from "KEY=VALUE"
+ 	and appends to list. Returns pointer to new node
  */
 static t_env	*add_nodes(t_env **env, char *path)
 {
@@ -43,9 +42,9 @@ static t_env	*add_nodes(t_env **env, char *path)
 }
 
 /* found_match:
- * Checks if temp node matches key and updates its value if needed.
- * Returns 0=no match, 1=malloc failure, 2=match updated.
- * Frees key on success; sets exported=1.
+	Checks if temp node matches key and updates its value.
+	0=no match, 1=malloc failure, 2=match updated.
+	Frees key on success; sets exported=1.
  */
 static int	found_match(char *key, t_env *temp, int key_len, char *path)
 {
@@ -72,9 +71,9 @@ static int	found_match(char *key, t_env *temp, int key_len, char *path)
 }
 
 /* update_var:
- * Updates an existing variable or adds a new node if not found.
- * Returns 0 on success, 1 on malloc failure, 2 for invalid key.
- * Uses validate_and_get_key, found_match, add_nodes.
+	Updates an existing variable
+ 	or adds a new node if not found.
+	match = key is already in env.
  */
 int	update_var(char *path, t_env **env)
 {
@@ -102,15 +101,12 @@ int	update_var(char *path, t_env **env)
 }
 
 /* list_exported(env)
-   - Purpose: Prints all exported environment variables in alphabetical order.
-   - Parameters:
-       * env: pointer to the head of the t_env linked list
-   - Returns: 0 on success, 1 if allocation of envp array fails
-   - Notes:
-       * Converts the linked list to an array using struct_to_envp.
-       * Sorts the array alphabetically with ft_bubble_sort.
-       * Prints each variable prefixed with "declare -x ".
-       * Frees the array after printing to avoid memory leaks.
+   Prints all exported environment variables in alphabetical order.
+	Converts env to envp array (struct_to_envp).
+    Sorts the array alphabetically (ft_bubble_sort).
+    Prints each variable prefixed with "declare -x ".
+    Frees the array after printing.
+   Returns 0 on success, 1 on malloc failure.
 */
 static int	list_exported(t_env **env)
 {
@@ -140,10 +136,9 @@ static int	list_exported(t_env **env)
 }
 
 /* export_cmd:
- * Implements `export` builtin.
- * If no args → lists exported variables.
- * Otherwise, updates or adds each argument via update_var.
- * Returns 0 on success, 1 on malloc failure, 2 for invalid identifier.
+ 	If no args → lists exported variables.
+	Otherwise, updates or adds each argument (update_var).
+	Returns 0 on success, 1 on malloc failure, 2 for invalid identifier.
  */
 int	export_cmd(t_command *cmd, t_env **env)
 {

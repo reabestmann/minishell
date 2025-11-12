@@ -13,9 +13,10 @@
 #include "../minishell.h"
 
 /* setting_value:
- * Extracts value from a "KEY=VALUE" string into new_node->value.
- * If '=' is missing, sets value to empty string. Returns 0 on success,
- * 1 if allocation fails or node/key is NULL. Frees key/node on failure.
+	Extracts value from a "KEY=VALUE" string
+ 	and sets it in new_node->value.
+	no '=' -> value is NULL (so env doesn't print it).
+	0 on success, 1 on failure.
  */
 int	setting_value(char **equals, t_env **new_node)
 {
