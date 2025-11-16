@@ -66,6 +66,8 @@ void	init_main_vars(int *params, char **argv, t_env **env, char **envp)
 	*env = envp_to_struct(envp);
 	if (!env)
 		error("environment: struct not built.");
+	if (isatty(STDIN_FILENO))
+		print_welcome();
 	update_shlvl(env);
 	update_last_command(env, "./minishell");
 	init_signals();
@@ -97,9 +99,15 @@ char	*remove_control_chars(const char *s)
 void	read_line(char **input)
 {
 	char	*line;
+	char	*prompt;
+
+	prompt = "\033[38;5;182mmini$  \033[38;5;153m";
 
 	if (isatty(STDIN_FILENO))
-		*input = readline("mini$  ");
+	{
+		*input = readline(prompt);
+		reset_color();
+	}
 	else
 	{
 		line = get_next_line(STDIN_FILENO);

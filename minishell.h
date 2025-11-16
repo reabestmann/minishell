@@ -43,6 +43,9 @@
 
 extern volatile sig_atomic_t	g_sigint_received;
 
+/* welcome.c */
+void		print_welcome(void);
+void		reset_color(void);
 /* shell_utils.c*/
 char		*remove_control_chars(const char *s);
 void		read_line(char **input);
