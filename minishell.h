@@ -104,7 +104,7 @@ void		check_executable(char **args, char *path);
 /*path_utils.c*/
 int			is_special_dir(char *arg);
 /* exec_utils.c */
-int			run_builtin(t_command *cmd, t_env **env, int status);
+int			run_builtin(t_command *cmd, t_env **env);
 int			prepare_builtin_exec(t_command *cmds, t_env **env, int status);
 void		trim_empty_args(char **args);
 /* pipes.c */

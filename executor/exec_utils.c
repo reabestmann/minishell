@@ -62,7 +62,7 @@ void	expand_tilde_in_args(t_command *cmd, t_env **env)
 	-> 0 = success, >0 = Error.
 	returns -1 if command is not a builtin.
 */
-int	run_builtin(t_command *cmd, t_env **env, int status)
+int	run_builtin(t_command *cmd, t_env **env)
 {
 	expand_tilde_in_args(cmd, env);
 	trim_quotes_for_execution(cmd->args);
@@ -79,7 +79,7 @@ int	run_builtin(t_command *cmd, t_env **env, int status)
 	if (str_equals(cmd->args[0], "env"))
 		return (env_cmd(cmd, env));
 	if (str_equals(cmd->args[0], "exit"))
-		return (exit_cmd(cmd, env, status));
+		return (256);
 	return (-1);
 }
 
@@ -100,11 +100,11 @@ int	prepare_builtin_exec(t_command *cmds, t_env **env, int status)
 	saved_stderr = dup(STDERR_FILENO);
 	apply_redirections(cmds, env, status);
 	update_last_command(env, cmds->args[0]);
-	ret = run_builtin(cmds, env, status);
-	dup2(saved_stdout, STDOUT_FILENO);
-	dup2(saved_stderr, STDERR_FILENO);
-	close(saved_stdout);
-	close(saved_stderr);
+	ret = run_builtin(cmds, env);
+	fd_check(saved_stdout, STDOUT_FILENO, "restore stdout");
+	fd_check(saved_stderr, STDERR_FILENO, "restore stderr");
+	if (ret == 256)
+		exit_cmd(cmds, env, status);
 	return (ret);
 }
 

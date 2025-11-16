@@ -102,7 +102,6 @@ void	read_line(char **input)
 	char	*prompt;
 
 	prompt = "\033[38;5;182mmini$  \033[38;5;153m";
-
 	if (isatty(STDIN_FILENO))
 	{
 		*input = readline(prompt);

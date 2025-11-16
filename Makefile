@@ -77,7 +77,8 @@ NAME = minishell
 all: $(LIBFT) $(NAME)
 
 $(NAME): $(OBJ_FILES)
-	$(CC) $(CFLAGS) $(OBJ_FILES) $(LIBFT) $(LDFLAGS) -o $(NAME)
+	@$(CC) $(CFLAGS) $(OBJ_FILES) $(LIBFT) $(LDFLAGS) -o $(NAME)
+	@echo "$(NAME) compiled! ✔️"
 
 # Call libft's Makefile
 $(LIBFT):
