@@ -43,7 +43,7 @@ void	run_child(t_command *cmd, t_env **env, int status)
 		exit(EXIT_SUCCESS);
 	if (cmd->args && cmd->args[0])
 		dollar_expansion(cmd, env, status);
-	if (run_builtin(cmd, env, status) == -1)
+	if (run_builtin(cmd, env) == -1)
 	{
 		if (cmd->args && cmd-> args[0])
 			update_last_command(env, cmd->args[0]);

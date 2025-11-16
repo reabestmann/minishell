@@ -104,7 +104,7 @@ int	prepare_builtin_exec(t_command *cmds, t_env **env, int status)
 	fd_check(saved_stdout, STDOUT_FILENO, "restore stdout");
 	fd_check(saved_stderr, STDERR_FILENO, "restore stderr");
 	if (ret == 256)
-		exit_cmd(cmds, env, status);
+		return (exit_cmd(cmds, env, status));
 	return (ret);
 }
 
